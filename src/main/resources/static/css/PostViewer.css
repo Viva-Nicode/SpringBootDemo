@@ -1,0 +1,60 @@
+#view {
+	position: absolute;
+	top: 22%;
+	left: 50%;
+	transform: translate(-50%);
+	margin-bottom: 100px;
+}
+
+#hit {
+	position: relative;
+	width: 100px;
+	left: 90%;
+}
+
+.padding {
+	width: 40px;
+	height: 50px;
+}
+
+#alert {
+	position: fixed;
+	width: 220px;
+	height: 140px;
+	top: 35%;
+	left: 48%;
+	z-index: 999;
+}
+
+#myModal {
+	position: fixed;
+	top: 20%;
+}
+
+#sideCommentBtn {
+	position: fixed;
+	bottom: 2vmax;
+	right: 2vmax;
+}
+
+#commentsField {
+	resize: none;
+	position: fixed;
+	bottom: 1vmax;
+	left: 1vmax;
+	width: 18.5em;
+}
+
+#sendCommentBtn {
+	position: fixed;
+	bottom: 1vmax;
+	left: 311px;
+	width: 5em;
+	height: 5.3em;
+}
+
+#postImg {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}

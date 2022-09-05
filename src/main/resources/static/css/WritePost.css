@@ -1,0 +1,23 @@
+#ContentTextarea {
+	resize: none;
+}
+
+#TitleTextField {
+	width: 90vw;
+	margin: 10px;
+	resize: none;
+}
+
+#writeBtn {
+	position: absolute;
+	width: 71px;
+	right: 0em;
+	margin-top: 10px;
+}
+
+#WritePostForm {
+	position: absolute;
+	left: 50%;
+	top: 30%;
+	transform: translate(-50%);
+}
