@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mappe 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 반환타입을 String 으로 하면 list로 반환된다고 한다. -->
+<!-- 반환  타입을 map으로 하면 key는 db의 컬럼명 value는 컬럼값으로 맵핑된 맵이 반환된다고 한다. -->
+<mapper namespace="com.example.demo.db.PostImageMapper">
+	<select id="findByPostid" parameterType="int" resultType="String">
+		select imagename
+		from PostImage
+		where postid = #{postid}
+	</select>
+</mapper>

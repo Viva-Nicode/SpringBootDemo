@@ -9,8 +9,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /*
@@ -30,12 +34,22 @@ desc PostInfo;
 +-------------+---------------+------+-----+---------+-------------------+
 */
 
+
 @Entity
-@Table(name = "PostInfo")
+@Table(name = "Postinfo")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Access(AccessType.FIELD)
-public class PostInfoDTO {
+public class PostInfoDTO implements Comparable<PostInfoDTO> {
+
+	public PostInfoDTO(String title, String writer, String contents, int imagenum) {
+		this.title = title;
+		this.writer = writer;
+		this.contents = contents;
+		this.imagenum = imagenum;
+	}
 
 	@Id
 	@Column(name = "postid")
@@ -57,7 +71,8 @@ public class PostInfoDTO {
 	@Column(name = "contents", length = 4096)
 	private String contents;
 
-	@Column(name = "writtentime", columnDefinition = "datetime default now() not null")
+	@Column(name = "writtentime")
+	@CreationTimestamp
 	private Timestamp writtentime;
 
 	@Column(name = "commentsnum")
@@ -66,17 +81,17 @@ public class PostInfoDTO {
 	@Column(name = "imagenum")
 	private int imagenum;
 
-	public PostInfoDTO(int postid, String title, String writer, int hits, int likes, String contents,
-			Timestamp writtentime, int commentsnum, int imagenum) {
-		this.postid = postid;
-		this.title = title;
-		this.writer = writer;
-		this.hits = hits;
-		this.likes = likes;
-		this.contents = contents;
-		this.writtentime = writtentime;
-		this.commentsnum = commentsnum;
-		this.imagenum = imagenum;
+	@Override
+	public int compareTo(PostInfoDTO o) {
+		if (this.postid > o.getPostid()) {
+			return -1;
+		} else if (this.postid < o.getPostid()) {
+			return 1;
+		}
+		return 0;
 	}
 
 }
+
+
+

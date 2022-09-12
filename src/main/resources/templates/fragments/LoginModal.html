@@ -9,7 +9,7 @@
 	function checkLoginFail() {
 		const user_id = $('#user_id').val();
 		const user_pw = $('#user_pw').val();
-		console.log(user_id);
+
 		/*
 		document.getElementById() 이거랑 var userEmailInput = $('#user_email'); 이거가 가져오는것은 값 자체가 아닌 태그이다.
 		마찬가지로 form.User_ID 가 가져오는것도 값 자체가 아니므로 .value를 붙여줘야 값을 가져온다.
@@ -17,21 +17,20 @@
 		$.ajax({
 			type: "post",
 			async: false,
-			url: "http://${applicationScope.ip}:8080/MemberController/Login.do",
+			url: "http://localhost:1234/Account/login.do",
 			data: { user_id: user_id, user_pw: user_pw },
-			success: function (data, textStatus) {
+			success: function (data) {
 				if (data == 0) {
 					$('#myModal').modal('hide');
-					location.href = 'http://${applicationScope.ip}:8080<%=returnPath%>';
+					location.href = '/';
 				} else {
-					console.log('login fail');
 					$('#errorMsg').html('wrong id or pw');
 					return showAlert();
 				}
 				return false;
 			},
 			error: function (request, status, error) {
-				alert("code: " + request.status + "message: " + request.responseText + "error: " + error);
+				console.log("code: " + request.status + "message: " + request.responseText + "error: " + error);
 			},
 			complete: function (data, textStatus) { }
 		});
@@ -39,7 +38,7 @@
 	/* ]]> */
 </script>
 
-<div th:fragment="Modal-div" class="modal fade" tabindex="-1" id="myModal" >
+<div th:fragment="Modal-div" class="modal fade" tabindex="-1" id="myModal">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -60,7 +59,7 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">close</button>
 				<button type="button" class="btn btn-primary" onclick="checkLoginFail()">login</button>
 			</div>
 		</div>

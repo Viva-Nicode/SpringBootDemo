@@ -7,7 +7,7 @@
 		if (tagVal == 'log in') {
 			$('#myModal').modal('show');
 		} else {
-			location.href = 'http://${applicationScope.ip}:12345/MemberController/Logout.do';
+			location.href = 'http://localhost:1234/Account/logout.do';
 		}
 	}
 </script>
@@ -21,7 +21,7 @@
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 					<li class="nav-item">
-						<a class="nav-link active" aria-current="page" href="http://${servletContext.ip}:12345">Home</a>
+						<a class="nav-link active" aria-current="page" th:href="@{/}">Home</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="#">Link</a>
@@ -31,8 +31,8 @@
 							Account
 						</a>
 						<ul class="dropdown-menu">
-							<li><a class="dropdown-item" href="${signupPath}">Sign up</a></li>
-							<li><a class="dropdown-item" href="#;" id="logOption" onclick="logAction()"></a></li>
+							<li><a class="dropdown-item" th:href="@{/Account/moveSignupPage.do}">Sign up</a></li>
+							<li><a class="dropdown-item" href="#" id="logOption" onclick="logAction()"></a></li>
 							<li>
 								<hr class="dropdown-divider">
 							</li>

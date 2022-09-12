@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<Title> Signup Page </Title>
+	<link rel="stylesheet" th:href="@{/css/Signup.css}">
+	<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+	<link rel="stylesheet" th:href="@{/css/custom.css}">
+	<script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+	<script src="/js/bootstrap.min.js"></script>
+	<script src="/js/popper.js"></script>
+	<script type="text/map" src="/js/popper.js.map"></script>
+	<script th:inline="javascript">
+		/* <![CDATA[ */
+		function showAlert() {
+			$('#alert').show()
+			setTimeout(() => { $('#alert').fadeOut() }, 2500);
+			return false;
+		}
+
+		function doValidation() {
+			const form = document.signupForm;
+			const id = form.User_ID.value;
+			const pw = form.User_PW.value;
+			const nickname = form.nickname.value;
+			const domainInput = form.domain.value;
+			const domainOption = document.getElementById("domainOption");
+
+			const noEngRule = /^[a-zA-Z0-9]*$/;
+			const regEmail = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
+
+			let lastDomain;
+
+			const il = id.length;
+			const pl = pw.length;
+			const nl = nickname.length;
+
+			if (domainOption.value === "Direct_input")
+				lastDomain = domainInput;
+			else if (domainOption.value != "Direct_input")
+				lastDomain = domainInput + domainOption.value;
+
+			if (il <= 8 || 17 <= il) {
+				$('#errorMsg').html('ID length must be 9 ~ 16');
+				return showAlert();
+			} else if (pl <= 11 || 21 <= pl) {
+				$('#errorMsg').html('PW length must be 12 ~ 20');
+				return showAlert();
+			} else if (nl <= 5 || 17 <= nl) {
+				$('#errorMsg').html('nickname length must be 6 ~ 16');
+				return showAlert();
+			} else if (!noEngRule.test(id) || !noEngRule.test(nickname)) {
+				$('#errorMsg').html('The ID, nickname must consist of numbers and English only.');
+				return showAlert();
+			} else if (!regEmail.test(lastDomain)) {
+				$('#errorMsg').html('wrong Email type');
+				return showAlert();
+			} else {
+				$.ajax({
+					type: "post",
+					async: false,
+					url: "http://localhost:1234/Account/checkSignupOverlap.do",
+					data: { user_id: id, user_name: nickname, email: lastDomain, user_pw: pw },
+					success: function (response) {
+						if (response == 0) {
+							location.href = 'http://localhost:1234/';
+						} else if (response == 1) {
+							$('#errorMsg').html('id exist already');
+							return showAlert();
+						} else if (response == 2) {
+							$('#errorMsg').html('nickname exist already');
+							return showAlert();
+						} else if (response == 3) {
+							$('#errorMsg').html('email exist already');
+							return showAlert();
+						}
+						return false;
+					},
+					error: function (request, status, error) {
+						alert("code: " + request.status + "message: " + request.responseText + "error: " + error);
+					},
+					complete: function (data, textStatus) { }
+				});
+			}
+		}
+	/* ]]> */
+	</script>
+</head>
+
+<body>
+	<img id="backgroundimage" th:src="@{/456.jpg}">
+	<div id="signupForm">
+		<form method="post" name="signupForm" onsubmit="return doValidation()">
+			<fieldset style="width: 270px">
+				<legend>
+					<font color="#3D18E0">Sign Up Form</font>
+				</legend>
+				<div style="color: #1B27DE; text-align:left;">ID</div>
+				<input type="text" name="User_ID" required autofocus style="text-align: left"><br> <br>
+
+				<div style="color: #1B27DE; text-align:left;">PW</div>
+				<input type="password" name="User_PW" required> <br> <br>
+
+				<div style="color: #1B27DE; text-align:left;">nickname</div>
+				<input type="text" name="nickname" required><br><br>
+
+				<div style="color: #1B27DE; text-align:left;">domainName</div>
+				<input type="text" name="domain" required>
+				<select name="domainName" id="domainOption">
+					<option value="Direct_input">@Direct input</option>
+					<option value="@naver.com">@naver.com</option>
+					<option value="@gmail.com">@gmail.com</option>
+				</select><br>
+				<hr>
+				<input class="btn btn-success" type="button" onclick="doValidation()" value="sign Up">&nbsp;&nbsp;
+				<input class="btn btn-primary" type="button" value="Back" th:onclick="|location.href='@{/}'|">
+			</fieldset>
+		</form>
+	</div>
+	<div id="alert" class="alert alert-danger alert-dismissable fade in" style="display: none;">
+		<svg id="svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+			<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+		</svg>
+		<h4>Notification</h4>
+		<div id="errorMsg"></div>
+	</div>
+
+</body>
+
+</html>

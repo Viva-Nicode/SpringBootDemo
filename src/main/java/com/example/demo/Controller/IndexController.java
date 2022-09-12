@@ -1,7 +1,7 @@
 package com.example.demo.Controller;
 
+import java.util.Collections;
 import java.util.List;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,17 +24,12 @@ public class IndexController {
 	@RequestMapping(value = "/")
 	public ModelAndView ex1(HttpServletRequest request) {
 
-		System.out.println("index request");
 		ModelAndView mav = new ModelAndView("../static/index");
-		ServletContext application = request.getServletContext();
-		application.setAttribute("ip", "localhost");
 
 		List<PostInfoDTO> l = u.findAll();
-		if (l.isEmpty()) {
-			System.out.println("list is empty");
-		}
-
+		Collections.reverse(l);
 		mav.addObject("postlist", l);
+
 		return mav;
 	}
 }
