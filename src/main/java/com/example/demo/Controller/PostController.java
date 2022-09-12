@@ -3,13 +3,13 @@ package com.example.demo.Controller;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +19,10 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.Service.LikesService;
 import com.example.demo.Service.PostService;
+import com.example.demo.db.CommentsMapper;
+import com.example.demo.db.CommentsVO;
 import com.example.demo.db.LikesId;
 import com.example.demo.db.LikesRepository;
-import com.example.demo.db.PostImageVO;
 import com.example.demo.db.PostImageDTO;
 import com.example.demo.db.PostImageMapper;
 import com.example.demo.db.PostImageRepository;
@@ -40,9 +41,8 @@ public class PostController {
 	private final PostImageRepository pir;
 	private final LikesRepository lr;
 	private final LikesService ls;
-
-	@Autowired
-	private PostImageMapper pimb;
+	private final PostImageMapper pimb;
+	private final CommentsMapper cm;
 
 	@RequestMapping(value = "/MoveWritePost.do")
 	public ModelAndView moveWritePost(HttpServletRequest req) {
@@ -123,11 +123,9 @@ public class PostController {
 
 		List<String> l = pimb.findByPostid(postid);
 		mav.addObject("imageList", l);
-		/*
-		 * String imageName = PostInfoDAO.getPostImage(postid);
-		 * ArrayList<commentsDTO> l = commentsDAO.getCommentList(postid);
-		 * Collections.reverse(l);
-		 */
+		List<CommentsVO> ll = cm.findCommentsByPostid(postid);
+		Collections.reverse(ll);
+		mav.addObject("l", ll);
 
 		return mav;
 	}

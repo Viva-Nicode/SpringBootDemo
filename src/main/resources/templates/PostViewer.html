@@ -30,17 +30,18 @@
 				$.ajax({
 					type: "post",
 					async: false,
-					url: "http://localhost:1234/CommentController/WriteComment.do",
-					data: { user_id: user_id, postid: '<%=postid%>', comment: fieldcomment },
+					url: "http://localhost:1234/Comments/sendComment.do",
+					data: { user_id: user_id, postid: '[[${postid}]]', comment: fieldcomment },
 					success: function (data, textStatus) {
 						let jsoninfo = JSON.parse(data);
+						console.log(jsoninfo);
 						$('div').remove('#generalComment');
 						let ff = $('#con');
 						for (let idx in jsoninfo.commentInfoArray) {
 							let html = '<div id=\'generalComment\' class=\'card border-info mb-3\' ><div class=\'card-header\'>' + jsoninfo.commentInfoArray[idx].commenter + ' at ' + jsoninfo.commentInfoArray[idx].c_time + '</div><div class=\'card-body\'><p class=\'card-text\'>' + jsoninfo.commentInfoArray[idx].c_contents + '</p></div></div>';
 							ff.append(html);
-							$('#commentsField').val('');
 						}
+						$('#commentsField').val('');
 						return false;
 					},
 					error: function (request, status, error) {
@@ -119,7 +120,6 @@
 			</div><br>
 		</th:block>
 
-
 	</div>
 	<button id="sideCommentBtn" class="btn btn-outline-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">comments</button>
 
@@ -130,14 +130,14 @@
 		</div>
 		<div class="offcanvas-body">
 			<div id="con">
-				<c:forEach var="idx" items="${l}">
+				<th:block th:each="comment, status: ${l}">
 					<div id="generalComment" class="card border-info mb-3">
-						<div class="card-header" style="text-align:center;">${idx.getCommenter()} at ${idx.getC_time()}</div>
+						<div class="card-header" style="text-align:center;" th:text="${comment.commenter} + ' at ' + ${comment.c_time}"></div>
 						<div class="card-body">
-							<p class="card-text">${idx.getC_contents()}</p>
+							<p class="card-text" th:text="${comment.c_contents}"></p>
 						</div>
 					</div>
-				</c:forEach>
+				</th:block>
 			</div>
 			<div class="card text-bg-dark">
 				<img src="/seguPunch2.gif" class="card-img" alt="hello">
