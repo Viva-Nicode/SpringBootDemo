@@ -28,7 +28,7 @@
 			if (user_id == 'null') {
 				$('#myModal').modal('show');
 			} else {
-				location.href = 'http://localhost:1234/Post/MoveWritePost.do';
+				location.href = '/Post/MoveWritePost';
 			}
 		}
 		 /* ]]> */
@@ -40,9 +40,11 @@
 <body>
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
 	<div class="card text-bg-dark" style="position:fixed; width:100vw;">
-		<img src="789.jpg" class="card-img" alt="hello">
+		<img src="456.jpg" class="card-img" alt="hello">
 	</div>
+
 	<button id="writeBtn" type="button" class="btn btn-outline-primary" onclick="isWrite()">Write</button>
+
 	<table class="table table-light table-striped table-hover" id="bulletinBoard">
 		<thead>
 			<tr>
@@ -55,24 +57,24 @@
 			</tr>
 		</thead>
 		<tbody>
-			<tr th:each="post, status: ${postlist}">
+			<tr th:each="post, index: ${postlist}">
 				<td th:text="${post.postid}"></td>
 				<th:block th:if="${post.imagenum == 0}">
 					<td>
-						<a class="jejuFont afont" th:href='@{/Post/PostViewer.do(postid=${post.getPostid})}'>[[${post.title}]]
+						<a class="jejuFont afont" th:href='@{/Post/PostViewer(postid=${post.getPostid})}'>[[${post.title}]]
 							<span class="badge bg-info" th:text="${post.commentsnum}"></span>
 						</a>
 					</td>
 				</th:block>
 				<th:block th:unless="${post.imagenum == 0}">
 					<td>
-						<a class="jejuFont afont" th:href='@{/Post/PostViewer.do(postid=${post.getPostid})}'>[[${post.title}]]
+						<a class="jejuFont afont" th:href='@{/Post/PostViewer(postid=${post.getPostid})}'>[[${post.title}]]
 							<span class="badge bg-danger" th:text="${post.commentsnum}"></span>
 						</a>
 					</td>
 				</th:block>
 				<td th:text="${post.writer}"></td>
-				<td th:text="${post.writtentime}"></td>
+				<td th:text="${wtl[index.index]}"></td>
 				<td th:text="${post.hits}"></td>
 				<td th:text="${post.likes}"></td>
 			</tr>

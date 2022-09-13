@@ -9,7 +9,17 @@
 #hit {
 	position: relative;
 	width: 100px;
-	left: 90%;
+	left: -14px;
+}
+
+#wrtierandtime{
+	position: absolute;
+	right: 1px;
+	margin: 7px;
+}
+
+.watp{
+	height: 1px;
 }
 
 .padding {

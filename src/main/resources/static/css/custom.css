@@ -1,6 +1,12 @@
 @import url(https://fonts.googleapis.com/earlyaccess/jejugothic.css);
 
-.navbar-brand, h1, h2, h3, h4, .jejuFont{
+
+.navbar-brand,
+h1,
+h2,
+h3,
+h4,
+.jejuFont {
 	font-family: 'Jeju Gothic';
 }
 
@@ -9,7 +15,7 @@ h5 {
 	font-size: 18px;
 }
 
-.afont{
+.afont {
 	text-decoration: none;
-	color:peru;
+	color: peru;
 }

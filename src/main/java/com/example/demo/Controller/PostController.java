@@ -44,7 +44,8 @@ public class PostController {
 	private final PostImageMapper pimb;
 	private final CommentsMapper cm;
 
-	@RequestMapping(value = "/MoveWritePost.do")
+
+	@RequestMapping(value = "/MoveWritePost")
 	public ModelAndView moveWritePost(HttpServletRequest req) {
 		HttpSession s = req.getSession();
 		String user_id = s.getAttribute("user_id") + "";
@@ -54,7 +55,7 @@ public class PostController {
 		return new ModelAndView("PostWriter");
 	}
 
-	@RequestMapping(value = "/InsertPost.do")
+	@RequestMapping(value = "/InsertPost")
 	public ResponseEntity<?> insertPost(HttpServletRequest req) {
 
 		int count = 0;
@@ -96,7 +97,7 @@ public class PostController {
 		return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
 	}
 
-	@RequestMapping(value = "/PostViewer.do")
+	@RequestMapping(value = "/PostViewer")
 	public ModelAndView postViewer(HttpServletRequest req) {
 		HttpSession s = req.getSession();
 
@@ -116,6 +117,8 @@ public class PostController {
 		mav.addObject("title", p.getTitle());
 		mav.addObject("likes", p.getLikes());
 		mav.addObject("hits", p.getHits());
+		mav.addObject("writer", p.getWriter());
+		mav.addObject("wTime", p.getWrittentime().toString().substring(0, p.getWrittentime().toString().length() - 2));
 		if (lr.existsBylikesId(new LikesId(postid, user_id)))
 			mav.addObject("islikeAlready", 1);
 		else
@@ -130,7 +133,7 @@ public class PostController {
 		return mav;
 	}
 
-	@RequestMapping(value = "/likes.do")
+	@RequestMapping(value = "/likes")
 	public void dolike(HttpServletRequest req) {
 
 		ls.doLikes(Integer.parseInt(req.getParameter("postid")), req.getParameter("user_id"),

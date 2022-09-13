@@ -59,11 +59,11 @@
 				$.ajax({
 					type: "post",
 					async: false,
-					url: "http://localhost:1234/Account/checkSignupOverlap.do",
+					url: "http://localhost:1234/Account/checkSignupOverlap",
 					data: { user_id: id, user_name: nickname, email: lastDomain, user_pw: pw },
 					success: function (response) {
 						if (response == 0) {
-							location.href = 'http://localhost:1234/';
+							location.href = '/';
 						} else if (response == 1) {
 							$('#errorMsg').html('id exist already');
 							return showAlert();

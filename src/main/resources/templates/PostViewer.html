@@ -30,7 +30,7 @@
 				$.ajax({
 					type: "post",
 					async: false,
-					url: "http://localhost:1234/Comments/sendComment.do",
+					url: "http://localhost:1234/Comments/sendComment",
 					data: { user_id: user_id, postid: '[[${postid}]]', comment: fieldcomment },
 					success: function (data, textStatus) {
 						let jsoninfo = JSON.parse(data);
@@ -60,7 +60,7 @@
 				$.ajax({
 					type: "post",
 					async: true,
-					url: "http://localhost:1234/Post/likes.do",
+					url: "http://localhost:1234/Post/likes",
 					data: { user_id: '[[${user_id}]]', postid: '[[${postid}]]', likeAlready: islikeAlready },
 					success: function (data, textStatus) {
 						toggleLike();
@@ -89,6 +89,10 @@
 			}
 		}
 	</script>
+	<style>
+		/* url('https://fonts.googleapis.com/css2?family=Mali:wght@300&display=swap'); */
+		@import url('https://fonts.googleapis.com/css2?family=Poor+Story&display=swap');
+	</style>
 	<th:block th:replace="~{fragments/navbar::logAction}"></th:block>
 	<th:block th:replace="~{fragments/LoginModal.html::modalScript}"></th:block>
 	<link rel="stylesheet" th:href="@{/css/PostViewer.css}">
@@ -102,22 +106,26 @@
 <body>
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
 
-	<div id="bg" class="card text-bg-dark" style="position:fixed; width:100vw; heigth:100vh;">
+	<div id="bg" class="card text-bg-dark" style="position:fixed; width:100vw;">
 		<img src="../789.jpg" class="card-img" alt="hello">
 	</div>
 
 	<div id="view" class="card container" style="width: 87vw;">
-		<span id="hit" class="badge rounded-pill text-bg-warning">hits [[${hits}]]</span>
+		<span id="hit" class="badge text-bg-primary">hits [[${hits}]]</span>
+		<div id="wrtierandtime">
+			<p class="watp" style="text-align:right;font-family: 'Poor Story', cursive; font-size: 19px;" th:text="${wTime}"></p>
+			<p class="watp" style="text-align:right;font-family: 'Poor Story', cursive; font-size: 19px;" th:text="${writer}"></p>
+		</div>
 		<div class="card-body">
 			<h5 class="card-title" th:text="${title}"></h5><br>
-			<p class="card-text" th:utext="${contents}"></p>
+			<p class="card-text" style="font-family: 'Poor Story', cursive; font-size: 20px;" th:utext="${contents}"></p>
 			<th:input id="likeBtn" type="button" class="btn btn-outline-primary" onclick="likeFunc()" th:text="'Like ' + ${likes}"></input>
 		</div>
 		<br><br>
 
 		<th:block th:each="image, status: ${imageList}">
 			<div class="card text-bg-dark">
-				<img id="postImg" th:src="@{/upload/__${image}__}" class="card-img" alt="이미지 어딧음??">
+				<img id="postImg" th:src="@{/upload/__${image}__}" class="card-img" alt="이미지 못찾게슴">
 			</div><br>
 		</th:block>
 
@@ -135,7 +143,7 @@
 					<div id="generalComment" class="card border-info mb-3">
 						<div class="card-header" style="text-align:center;" th:text="${comment.commenter} + ' at ' + ${comment.c_time}"></div>
 						<div class="card-body">
-							<p class="card-text" th:text="${comment.c_contents}"></p>
+							<p id="postcontents" class="card-text" th:text="${comment.c_contents}"></p>
 						</div>
 					</div>
 				</th:block>

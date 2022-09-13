@@ -17,7 +17,7 @@
 		$.ajax({
 			type: "post",
 			async: false,
-			url: "http://localhost:1234/Account/login.do",
+			url: "http://localhost:1234/Account/login",
 			data: { user_id: user_id, user_pw: user_pw },
 			success: function (data) {
 				if (data == 0) {

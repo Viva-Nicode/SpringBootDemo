@@ -7,7 +7,7 @@
 		if (tagVal == 'log in') {
 			$('#myModal').modal('show');
 		} else {
-			location.href = 'http://localhost:1234/Account/logout.do';
+			location.href = '/Account/logout';
 		}
 	}
 </script>
@@ -31,7 +31,7 @@
 							Account
 						</a>
 						<ul class="dropdown-menu">
-							<li><a class="dropdown-item" th:href="@{/Account/moveSignupPage.do}">Sign up</a></li>
+							<li><a class="dropdown-item" th:href="@{/Account/moveSignupPage}">Sign up</a></li>
 							<li><a class="dropdown-item" href="#" id="logOption" onclick="logAction()"></a></li>
 							<li>
 								<hr class="dropdown-divider">

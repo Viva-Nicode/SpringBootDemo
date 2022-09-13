@@ -26,11 +26,11 @@
 <body>
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
 
-	<div id="bg" class="card text-bg-dark" style="position:fixed; width:100vw; heigth:100vh;">
+	<div id="bg" class="card text-bg-dark" style="position:fixed; width:100vw;">
 		<img src="../789.jpg" class="card-img" alt="hello">
 	</div>
 
-	<form method="post" th:action="@{/Post/InsertPost.do}" class="needs-validation" enctype="multipart/form-data" id="WritePostForm">
+	<form method="post" th:action="@{/Post/InsertPost}" class="needs-validation" enctype="multipart/form-data" id="WritePostForm">
 		<input name="title" type="text" class="form-control" id="TitleTextField" placeholder="제목을 입력해 주세요" maxlength=25 required autofocus>
 		<textarea name="contents" required maxlength=4000 class="form-control col" id="ContentTextarea" rows="15" placeholder="음란물, 차별, 비하, 혐오 및 초상권, 저작권 침해 게시물은 민, 형사상의 책임을 질 수 있습니다. "></textarea>
 		<input name="imagefile" class="form-control form-control-sm" id="formFileSm" type="file" accept=".png, .jpg, .jpeg">

@@ -1,7 +1,5 @@
 package com.example.demo.Controller;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,18 +28,18 @@ public class AccountController {
 	@Autowired
 	AccountService ac;
 
-	@RequestMapping(value = "/moveSignupPage.do")
+	@RequestMapping(value = "/moveSignupPage")
 	public ModelAndView moveSignupPage() {
 		return new ModelAndView("Signup");
 	}
 
-	@RequestMapping(value = "/checkSignupOverlap.do")
+	@RequestMapping(value = "/checkSignupOverlap")
 	public @ResponseBody String checkSignupOverlap(HttpServletRequest req, HttpServletResponse resp) {
 		return ac.checkedOverlapUserInfo(req.getParameter("user_id"), req.getParameter("email"),
 				req.getParameter("user_name"), req.getParameter("user_pw")) + "";
 	}
 
-	@PostMapping(value = "/login.do")
+	@PostMapping(value = "/login")
 	public @ResponseBody String login(HttpServletRequest req, HttpServletResponse resp) {
 		HttpSession s = req.getSession();
 
@@ -54,7 +52,7 @@ public class AccountController {
 		}
 	}
 
-	@RequestMapping(value = "/logout.do")
+	@RequestMapping(value = "/logout")
 	public ResponseEntity<?> logout(HttpServletRequest req) {
 		HttpSession s = req.getSession();
 		s.removeAttribute("user_id");

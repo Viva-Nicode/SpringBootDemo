@@ -25,7 +25,7 @@ public class CommentsController {
 
 	private final CommentsMapper cm;
 
-	@RequestMapping(value = "/sendComment.do", produces = "application/text;charset=utf8")
+	@RequestMapping(value = "/sendComment", produces = "application/text;charset=utf8")
 	public @ResponseBody String sendComment(HttpServletRequest req, HttpServletResponse resp) {
 
 		resp.setHeader("Content-Type", "charset=utf-8");
