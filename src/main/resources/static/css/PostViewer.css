@@ -12,13 +12,13 @@
 	left: -14px;
 }
 
-#wrtierandtime{
+#wrtierandtime {
 	position: absolute;
 	right: 1px;
 	margin: 7px;
 }
 
-.watp{
+.watp {
 	height: 1px;
 }
 
@@ -36,16 +36,52 @@
 	z-index: 999;
 }
 
+@keyframes identifier {
+	0% {
+		color: #ff2a2a;
+	}
+	15% {
+		color: #ff7a2a;
+	}
+	30% {
+		color: #ffc52a;
+	}
+	45% {
+		color: #43ff2a;
+	}
+	60% {
+		color: #2a89ff;
+	}
+	75% {
+		color: #202082;
+	}
+	90% {
+		color: #6b2aff;
+	}
+	100% {
+		color: #e82aff;
+	}
+}
+
 #myModal {
 	position: fixed;
 	top: 20%;
 }
 
-#sideCommentBtn {
-	position: fixed;
-	bottom: 2vmax;
-	right: 2vmax;
+.fa-flag:hover {
+	animation-name: identifier;
+	animation-iteration-count: infinite;
+	animation-duration: 3s;
 }
+
+#icon {
+	position: fixed;
+	bottom: 0vmax;
+	right: 2vmax;
+	z-index: 9999;
+}
+
+
 
 #commentsField {
 	resize: none;

@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
+	<script src="https://kit.fontawesome.com/67d8dfef5a.js" crossorigin="anonymous"></script>
 	<script type="text/javascript" charset="UTF-8">
 		let islikeAlready = Number('[[${islikeAlready}]]');
 		let likeNum = Number('[[${likes}]]');
@@ -130,7 +131,9 @@
 		</th:block>
 
 	</div>
-	<button id="sideCommentBtn" class="btn btn-outline-dark" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">comments</button>
+	<div id="icon" style="font-size: 60px;" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">
+		<i class="fa-solid fa-comment fa-flag"></i>
+	</div>
 
 	<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
 		<div class="offcanvas-header">
@@ -141,9 +144,9 @@
 			<div id="con">
 				<th:block th:each="comment, status: ${l}">
 					<div id="generalComment" class="card border-info mb-3">
-						<div class="card-header" style="text-align:center;" th:text="${comment.commenter} + ' at ' + ${comment.c_time}"></div>
+						<div class="card-header" style="text-align:center;font-family: 'Poor Story', cursive; font-size: 20px;" th:text="${comment.commenter} + ' at ' + ${comment.c_time}"></div>
 						<div class="card-body">
-							<p id="postcontents" class="card-text" th:text="${comment.c_contents}"></p>
+							<p id="postcontents" class="card-text" style="font-family: 'Poor Story', cursive; font-size: 18px;" th:text="${comment.c_contents}"></p>
 						</div>
 					</div>
 				</th:block>
