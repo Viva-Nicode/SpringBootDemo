@@ -51,8 +51,8 @@ public class PostController {
 	@RequestMapping(value = "/MoveWritePost")
 	public ModelAndView moveWritePost(HttpServletRequest req) throws IOException {
 
-		/* il.getImageLabels("classpath:static/upload/456.jpg");
-		DetectProperties.detectProperties("/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/456.jpg"); */
+		il.getImageLabels("classpath:static/upload/456.jpg");
+		DetectProperties.detectProperties("/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/456.jpg");
 
 		HttpSession s = req.getSession();
 		String user_id = s.getAttribute("user_id") + "";
