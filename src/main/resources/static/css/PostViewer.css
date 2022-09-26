@@ -1,3 +1,37 @@
+@keyframes fadeInUp {
+	0% {
+		opacity: 0;
+		transform: translate3d(0, -10%, 0);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateZ(0);
+	}
+}
+
+.fadeIn {
+	position: relative;
+	animation: fadeInUp 0.5s;
+}
+
+@keyframes fadeInUpCom {
+	0% {
+		opacity: 0;
+		transform: translate3d(0, 10%, 0);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateZ(0);
+	}
+}
+
+.fadeInCom {
+	position: relative;
+	animation: fadeInUpCom 1s;
+}
+
 #view {
 	position: absolute;
 	top: 22%;
@@ -40,24 +74,31 @@
 	0% {
 		color: #ff2a2a;
 	}
+
 	15% {
 		color: #ff7a2a;
 	}
+
 	30% {
 		color: #ffc52a;
 	}
+
 	45% {
 		color: #43ff2a;
 	}
+
 	60% {
 		color: #2a89ff;
 	}
+
 	75% {
 		color: #202082;
 	}
+
 	90% {
 		color: #6b2aff;
 	}
+
 	100% {
 		color: #e82aff;
 	}
@@ -80,6 +121,7 @@
 	right: 2vmax;
 	z-index: 9999;
 }
+
 
 
 

@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.example.demo.Service.DetectProperties;
+import com.example.demo.Service.ImageLabel;
 import com.example.demo.Service.LikesService;
 import com.example.demo.Service.PostService;
 import com.example.demo.db.CommentsMapper;
@@ -44,9 +46,14 @@ public class PostController {
 	private final PostImageMapper pimb;
 	private final CommentsMapper cm;
 
+	private final ImageLabel il;
 
 	@RequestMapping(value = "/MoveWritePost")
-	public ModelAndView moveWritePost(HttpServletRequest req) {
+	public ModelAndView moveWritePost(HttpServletRequest req) throws IOException {
+
+		/* il.getImageLabels("classpath:static/upload/456.jpg");
+		DetectProperties.detectProperties("/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/456.jpg"); */
+
 		HttpSession s = req.getSession();
 		String user_id = s.getAttribute("user_id") + "";
 		if (user_id.equals("null")) {

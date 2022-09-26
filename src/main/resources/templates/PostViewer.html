@@ -39,7 +39,7 @@
 						$('div').remove('#generalComment');
 						let ff = $('#con');
 						for (let idx in jsoninfo.commentInfoArray) {
-							let html = '<div id=\'generalComment\' class=\'card border-info mb-3\' ><div class=\'card-header\'>' + jsoninfo.commentInfoArray[idx].commenter + ' at ' + jsoninfo.commentInfoArray[idx].c_time + '</div><div class=\'card-body\'><p class=\'card-text\'>' + jsoninfo.commentInfoArray[idx].c_contents + '</p></div></div>';
+							let html = '<div id=\'generalComment\' class=\'card border-info mb-3 fadeInCom\' ><div class=\'card-header\'>' + jsoninfo.commentInfoArray[idx].commenter + ' at ' + jsoninfo.commentInfoArray[idx].c_time + '</div><div class=\'card-body\'><p class=\'card-text\'>' + jsoninfo.commentInfoArray[idx].c_contents + '</p></div></div>';
 							ff.append(html);
 						}
 						$('#commentsField').val('');
@@ -125,7 +125,7 @@
 		<br><br>
 
 		<th:block th:each="image, status: ${imageList}">
-			<div class="card text-bg-dark">
+			<div class="card text-bg-dark fadeIn" >
 				<img id="postImg" th:src="@{/upload/__${image}__}" class="card-img" alt="이미지 못찾게슴">
 			</div><br>
 		</th:block>
@@ -143,7 +143,7 @@
 		<div class="offcanvas-body">
 			<div id="con">
 				<th:block th:each="comment, status: ${l}">
-					<div id="generalComment" class="card border-info mb-3">
+					<div id="generalComment" class="card border-info mb-3 fadeInCom">
 						<div class="card-header" style="text-align:center;font-family: 'Poor Story', cursive; font-size: 20px;" th:text="${comment.commenter} + ' at ' + ${comment.c_time}"></div>
 						<div class="card-body">
 							<p id="postcontents" class="card-text" style="font-family: 'Poor Story', cursive; font-size: 18px;" th:text="${comment.c_contents}"></p>
@@ -152,10 +152,10 @@
 				</th:block>
 			</div>
 			<div class="card text-bg-dark">
-				<img src="/seguPunch2.gif" class="card-img" alt="hello">
+				<img src="/img.gif" class="card-img" alt="hello">
 				<div class="card-img-overlay">
-					<h5 class="card-title">do you know gosegu?</h5>
-					<p class="card-text">she is very sexy and cute.</p>
+					<h5 class="card-title" style="color: rgb(12, 102, 219);">why needs this card?</h5>
+					<p class="card-text" style="color: rgba(61, 11, 37, 0.822);">I don’t know too.</p>
 				</div>
 			</div>
 			<form id="c_form">

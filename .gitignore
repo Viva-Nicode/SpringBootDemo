@@ -1,4 +1,4 @@
-HELP.md
+HELPemd
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -10,6 +10,8 @@ target/
 .factorypath
 .project
 .settings
+temporal-tensor-363609-2bcbb8aec2fa.json
+:wq
 .springBeans
 .sts4-cache
 
