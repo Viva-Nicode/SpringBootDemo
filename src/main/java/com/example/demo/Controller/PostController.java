@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.example.demo.Service.DetectProperties;
 import com.example.demo.Service.ImageLabel;
 import com.example.demo.Service.LikesService;
+import com.example.demo.Service.PapagoTranslationAPI;
 import com.example.demo.Service.PostService;
 import com.example.demo.db.CommentsMapper;
 import com.example.demo.db.CommentsVO;
@@ -29,6 +30,7 @@ import com.example.demo.db.PostImageDTO;
 import com.example.demo.db.PostImageMapper;
 import com.example.demo.db.PostImageRepository;
 import com.example.demo.db.PostInfoDTO;
+import com.google.cloud.vision.v1.ColorInfo;
 import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 
@@ -51,8 +53,22 @@ public class PostController {
 	@RequestMapping(value = "/MoveWritePost")
 	public ModelAndView moveWritePost(HttpServletRequest req) throws IOException {
 
-		il.getImageLabels("classpath:static/upload/456.jpg");
-		DetectProperties.detectProperties("/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/456.jpg");
+		List<String> tagList = PapagoTranslationAPI
+				.getTranslationTagList(il.getImageLabels("classpath:static/upload/1234.png"));
+
+		tagList.forEach(x -> {
+			System.out.println(x);
+		});
+
+		List<ColorInfo> colorList = DetectProperties.detectProperties(
+				"/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/upload/1234.png");
+
+		for (ColorInfo c : colorList) {
+			System.out.println(c.getPixelFraction());
+			System.out.println(c.getColor().getRed());
+			System.out.println(c.getColor().getGreen());
+			System.out.println(c.getColor().getBlue());
+		}
 
 		HttpSession s = req.getSession();
 		String user_id = s.getAttribute("user_id") + "";
