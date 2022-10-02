@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,12 +20,16 @@ import org.json.simple.parser.ParseException;
 
 public class PapagoTranslationAPI {
 
-	public static List<String> getTranslationTagList(Map<String, Float> m) {
+	public static Map<String, String> getTranslationTagList(Map<String, Float> m) {
 
 		String data = "source=en&target=ko&text=";
 
-		for (Entry<String, Float> elem : m.entrySet())
+		Map<String, String> resultMap = new LinkedHashMap<>();
+
+		for (Entry<String, Float> elem : m.entrySet()) {
 			data += elem.getKey() + "/";
+			resultMap.put(elem.getKey(), "");
+		}
 
 		try {
 			URL url = new URL("https://openapi.naver.com/v1/papago/n2mt");
@@ -58,7 +63,11 @@ public class PapagoTranslationAPI {
 					.get("translatedText").toString().split("/")).stream()
 					.map(String::trim).collect(Collectors.toList());
 
-			return list;
+			int idx = 0;
+			for (Entry<String, String> elem : resultMap.entrySet())
+				elem.setValue(list.get(idx++));
+
+			return resultMap;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

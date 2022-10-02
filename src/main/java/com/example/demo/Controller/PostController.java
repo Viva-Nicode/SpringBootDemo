@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -53,15 +55,14 @@ public class PostController {
 	@RequestMapping(value = "/MoveWritePost")
 	public ModelAndView moveWritePost(HttpServletRequest req) throws IOException {
 
-		List<String> tagList = PapagoTranslationAPI
-				.getTranslationTagList(il.getImageLabels("classpath:static/upload/1234.png"));
+		Map<String, String> tagMap = PapagoTranslationAPI
+				.getTranslationTagList(il.getImageLabels("classpath:static/upload/hot_air_balloon1.jpeg"));
 
-		tagList.forEach(x -> {
-			System.out.println(x);
-		});
+		for (Entry<String, String> elem : tagMap.entrySet())
+			System.out.println(elem.getKey() + " " + elem.getValue());
 
 		List<ColorInfo> colorList = DetectProperties.detectProperties(
-				"/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/upload/1234.png");
+				"/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/upload/hot_air_balloon1.jpeg");
 
 		for (ColorInfo c : colorList) {
 			System.out.println(c.getPixelFraction());
@@ -93,7 +94,7 @@ public class PostController {
 
 			HttpSession s = req.getSession();
 
-			Enumeration files = MPR.getFileNames();
+			Enumeration<?> files = MPR.getFileNames();
 
 			while (files.hasMoreElements()) {
 				count++;

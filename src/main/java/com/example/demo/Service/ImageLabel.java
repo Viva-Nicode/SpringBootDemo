@@ -39,7 +39,6 @@ public class ImageLabel {
 									throw new IllegalStateException(String.format("Duplicate key %s", u));
 								},
 								LinkedHashMap::new));
-
 		return imageLabels;
 	}
 }
