@@ -95,6 +95,7 @@ public class PostController {
 			HttpSession s = req.getSession();
 
 			Enumeration<?> files = MPR.getFileNames();
+			
 
 			while (files.hasMoreElements()) {
 				count++;

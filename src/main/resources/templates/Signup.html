@@ -22,7 +22,7 @@
 			const form = document.signupForm;
 			const id = form.User_ID.value;
 			const pw = form.User_PW.value;
-			const nickname = form.nickname.value;
+			const pw_check = form.User_PW_Check.value;
 			const domainInput = form.domain.value;
 			const domainOption = document.getElementById("domainOption");
 
@@ -33,7 +33,6 @@
 
 			const il = id.length;
 			const pl = pw.length;
-			const nl = nickname.length;
 
 			if (domainOption.value === "Direct_input")
 				lastDomain = domainInput;
@@ -46,11 +45,11 @@
 			} else if (pl <= 11 || 21 <= pl) {
 				$('#errorMsg').html('PW length must be 12 ~ 20');
 				return showAlert();
-			} else if (nl <= 5 || 17 <= nl) {
-				$('#errorMsg').html('nickname length must be 6 ~ 16');
+			} else if (pw != pw_check) {
+				$('#errorMsg').html('Pw do not match each other.');
 				return showAlert();
-			} else if (!noEngRule.test(id) || !noEngRule.test(nickname)) {
-				$('#errorMsg').html('The ID, nickname must consist of numbers and English only.');
+			} else if (!noEngRule.test(id)) {
+				$('#errorMsg').html('The ID must consist of numbers and English only.');
 				return showAlert();
 			} else if (!regEmail.test(lastDomain)) {
 				$('#errorMsg').html('wrong Email type');
@@ -59,8 +58,8 @@
 				$.ajax({
 					type: "post",
 					async: false,
-					url: "http://localhost:1234/Account/checkSignupOverlap",
-					data: { user_id: id, user_name: nickname, email: lastDomain, user_pw: pw },
+					url: "http://localhost:8080/Account/checkSignupOverlap",
+					data: { user_id: id, email: lastDomain, user_pw: pw },
 					success: function (response) {
 						if (response == 0) {
 							location.href = '/';
@@ -68,9 +67,6 @@
 							$('#errorMsg').html('id exist already');
 							return showAlert();
 						} else if (response == 2) {
-							$('#errorMsg').html('nickname exist already');
-							return showAlert();
-						} else if (response == 3) {
 							$('#errorMsg').html('email exist already');
 							return showAlert();
 						}
@@ -101,8 +97,8 @@
 				<div style="color: #1B27DE; text-align:left;">PW</div>
 				<input type="password" name="User_PW" required> <br> <br>
 
-				<div style="color: #1B27DE; text-align:left;">nickname</div>
-				<input type="text" name="nickname" required><br><br>
+				<div style="color: #1B27DE; text-align:left;">pw check</div>
+				<input type="password" name="User_PW_Check" required><br><br>
 
 				<div style="color: #1B27DE; text-align:left;">domainName</div>
 				<input type="text" name="domain" required>

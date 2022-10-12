@@ -30,9 +30,11 @@ public class IndexController {
 		ModelAndView mav = new ModelAndView("../static/index");
 		List<PostInfoDTO> l = u.findAll();
 		List<String> writenTimeList = new ArrayList<>();
+
 		l.forEach(x -> {
 			writenTimeList.add(TimeConverter.convertTime(x.getWrittentime()));
 		});
+		
 		Collections.reverse(l);
 		Collections.reverse(writenTimeList);
 

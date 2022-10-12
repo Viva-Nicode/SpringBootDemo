@@ -1,0 +1,67 @@
+#index-nav {
+	position: fixed;
+	top: 15%;
+	left: 3%;
+	width: 30vh;
+}
+
+#scroll-div {
+	position: relative;
+	width: 60vw;
+	top: 20vh;
+	left: 100px;
+}
+
+.post {
+	margin-bottom: 20px;
+	left: 11px;
+}
+
+@keyframes fadeInUp {
+	0% {
+		opacity: 0;
+		transform: translate3d(0, -40%, 0);
+		transform: translate(-50%);
+	}
+
+	to {
+		opacity: 0.9;
+		transform: translate(-50%);
+	}
+}
+
+.fadeIn {
+	animation: fadeInUp 0.5s;
+}
+
+#alert {
+	position: fixed;
+	width: 70vw;
+	height: 110px;
+	top: 10%;
+	left: 50%;
+	z-index: 9999;
+	opacity: 0.9;
+	transform: translate(-50%);
+}
+
+#alert2 {
+	position: fixed;
+	width: 70vw;
+	height: 110px;
+	top: 10%;
+	left: 50%;
+	z-index: 9999;
+	opacity: 0.9;
+	transform: translate(-50%);
+}
+
+#svg {
+	position: relative;
+	top: -15px
+}
+
+#svg2 {
+	position: relative;
+	top: -15px
+}

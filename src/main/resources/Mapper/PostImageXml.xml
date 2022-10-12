@@ -3,7 +3,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mappe 3.0//EN"
 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-- 반환타입을 String 으로 하면 list로 반환된다고 한다. -->
+<!-- 바로 아래 쿼리처럼 select imagename 같이 반환되는 속성이 하나일떄, 반환타입을 String 으로 하면 list로 반환된다고 한다. -->
+<!-- 하지만 select * 같은 경우 반환타입을 com.example.demo.db.UserVO와 같이 해주면 list<UserVO>로 반환된다.-->
 <!-- 반환  타입을 map으로 하면 key는 db의 컬럼명 value는 컬럼값으로 맵핑된 맵이 반환된다고 한다. -->
 <mapper namespace="com.example.demo.db.PostImageMapper">
 	<select id="findByPostid" parameterType="int" resultType="String">

@@ -1,32 +1,61 @@
-#backgroundimage {
+/* #backgroundimage {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 	background-size: cover;
 	min-width: 100%;
 	min-height: 100%;
+} */
+
+.box {
+	position: absolute;
+	top: 25%;
+	left: 50%;
+	width: 23vh;
+	height: 23vh;
+	border-radius: 70%;
+	overflow: hidden;
+	transform: translate( -50%, -50% );
+}
+
+.profile {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 #bulletinBoard {
 	position: absolute;
 	margin-bottom: 10%;
-	top: 22.5%;
+	top: 24vh;
+	left: 58vh;
+	width: 60vw;
+}
+
+#nickname {
+	position: absolute;
 	left: 50%;
-	width: 87vw;
-	transform: translate(-50%);
+	top: 43%;
+	background-color: wheat;
+	border-radius: 10px;
+	text-align: center;
+	/* top rignt bottom left */
+	padding: 5px 10px 5px 10px;
+	transform: translate( -50%, -50% );
+	font-size: 2.5vh;
+	color: black;
 }
 
 #writeBtn {
 	position: absolute;
-	top: 16%;
-	left: 86%;
-	width: 71px;
+	top: 80px;
+	right: 1%;
+	width: 70px;
 }
 
-
-#loginform{
+#loginform {
 	position: relative;
-	left:50%;
+	left: 50%;
 	transform: translate(-50%);
 }
 
@@ -39,8 +68,7 @@
 	z-index: 999;
 }
 
-#myModal{
+#myModal {
 	position: fixed;
 	top: 20%;
 }
-

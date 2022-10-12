@@ -15,15 +15,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /*
-+----------+-------------+------+-----+-----------+-------------------+
-| Field    | Type        | Null | Key | Default   | Extra             |
-+----------+-------------+------+-----+-----------+-------------------+
-| ID       | varchar(20) | NO   | PRI | NULL      |                   |
-| PW       | varchar(20) | NO   |     | NULL      |                   |
-| name     | varchar(20) | NO   |     | NULL      |                   |
-| email    | varchar(40) | NO   |     | NULL      |                   |
-| joindate | date        | YES  |     | curdate() | DEFAULT_GENERATED |
-+----------+-------------+------+-----+-----------+-------------------+
+desc User;
++----------+--------------+------+-----+-----------+-------------------+
+| Field    | Type         | Null | Key | Default   | Extra             |
++----------+--------------+------+-----+-----------+-------------------+
+| ID       | varchar(20)  | NO   | PRI | NULL      |                   |
+| PW       | varchar(256) | NO   |     | NULL      |                   |
+| email    | varchar(40)  | NO   |     | NULL      |                   |
+| joindate | date         | YES  |     | curdate() | DEFAULT_GENERATED |
+| profile  | varchar(64)  | YES  |     | NULL      |                   |
++----------+--------------+------+-----+-----------+-------------------+
 */
 
 @Entity
@@ -41,13 +42,13 @@ public class UserDTO {
 	@Column(name = "PW", length = 20)
 	private String PW;
 
-	@Column(name = "name", length = 20)
-	private String name;
-
 	@Column(name = "email", length = 40)
 	private String email;
 
 	@Column(name = "joindate")
 	@CreationTimestamp
 	private Date date;
+
+	@Column(name = "profile")
+	private String profile;
 }
