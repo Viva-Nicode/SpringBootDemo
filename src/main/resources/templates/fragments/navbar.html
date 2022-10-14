@@ -24,28 +24,23 @@
 						<a class="nav-link active" aria-current="page" th:href="@{/}">Home</a>
 					</li>
 					<li class="nav-item">
-						<a class="nav-link" href="#">Link</a>
+						<a class="nav-link" th:href="@{/Account/moveSignupPage}">Sign up</a>
 					</li>
-					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-							Account
-						</a>
-						<ul class="dropdown-menu">
-							<li><a class="dropdown-item" th:href="@{/Account/moveSignupPage}">Sign up</a></li>
-							<li><a class="dropdown-item" href="#" id="logOption" onclick="logAction()"></a></li>
-							<!-- <li>
+					<li class="nav-item">
+						<a class="nav-link" href="#" id="logOption" onclick="logAction()">Link</a>
+					</li>
+					<!-- <li>
 								<hr class="dropdown-divider">
 							</li> 메뉴들사이에 가로선을 긋는 용도이다. -->
-							<th:block th:if="${session.user_id != null}">
-								<li><a class="dropdown-item" href="#">Your Gallery</a></li>
-								<li><a class="dropdown-item" th:href="@{/Account/moveUserInfoSetting}">Setting</a></li>
-							</th:block>
-						</ul>
+					<th:block th:if="${session.user_id != null}">
+						<li class="nav-item">
+							<a class="nav-link" href="#">Your Gallery</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" th:href="@{/Account/moveUserInfoSetting}">Setting</a>
+						</li>
+					</th:block>
 					</li>
-					<nav class="navbar navbar-dark bg-dark">
-						<span class="navbar-text" id="logSpan">
-						</span>
-					</nav>
 				</ul>
 				<form class="d-flex" role="search">
 					<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">

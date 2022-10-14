@@ -35,7 +35,6 @@
 					data: { user_id: user_id, postid: '[[${postid}]]', comment: fieldcomment },
 					success: function (data, textStatus) {
 						let jsoninfo = JSON.parse(data);
-						console.log(jsoninfo);
 						$('div').remove('#generalComment');
 						let ff = $('#con');
 						for (let idx in jsoninfo.commentInfoArray) {
@@ -78,17 +77,15 @@
 		window.onload = function () {
 			const user_id = '[[${session.user_id}]]';
 			if (user_id == 'null' || user_id == '') {
-				$('#logSpan').html('&nbsp;&nbsp;&nbsp;Not logged in');
 				$('#logOption').html('log in');
 			} else {
-				$('#logSpan').html('&nbsp;&nbsp;&nbsp;welcome! ' + user_id);
 				$('#logOption').html('log out');
 			}
 
 			if (islikeAlready == 1) {
 				let l = document.getElementById('likeBtn');
 				l.className = 'btn btn-outline-danger';
-				l.html('❤️ ' + l.html().substring(8))
+				$('#likeBtn').html('❤️ Like ' + $('#likeBtn').html().substring(8))
 			}
 		}
 	</script>
@@ -147,7 +144,7 @@
 					<div id="generalComment" class="card border-info mb-3 fadeInCom">
 						<div class="card-header" style="text-align:center;font-family: 'Poor Story', cursive; font-size: 20px;" th:text="${comment.commenter} + ' at ' + ${comment.c_time}"></div>
 						<div class="card-body">
-							<p id="postcontents" class="card-text" style="font-family: 'Poor Story', cursive; font-size: 18px;" th:text="${comment.c_contents}"></p>
+							<p id="postcontents" class="card-text" style="font-family: 'Poor Story', cursive; font-size: 18px;" th:utext="${comment.c_contents}"></p>
 						</div>
 					</div>
 				</th:block>

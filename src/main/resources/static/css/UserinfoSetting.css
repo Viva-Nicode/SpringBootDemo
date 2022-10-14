@@ -2,7 +2,7 @@
 	position: fixed;
 	top: 15%;
 	left: 3%;
-	width: 30vh;
+	width: 23vw;
 }
 
 #scroll-div {
@@ -13,8 +13,34 @@
 }
 
 .post {
+	position: relative;
 	margin-bottom: 20px;
 	left: 11px;
+}
+
+#xbtn {
+	position: absolute;
+	width: 35px;
+	height: 35px;
+	top: 2px;
+	right: 4px;
+}
+
+@keyframes fadeInUpCom {
+	0% {
+		opacity: 1;
+		transform: translate3d(0, 140%, 0);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateZ(0);
+	}
+}
+
+.fadeInCom {
+	position: relative;
+	animation: fadeInUpCom 1.5s;
 }
 
 @keyframes fadeInUp {

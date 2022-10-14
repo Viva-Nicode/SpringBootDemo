@@ -11,11 +11,18 @@
 		where postid = #{postid}
 	</select>
 
-	<!-- <select id="findAll" parameterType="int" resultType="com.example.demo.db.CommentsVO">
-		select commenter, c_time,
-	</select> -->
-
 	<insert id="insertComment" parameterType="com.example.demo.db.CommentsVO">
-		insert into comments values(#{postid}, #{commenter}, now(), #{c_contents})
+		insert into comments(postid, commenter, c_time, c_contents) values(#{postid}, #{commenter}, now(), #{c_contents})
 	</insert>
+
+	<select id="findByCommenter" parameterType="String" resultType="com.example.demo.db.MyComments">
+		select commentid, comments.postid, title, commenter,c_time, c_contents
+		from comments inner join PostInfo on comments.postid = PostInfo.postid
+		where commenter = #{user_id}
+	</select>
+
+	<delete id="deleteCommentByCommentid" parameterType="int">
+		delete from comments where commentid = #{commentid}
+	</delete>
+	
 </mapper>

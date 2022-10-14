@@ -16,7 +16,6 @@
 		/* 로그인 여부를 검사하여 네비바의 로그인, 또는 로그아웃글자를 바꿔준다. 즉 네비바를 위한 함수이다. */
 		window.onload = function () {
 			if (user_id == 'null') {
-				$('#logSpan').html('&nbsp;&nbsp;&nbsp;Not logged in');
 				$('#logOption').html('log in');
 			} else {
 				$('#logSpan').html('');

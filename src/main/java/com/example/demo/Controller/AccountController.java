@@ -3,6 +3,7 @@ package com.example.demo.Controller;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +21,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.Service.AccountService;
+import com.example.demo.db.CommentsMapper;
+import com.example.demo.db.CommentsVO;
+import com.example.demo.db.MyComments;
+import com.example.demo.db.PostInfoMapper;
 import com.example.demo.db.UserMapper;
 import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
@@ -31,11 +36,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AccountController {
 
-	@Autowired
-	AccountService ac;
-
-	@Autowired
-	UserMapper um;
+	private final AccountService ac;
+	private final UserMapper um;
+	private final PostInfoMapper pm;
+	private final CommentsMapper cm;
 
 	@RequestMapping(value = "/moveSignupPage")
 	public ModelAndView moveSignupPage() {
@@ -45,7 +49,27 @@ public class AccountController {
 	@RequestMapping(value = "/moveUserInfoSetting")
 	public ModelAndView moveUserSetting(HttpServletRequest req) {
 		ModelAndView mav = new ModelAndView("UserInfoSetting");
-		mav.addObject("email", um.findUserByID(req.getSession().getAttribute("user_id") + "").get(0).getEmail());
+		String ui = req.getSession().getAttribute("user_id") + "";
+		if (ui.equals("null"))
+			return new ModelAndView("redirect:/");
+		mav.addObject("email", um.findUserByID(ui).get(0).getEmail());
+		mav.addObject("IwroteitList", pm.findByUserid(ui));
+		List<MyComments> l = cm.findByCommenter(ui);
+
+		for (MyComments c : l) {
+			c.setC_contents(c.getC_contents().replace(System.getProperty("line.separator"), "<br>"));
+			c.setC_contents(c.getC_contents().replace("[", "[["));
+			c.setC_contents(c.getC_contents().replace("]", "]]"));
+			c.setC_contents(c.getC_contents().replace("{", "{{"));
+			c.setC_contents(c.getC_contents().replace("}", "}}"));
+			c.setC_contents(c.getC_contents().replace(",", ",,"));
+			c.setC_contents(c.getC_contents().replace("'", "''"));
+			c.setC_contents(c.getC_contents().replace("\"", "\"\""));
+		}
+
+		/* 한번더 컨텐츠나 제목에 [ ] { } , ' " 를 제거하거나 이스케이프 시퀀스로 치환해줘야 한다. */
+
+		mav.addObject("commentList", l);
 		return mav;
 	}
 

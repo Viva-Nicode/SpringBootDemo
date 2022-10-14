@@ -13,4 +13,7 @@ public interface CommentsMapper {
 
 	public void insertComment(CommentsVO cvo);
 
+	public List<MyComments> findByCommenter(@Param("user_id") String user_id);
+
+	public void deleteCommentByCommentid(@Param("commentid") int commentid);
 }

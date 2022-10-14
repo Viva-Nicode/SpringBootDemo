@@ -55,21 +55,25 @@ public class PostController {
 	@RequestMapping(value = "/MoveWritePost")
 	public ModelAndView moveWritePost(HttpServletRequest req) throws IOException {
 
-		Map<String, String> tagMap = PapagoTranslationAPI
-				.getTranslationTagList(il.getImageLabels("classpath:static/upload/hot_air_balloon1.jpeg"));
-
-		for (Entry<String, String> elem : tagMap.entrySet())
-			System.out.println(elem.getKey() + " " + elem.getValue());
-
-		List<ColorInfo> colorList = DetectProperties.detectProperties(
-				"/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/upload/hot_air_balloon1.jpeg");
-
-		for (ColorInfo c : colorList) {
-			System.out.println(c.getPixelFraction());
-			System.out.println(c.getColor().getRed());
-			System.out.println(c.getColor().getGreen());
-			System.out.println(c.getColor().getBlue());
-		}
+		/*
+		 * Map<String, String> tagMap = PapagoTranslationAPI
+		 * .getTranslationTagList(il.getImageLabels(
+		 * "classpath:static/upload/hot_air_balloon1.jpeg"));
+		 * 
+		 * for (Entry<String, String> elem : tagMap.entrySet())
+		 * System.out.println(elem.getKey() + " " + elem.getValue());
+		 * 
+		 * List<ColorInfo> colorList = DetectProperties.detectProperties(
+		 * "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/upload/hot_air_balloon1.jpeg"
+		 * );
+		 * 
+		 * for (ColorInfo c : colorList) {
+		 * System.out.println(c.getPixelFraction());
+		 * System.out.println(c.getColor().getRed());
+		 * System.out.println(c.getColor().getGreen());
+		 * System.out.println(c.getColor().getBlue());
+		 * }
+		 */
 
 		HttpSession s = req.getSession();
 		String user_id = s.getAttribute("user_id") + "";
@@ -95,7 +99,6 @@ public class PostController {
 			HttpSession s = req.getSession();
 
 			Enumeration<?> files = MPR.getFileNames();
-			
 
 			while (files.hasMoreElements()) {
 				count++;
@@ -152,6 +155,11 @@ public class PostController {
 		List<String> l = pimb.findByPostid(postid);
 		mav.addObject("imageList", l);
 		List<CommentsVO> ll = cm.findCommentsByPostid(postid);
+
+		for(CommentsVO c : ll){
+			c.setC_contents(c.getC_contents().replace(System.getProperty("line.separator"), "<br>"));
+		}
+
 		Collections.reverse(ll);
 		mav.addObject("l", ll);
 

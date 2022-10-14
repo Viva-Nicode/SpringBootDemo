@@ -58,4 +58,10 @@ public class CommentsController {
 
 		return result;
 	}
+
+	@RequestMapping(value = "/deleteComment")
+	public @ResponseBody String deleteComment(HttpServletRequest req, HttpServletResponse resp) {
+		cm.deleteCommentByCommentid(Integer.parseInt(req.getParameter("commentid") + ""));
+		return "";
+	}
 }
