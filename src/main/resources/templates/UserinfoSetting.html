@@ -130,6 +130,7 @@
 					url: "http://localhost:8080/Account/checkEmail",
 					data: { email: email },
 					success: function (response) {
+						console.log('[[${email}]]');
 						if (response == 0) { // 변경성공
 							apply.className = 'btn btn-success';
 							applyStatus = 'success';
@@ -208,7 +209,7 @@
 						<img id="xbtn" src="/delete.png" th:onclick="deleteMyPost([[${mypost.postid}]])" />
 						<span class="badge text-bg-warning" th:text="${mypost.postid}" /><br>
 						<span th:text="${mypost.writtenTime}" style="font-family: 'Poor Story', cursive; font-size: 19px;" /><br>
-						<a style="font-family: 'Poor Story', cursive; font-size: 19px;text-decoration-line : none;" th:text="${mypost.title}" th:href='@{/Post/PostViewer(postid=${mypost.postid})}' />
+						<a style="font-family: 'Poor Story', cursive; font-size: 19px;text-decoration-line : none;" th:text="${mypost.title}" th:href='@{/Post/PostViewer/__${mypost.postid}__}' />
 					</div>
 				</div>
 			</th:block>

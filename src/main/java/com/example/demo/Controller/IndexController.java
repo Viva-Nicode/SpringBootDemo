@@ -3,7 +3,6 @@ package com.example.demo.Controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +24,7 @@ public class IndexController {
 	final private PostRepository u;
 
 	@RequestMapping(value = "/")
-	public ModelAndView ex1(HttpServletRequest request) {
+	public ModelAndView indexRequest() {
 
 		ModelAndView mav = new ModelAndView("../static/index");
 		List<PostInfoDTO> l = u.findAll();

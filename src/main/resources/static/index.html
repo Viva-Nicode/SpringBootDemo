@@ -49,7 +49,9 @@
 				<img class="profile" th:src="@{/profile/__${session.profile}__}">
 			</th:block>
 		</div>
-		<p id="nickname">^_^ ~*</p>
+		<div id="nickDiv">
+			<p id="nickname">^_^ ~*</p>
+		</div>
 	</div>
 
 	<button id="writeBtn" type="button" class="btn btn-outline-primary" onclick="isWrite()">Write</button>
@@ -70,14 +72,14 @@
 				<td th:text="${post.postid}"></td>
 				<th:block th:if="${post.imagenum == 0}">
 					<td>
-						<a class="jejuFont afont" th:href='@{/Post/PostViewer(postid=${post.getPostid})}'>[[${post.title}]]
+						<a class="jejuFont afont" th:href='@{/Post/PostViewer/__${post.getPostid}__}'>[[${post.title}]]
 							<span class="badge bg-info" th:text="${post.commentsnum}"></span>
 						</a>
 					</td>
 				</th:block>
 				<th:block th:unless="${post.imagenum == 0}">
 					<td>
-						<a class="jejuFont afont" th:href='@{/Post/PostViewer(postid=${post.getPostid})}'>[[${post.title}]]
+						<a class="jejuFont afont" th:href='@{/Post/PostViewer/__${post.getPostid}__}'>[[${post.title}]]
 							<span class="badge bg-danger" th:text="${post.commentsnum}"></span>
 						</a>
 					</td>

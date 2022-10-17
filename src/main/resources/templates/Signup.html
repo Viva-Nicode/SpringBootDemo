@@ -55,11 +55,13 @@
 				$('#errorMsg').html('wrong Email type');
 				return showAlert();
 			} else {
+				let user_datas = {user_id : id, email : lastDomain, user_pw: pw}
 				$.ajax({
 					type: "post",
 					async: false,
+					contentType: 'application/json',
 					url: "http://localhost:8080/Account/checkSignupOverlap",
-					data: { user_id: id, email: lastDomain, user_pw: pw },
+					data: JSON.stringify(user_datas),
 					success: function (response) {
 						if (response == 0) {
 							location.href = '/';
@@ -84,7 +86,7 @@
 </head>
 
 <body>
-	<img id="backgroundimage" th:src="@{/456.jpg}">
+	<img id="backgroundimage" th:src="@{/asdf.jpg}">
 	<div id="signupForm">
 		<form method="post" name="signupForm" onsubmit="return doValidation()">
 			<fieldset style="width: 270px">

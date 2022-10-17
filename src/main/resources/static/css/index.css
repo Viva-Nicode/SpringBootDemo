@@ -33,17 +33,21 @@
 }
 
 #nickname {
+	color: white;
+	padding: 5px 5px 5px 5px;
+	margin-bottom: 0px;
+}
+
+#nickDiv{
 	position: absolute;
 	left: 50%;
 	top: 43%;
-	background-color: wheat;
 	border-radius: 10px;
+	background-color: rgba(0, 0, 0, 0.4);
 	text-align: center;
 	/* top rignt bottom left */
 	padding: 5px 10px 5px 10px;
 	transform: translate( -50%, -50% );
-	font-size: 2.5vh;
-	color: black;
 }
 
 #writeBtn {

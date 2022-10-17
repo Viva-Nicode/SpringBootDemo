@@ -5,7 +5,7 @@
 	<script src="https://kit.fontawesome.com/67d8dfef5a.js" crossorigin="anonymous"></script>
 	<script type="text/javascript" charset="UTF-8">
 		let islikeAlready = Number('[[${islikeAlready}]]');
-		let likeNum = Number('[[${likes}]]');
+		let likeNum = Number('[[${postinfo.likes}]]');
 		const user_id = '[[${user_id}]]';
 
 		let toggleLike = function () {
@@ -32,7 +32,7 @@
 					type: "post",
 					async: false,
 					url: "http://localhost:8080/Comments/sendComment",
-					data: { user_id: user_id, postid: '[[${postid}]]', comment: fieldcomment },
+					data: { user_id: user_id, postid: '[[${postinfo.postid}]]', comment: fieldcomment },
 					success: function (data, textStatus) {
 						let jsoninfo = JSON.parse(data);
 						$('div').remove('#generalComment');
@@ -57,11 +57,13 @@
 				$('#modalMsg').html('You need to log in before you can click Like.');
 				$('#myModal').modal('show');
 			} else {
+				let likeData = { user_id: '[[${user_id}]]', postid: '[[${postinfo.postid}]]', likeAlready: islikeAlready}
 				$.ajax({
 					type: "post",
 					async: true,
+					contentType: 'application/json',
 					url: "http://localhost:8080/Post/likes",
-					data: { user_id: '[[${user_id}]]', postid: '[[${postid}]]', likeAlready: islikeAlready },
+					data: JSON.stringify(likeData),
 					success: function (data, textStatus) {
 						toggleLike();
 						return false;
@@ -75,7 +77,7 @@
 		}
 
 		window.onload = function () {
-			const user_id = '[[${session.user_id}]]';
+			const user_id = '[[${user_id}]]';
 			if (user_id == 'null' || user_id == '') {
 				$('#logOption').html('log in');
 			} else {
@@ -107,18 +109,18 @@
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
 
 	<div id="bg" class="card text-bg-dark" style="position:fixed; width:100vw; height: 100vh;">
-		<img src="../bgwebp.jpeg" class="card-img" alt="hello">
+		<img th:src="@{/bgwebp.jpeg}" class="card-img" alt="hello">
 	</div>
 	<div id="view" class="card container" style="width: 87vw;">
-		<span id="hit" class="badge text-bg-primary">hits [[${hits}]]</span>
+		<span id="hit" class="badge text-bg-primary">hits [[${postinfo.hits}]]</span>
 		<div id="wrtierandtime">
-			<p class="watp" style="text-align:right;font-family: 'Poor Story', cursive; font-size: 19px;" th:text="${wTime}"></p>
-			<p class="watp" style="text-align:right;font-family: 'Poor Story', cursive; font-size: 19px;" th:text="${writer}"></p>
+			<p class="watp" style="text-align:right;font-family: 'Poor Story', cursive; font-size: 19px;" th:text="${postinfo.writtentime}"></p>
+			<p class="watp" style="text-align:right;font-family: 'Poor Story', cursive; font-size: 19px;" th:text="${postinfo.writer}"></p>
 		</div>
 		<div class="card-body">
-			<h5 class="card-title" th:text="${title}"></h5><br>
-			<p class="card-text" style="font-family: 'Poor Story', cursive; font-size: 20px;" th:utext="${contents}"></p>
-			<th:input id="likeBtn" type="button" class="btn btn-outline-primary" onclick="likeFunc()" th:text="'💙 Like ' + ${likes}"></input>
+			<h5 class="card-title" th:text="${postinfo.title}"></h5><br>
+			<p class="card-text" style="font-family: 'Poor Story', cursive; font-size: 20px;" th:utext="${postinfo.contents}"></p>
+			<th:input id="likeBtn" type="button" class="btn btn-outline-primary" onclick="likeFunc()" th:text="'💙 Like ' + ${postinfo.likes}"></input>
 		</div>
 		<br><br>
 

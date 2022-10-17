@@ -12,10 +12,8 @@
 		window.onload = function () {
 			const user_id = '[[${session.user_id}]]';
 			if (user_id == 'null') {
-				$('#logSpan').html('&nbsp;&nbsp;&nbsp;Not logged in');
 				$('#logOption').html('log in');
 			} else {
-				$('#logSpan').html('&nbsp;&nbsp;&nbsp;welcome! ' + user_id);
 				$('#logOption').html('log out');
 			}
 		}

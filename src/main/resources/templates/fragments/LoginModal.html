@@ -21,6 +21,7 @@
 			data: { user_id: user_id, user_pw: user_pw },
 			success: function (data) {
 				if (data == 0) {
+					console.log(data)
 					$('#myModal').modal('hide');
 					location.reload();
 				} else {

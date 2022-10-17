@@ -2,6 +2,7 @@ package com.example.demo.Controller;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,19 +11,24 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.Service.AccountService;
 import com.example.demo.db.CommentsMapper;
-import com.example.demo.db.CommentsVO;
 import com.example.demo.db.MyComments;
 import com.example.demo.db.PostInfoMapper;
 import com.example.demo.db.UserMapper;
@@ -34,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/Account")
 @RequiredArgsConstructor
+@SessionAttributes(value = "user_id")
 public class AccountController {
 
 	private final AccountService ac;
@@ -46,42 +53,35 @@ public class AccountController {
 		return new ModelAndView("Signup");
 	}
 
+	/*
+	 * 알게된 사실
+	 * 1. 아래와 같이 매개변수로 모델을 넣어주고 값 바인딩하면 알아서 view로 전달된다.
+	 */
 	@RequestMapping(value = "/moveUserInfoSetting")
-	public ModelAndView moveUserSetting(HttpServletRequest req) {
-		ModelAndView mav = new ModelAndView("UserInfoSetting");
-		String ui = req.getSession().getAttribute("user_id") + "";
-		if (ui.equals("null"))
-			return new ModelAndView("redirect:/");
-		mav.addObject("email", um.findUserByID(ui).get(0).getEmail());
-		mav.addObject("IwroteitList", pm.findByUserid(ui));
+	public String moveUserSetting(@SessionAttribute(value = "user_id") String ui, Model model) {
+		model.addAttribute("email", um.findUserByID(ui).get(0).getEmail());
+		model.addAttribute("IwroteitList", pm.findByUserid(ui));
 		List<MyComments> l = cm.findByCommenter(ui);
 
 		for (MyComments c : l) {
-			c.setC_contents(c.getC_contents().replace(System.getProperty("line.separator"), "<br>"));
-			c.setC_contents(c.getC_contents().replace("[", "[["));
-			c.setC_contents(c.getC_contents().replace("]", "]]"));
-			c.setC_contents(c.getC_contents().replace("{", "{{"));
-			c.setC_contents(c.getC_contents().replace("}", "}}"));
-			c.setC_contents(c.getC_contents().replace(",", ",,"));
-			c.setC_contents(c.getC_contents().replace("'", "''"));
-			c.setC_contents(c.getC_contents().replace("\"", "\"\""));
+			c.setC_contents(c.getC_contents().replace(System.getProperty("line.separator"), "<br>").replace("[", "[[")
+					.replace("]", "]]").replace("{", "{{").replace("}", "}}").replace(",", ",,").replace("'", "&quot")
+					.replace("\"", "&quot"));
 		}
+		Collections.reverse(l);
 
-		/* 한번더 컨텐츠나 제목에 [ ] { } , ' " 를 제거하거나 이스케이프 시퀀스로 치환해줘야 한다. */
-
-		mav.addObject("commentList", l);
-		return mav;
+		model.addAttribute("commentList", l);
+		return "UserInfoSetting";
 	}
 
 	@RequestMapping(value = "/checkSignupOverlap")
-	public @ResponseBody String checkSignupOverlap(HttpServletRequest req) {
-		return ac.checkedOverlapUserInfo(req.getParameter("user_id"), req.getParameter("email"),
-				req.getParameter("user_pw")) + "";
+	public @ResponseBody String checkSignupOverlap(@RequestBody Map<String, String> map) {
+		return ac.checkedOverlapUserInfo(map.get("user_id"), map.get("email"), map.get("user_pw")) + "";
 	}
 
-	@RequestMapping(value = "/checkEmail")
-	public @ResponseBody String checkOverlapEmail(HttpServletRequest req) {
-		return ac.checkedOverlapEmail(req.getParameter("email")) + "";
+	@RequestMapping(value = "/checkEmail")/* email은 {email : email}같이 ajax로 보낸 데이터이다. */
+	public @ResponseBody String checkOverlapEmail(@ModelAttribute("email") String email) {
+		return ac.checkedOverlapEmail(email) + "";
 	}
 
 	@RequestMapping(value = "/profile")
@@ -117,7 +117,8 @@ public class AccountController {
 	}
 
 	@PostMapping(value = "/login")
-	public @ResponseBody String login(HttpServletRequest req, HttpServletResponse resp) {
+	@ResponseBody
+	public String login(HttpServletRequest req, HttpServletResponse resp) {
 		HttpSession s = req.getSession();
 
 		int result = ac.signin(req.getParameter("user_id"), req.getParameter("user_pw"));
@@ -132,10 +133,8 @@ public class AccountController {
 	}
 
 	@RequestMapping(value = "/logout")
-	public ResponseEntity<?> logout(HttpServletRequest req) {
-		HttpSession s = req.getSession();
-		s.removeAttribute("user_id");
-		s.removeAttribute("profile");
+	public ResponseEntity<?> logout(HttpServletRequest req, SessionStatus session) {
+		session.setComplete();
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setLocation(URI.create("/"));

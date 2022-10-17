@@ -8,6 +8,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import static java.lang.Integer.parseInt;
+import static java.lang.System.out;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -15,8 +17,11 @@ import javax.servlet.http.HttpSession;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.Service.DetectProperties;
@@ -53,7 +58,7 @@ public class PostController {
 	private final ImageLabel il;
 
 	@RequestMapping(value = "/MoveWritePost")
-	public ModelAndView moveWritePost(HttpServletRequest req) throws IOException {
+	public ModelAndView moveWritePost(HttpSession s) throws IOException {
 
 		/*
 		 * Map<String, String> tagMap = PapagoTranslationAPI
@@ -74,12 +79,9 @@ public class PostController {
 		 * System.out.println(c.getColor().getBlue());
 		 * }
 		 */
-
-		HttpSession s = req.getSession();
 		String user_id = s.getAttribute("user_id") + "";
-		if (user_id.equals("null")) {
+		if (user_id.equals("null"))
 			return new ModelAndView("redirect:/");
-		}
 		return new ModelAndView("PostWriter");
 	}
 
@@ -125,52 +127,40 @@ public class PostController {
 		return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
 	}
 
-	@RequestMapping(value = "/PostViewer")
-	public ModelAndView postViewer(HttpServletRequest req) {
-		HttpSession s = req.getSession();
+	@RequestMapping(value = "/PostViewer/{pid}")
+	public ModelAndView postViewer(HttpServletRequest req, @PathVariable(value = "pid") int pid, HttpSession s) {
+
+		String ui = s.getAttribute("user_id") + "";
 
 		ModelAndView mav = new ModelAndView("PostViewer");
-		String user_id = s.getAttribute("user_id") + "";
-		mav.addObject("user_id", user_id);
+		mav.addObject("user_id", ui);
 
-		int postid = Integer.parseInt(req.getParameter("postid"));
-		mav.addObject("postid", postid);
+		ps.increasedHits(pid);
 
-		ps.increasedHits(postid);
+		PostInfoDTO p = ps.getPost(pid);
+		p.setContents(p.getContents().replace("\r\n", "<br>"));
+		mav.addObject("postinfo", p);
 
-		PostInfoDTO p = ps.getPost(postid);
-
-		String contents = p.getContents();
-		mav.addObject("contents", contents.replace("\r\n", "<br>"));
-		mav.addObject("title", p.getTitle());
-		mav.addObject("likes", p.getLikes());
-		mav.addObject("hits", p.getHits());
-		mav.addObject("writer", p.getWriter());
-		mav.addObject("wTime", p.getWrittentime().toString().substring(0, p.getWrittentime().toString().length() - 2));
-		if (lr.existsBylikesId(new LikesId(postid, user_id)))
+		if (lr.existsBylikesId(new LikesId(pid, ui)))
 			mav.addObject("islikeAlready", 1);
 		else
 			mav.addObject("islikeAlready", 0);
 
-		List<String> l = pimb.findByPostid(postid);
+		List<String> l = pimb.findByPostid(pid);
 		mav.addObject("imageList", l);
-		List<CommentsVO> ll = cm.findCommentsByPostid(postid);
 
-		for(CommentsVO c : ll){
+		List<CommentsVO> commentsList = cm.findCommentsByPostid(pid);
+		for (CommentsVO c : commentsList)
 			c.setC_contents(c.getC_contents().replace(System.getProperty("line.separator"), "<br>"));
-		}
-
-		Collections.reverse(ll);
-		mav.addObject("l", ll);
+		Collections.reverse(commentsList);
+		mav.addObject("l", commentsList);
 
 		return mav;
 	}
 
 	@RequestMapping(value = "/likes")
-	public void dolike(HttpServletRequest req) {
-
-		ls.doLikes(Integer.parseInt(req.getParameter("postid")), req.getParameter("user_id"),
-				Integer.parseInt(req.getParameter("likeAlready")));
+	public void dolike(@RequestBody Map<String, String> map) {
+		ls.doLikes(parseInt(map.get("postid")), map.get("user_id"), parseInt(map.get("likeAlready")));
 	}
 
 }

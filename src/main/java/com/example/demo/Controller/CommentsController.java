@@ -49,7 +49,7 @@ public class CommentsController {
 			hm = new HashMap<String, Object>();
 			hm.put("commenter", c.getCommenter());
 			hm.put("c_time", c.getC_time() + "");
-			hm.put("c_contents", c.getC_contents());
+			hm.put("c_contents", c.getC_contents().replace(System.getProperty("line.separator"), "<br>"));
 			commentArray.add(new JSONObject(hm));
 		}
 
