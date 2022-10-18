@@ -34,6 +34,7 @@ import com.example.demo.Service.AccountService;
 import com.example.demo.db.CommentsMapper;
 import com.example.demo.db.MyComments;
 import com.example.demo.db.PostInfoMapper;
+import com.example.demo.db.PostInfoVO;
 import com.example.demo.db.UserMapper;
 import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
@@ -60,17 +61,24 @@ public class AccountController {
 	public String moveUserSetting(@SessionAttribute(value = "user_id") String ui, Model model) {
 		
 		model.addAttribute("email", um.findUserByID(ui).get(0).getEmail());
-		model.addAttribute("IwroteitList", pm.findByUserid(ui));
+		
 		List<MyComments> l = cm.findByCommenter(ui);
-
 		for (MyComments c : l) {
 			c.setC_contents(c.getC_contents().replace(System.getProperty("line.separator"), "<br>").replace("[", "[[")
-					.replace("]", "]]").replace("{", "{{").replace("}", "}}").replace(",", ",,").replace("'", "&quot")
-					.replace("\"", "&quot"));
+			.replace("]", "]]").replace("{", "{{").replace("}", "}}").replace(",", ",,").replace("'", "&quot")
+			.replace("\"", "&quot"));
 		}
 		Collections.reverse(l);
-
 		model.addAttribute("commentList", l);
+		
+		List<PostInfoVO> postlist = pm.findByUserid(ui);
+		for(PostInfoVO elem : postlist){
+			elem.setWrittenTime(elem.getWrittenTime().replace(":", "."));
+			/* 글작성시간을 그냥 년 원일 일 시분 이렇게 한글로 바꿔서 넘기자 */
+			elem.setContents("");
+		}
+
+		model.addAttribute("IwroteitList", postlist);
 		return "UserInfoSetting";
 	}
 

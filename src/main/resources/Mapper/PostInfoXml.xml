@@ -9,4 +9,14 @@
 		from PostInfo
 		where writer = #{user_id}
 	</select>
+
+	<select id="isMyself" parameterType="hashMap" resultType="String">
+		select if ( (select writer from PostInfo where postid = #{map.postid}) = #{map.writer}, 'true', 'false')
+	</select>
+	
+	<delete id="deletePost" parameterType="int">
+			delete from PostInfo where postid = #{postid}
+	</delete>
+
+
 </mapper>

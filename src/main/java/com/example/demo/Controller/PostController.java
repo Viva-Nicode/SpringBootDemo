@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.servlet.ModelAndView;
@@ -37,6 +40,7 @@ import com.example.demo.db.PostImageDTO;
 import com.example.demo.db.PostImageMapper;
 import com.example.demo.db.PostImageRepository;
 import com.example.demo.db.PostInfoDTO;
+import com.example.demo.db.PostInfoMapper;
 import com.google.cloud.vision.v1.ColorInfo;
 import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
@@ -54,6 +58,7 @@ public class PostController {
 	private final LikesService ls;
 	private final PostImageMapper pimb;
 	private final CommentsMapper cm;
+	private final PostInfoMapper pm;
 
 	private final ImageLabel il;
 
@@ -161,6 +166,23 @@ public class PostController {
 	@RequestMapping(value = "/likes")
 	public void dolike(@RequestBody Map<String, String> map) {
 		ls.doLikes(parseInt(map.get("postid")), map.get("user_id"), parseInt(map.get("likeAlready")));
+	}
+
+	@RequestMapping(value = "/deletePost")
+	public @ResponseBody String deletePost(@RequestParam(value = "postid") int postid, HttpSession s) {
+		String ui = s.getAttribute("user_id") + "";
+
+		if (ui.equals("null")) { // 해당 postid를 가진 post를 쓴 사람이 session의 user_id와 일치하는가를 검사해야 함
+			return "fail";
+		} else {
+			String result = pm.isMyself(Map.of("postid", postid + "", "writer", ui));
+			if (result.equals("true")) {
+				pm.deletePost(postid);
+				return "success";
+			} else {
+				return "fail";
+			}
+		}
 	}
 
 }
