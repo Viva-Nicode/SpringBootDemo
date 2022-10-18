@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Integer.parseInt;
+import static java.lang.System.out;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -53,12 +56,9 @@ public class AccountController {
 		return new ModelAndView("Signup");
 	}
 
-	/*
-	 * 알게된 사실
-	 * 1. 아래와 같이 매개변수로 모델을 넣어주고 값 바인딩하면 알아서 view로 전달된다.
-	 */
 	@RequestMapping(value = "/moveUserInfoSetting")
 	public String moveUserSetting(@SessionAttribute(value = "user_id") String ui, Model model) {
+		
 		model.addAttribute("email", um.findUserByID(ui).get(0).getEmail());
 		model.addAttribute("IwroteitList", pm.findByUserid(ui));
 		List<MyComments> l = cm.findByCommenter(ui);

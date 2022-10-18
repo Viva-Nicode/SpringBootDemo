@@ -21,3 +21,13 @@
 	top: 30%;
 	transform: translate(-50%);
 }
+
+#bg {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	object-fit: cover;
+	background-size: cover;
+	min-width: 100%;
+	min-height: 100%;
+}

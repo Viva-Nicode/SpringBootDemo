@@ -40,11 +40,21 @@
 	margin-bottom: 100px;
 }
 
+#bg {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	object-fit: cover;
+	background-size: cover;
+	min-width: 100%;
+	min-height: 100%;
+}
+
 #hit {
 	position: relative;
 	width: 100px;
 	left: -14px;
-	top:-10px;
+	top: -10px;
 }
 
 #wrtierandtime {

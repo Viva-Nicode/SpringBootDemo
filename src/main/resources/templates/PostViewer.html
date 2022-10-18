@@ -57,7 +57,7 @@
 				$('#modalMsg').html('You need to log in before you can click Like.');
 				$('#myModal').modal('show');
 			} else {
-				let likeData = { user_id: '[[${user_id}]]', postid: '[[${postinfo.postid}]]', likeAlready: islikeAlready}
+				let likeData = { user_id: '[[${user_id}]]', postid: '[[${postinfo.postid}]]', likeAlready: islikeAlready }
 				$.ajax({
 					type: "post",
 					async: true,
@@ -107,10 +107,7 @@
 
 <body>
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
-
-	<div id="bg" class="card text-bg-dark" style="position:fixed; width:100vw; height: 100vh;">
-		<img th:src="@{/bgwebp.jpeg}" class="card-img" alt="hello">
-	</div>
+	<img id="bg" th:src="@{/wefw.jpg}" alt="hello">
 	<div id="view" class="card container" style="width: 87vw;">
 		<span id="hit" class="badge text-bg-primary">hits [[${postinfo.hits}]]</span>
 		<div id="wrtierandtime">

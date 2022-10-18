@@ -23,10 +23,7 @@
 
 <body>
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
-
-	<div id="bg" class="card text-bg-dark" style="position:fixed; width:100vw;">
-		<img src="../bgwebp.jpeg" class="card-img" alt="hello">
-	</div>
+	<img id="bg" src="../wefw.jpg"  alt="hello">
 
 	<form method="post" th:action="@{/Post/InsertPost}" class="needs-validation" enctype="multipart/form-data" id="WritePostForm">
 		<input name="title" type="text" class="form-control" id="TitleTextField" placeholder="제목을 입력해 주세요" maxlength=25 required autofocus>
