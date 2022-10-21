@@ -15,8 +15,14 @@
 	</select>
 	
 	<delete id="deletePost" parameterType="int">
-			delete from PostInfo where postid = #{postid}
+			delete from PostInfo 
+			where postid = #{postid}
 	</delete>
+
+	<select id="getLikepostByUserid" parameterType="String" resultType="com.example.demo.db.PostInfoVO">
+		select * 
+		from (select postid from likes where liker = #{user_id}) p inner join PostInfo on p.postid = PostInfo.postid
+	</select>
 
 
 </mapper>

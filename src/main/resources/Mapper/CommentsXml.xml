@@ -24,5 +24,9 @@
 	<delete id="deleteCommentByCommentid" parameterType="int">
 		delete from comments where commentid = #{commentid}
 	</delete>
+
+	<select id="isMyselfComment" parameterType="hashMap" resultType="String">
+		select if ( (select commenter from comments where commentid = #{map.commentid}) = #{map.commenter}, 'true', 'false')
+	</select>
 	
 </mapper>

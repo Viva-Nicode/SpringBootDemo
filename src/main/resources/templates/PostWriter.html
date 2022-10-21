@@ -17,20 +17,42 @@
 				$('#logOption').html('log out');
 			}
 		}
+
+		function checkTitle(){
+			let title = $('#TitleTextField').val();
+			const regex = /^[ㄱ-ㅎ|가-힣|a-z| |A-Z|0-9|]+$/;
+			if(regex.test(title))
+				return true;
+			$('#errorMsg').html('title must write en, ko, number only');
+			return showAlert();
+		}
+
+		function showAlert() {
+			$('#alert').show()
+			setTimeout(() => { $('#alert').fadeOut() }, 2500);
+			return false;
+		}
 	</script>
 	<th:block th:replace="~{fragments/navbar::logAction}"></th:block>
 </head>
-<!-- 글 제목은 영어와 한글 숫자같은거로 제한하고 json에서 문제될만한 특수문자들 : { , 이런거는 못쓰게 하자 -->
+
 <body>
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
-	<img id="bg" src="../wefw.jpg"  alt="hello">
+	<img id="bg" src="../wefw.jpg" alt="hello">
 
-	<form method="post" th:action="@{/Post/InsertPost}" class="needs-validation" enctype="multipart/form-data" id="WritePostForm">
+	<form method="post" th:action="@{/Post/InsertPost}" class="needs-validation" enctype="multipart/form-data" id="WritePostForm" onsubmit="return checkTitle()">
 		<input name="title" type="text" class="form-control" id="TitleTextField" placeholder="제목을 입력해 주세요" maxlength=25 required autofocus>
 		<textarea name="contents" required maxlength=4000 class="form-control col" id="ContentTextarea" rows="15" placeholder="음란물, 차별, 비하, 혐오 및 초상권, 저작권 침해 게시물은 민, 형사상의 책임을 질 수 있습니다. "></textarea><br>
-		<input name="imagefile" class="form-control form-control-sm" id="formFileSm" type="file" accept=".png, .jpg, .jpeg">
-		<button id="writeBtn" class="btn btn-primary" th:type="submit">Write</button>
+		<input name="imagefile" class="form-control form-control-sm" id="formFileSm" type="file" accept=".png, .jpg, .jpeg" style="opacity: 0.85;">
+		<button id="writeBtn" class="btn btn-primary" type="submit">Write</button>
 	</form>
+	<div id="alert" role="alert" class="alert alert-danger alert-dismissable fade show fadeIn" style="display: none;" th:fragment="Alert-div">
+		<svg id="svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+			<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+		</svg>
+		<h4 style="text-align: left;">Notification</h4>
+		<div id="errorMsg" style="text-align: left;"></div>
+	</div>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
 </body>
 

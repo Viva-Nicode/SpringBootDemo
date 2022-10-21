@@ -1,11 +1,13 @@
 #ContentTextarea {
 	resize: none;
+	opacity: 0.85;
 }
 
 #TitleTextField {
 	width: 90vw;
 	margin: 10px;
 	resize: none;
+	opacity: 0.85;
 }
 
 #writeBtn {
@@ -30,4 +32,32 @@
 	background-size: cover;
 	min-width: 100%;
 	min-height: 100%;
+}
+
+#alert {
+	position: fixed;
+	width: 70vw;
+	height: 110px;
+	top: 10%;
+	left: 50%;
+	z-index: 9999;
+	opacity: 0.85;
+	transform: translate(-50%);
+}
+
+@keyframes fadeInUp {
+	0% {
+		opacity: 0;
+		transform: translate3d(0, -40%, 0);
+		transform: translate(-50%);
+	}
+
+	to {
+		opacity: 0.85;
+		transform: translate(-50%);
+	}
+}
+
+.fadeIn {
+	animation: fadeInUp 0.5s;
 }

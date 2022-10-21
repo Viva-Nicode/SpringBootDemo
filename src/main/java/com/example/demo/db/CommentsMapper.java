@@ -1,6 +1,7 @@
 package com.example.demo.db;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -16,4 +17,6 @@ public interface CommentsMapper {
 	public List<MyComments> findByCommenter(@Param("user_id") String user_id);
 
 	public void deleteCommentByCommentid(@Param("commentid") int commentid);
+
+	public String isMyselfComment(@Param("map") Map<String, String> map);
 }

@@ -4,8 +4,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.example.demo.Interceptor.PermissionInterceptor;
 
 @Configuration
 public class MvcConfiguration implements WebMvcConfigurer {
@@ -16,7 +19,11 @@ public class MvcConfiguration implements WebMvcConfigurer {
 		registry.addResourceHandler("/*").addResourceLocations(
 				"classpath:/templates/", "classpath:/static/")
 				.setCacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES));
-
 	}
 
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(new PermissionInterceptor())
+				.addPathPatterns("/Post/deletePost", "/Comments/deleteComment");
+	}
 }

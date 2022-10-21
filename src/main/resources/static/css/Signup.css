@@ -43,9 +43,29 @@ body {
 
 #alert {
 	position: fixed;
-	top: 35%;
-	left: 45%;
-	transform:translate(-50%);
+	width: 70vw;
+	height: 110px;
+	top: 10%;
+	left: 50%;
+	z-index: 9999;
+	opacity: 0.9;
+	transform: translate(-50%);
+}
+@keyframes fadeInUp {
+	0% {
+		opacity: 0;
+		transform: translate3d(0, -40%, 0);
+		transform: translate(-50%);
+	}
+
+	to {
+		opacity: 0.9;
+		transform: translate(-50%);
+	}
+}
+
+.fadeIn {
+	animation: fadeInUp 0.5s;
 }
 
 #signupForm {

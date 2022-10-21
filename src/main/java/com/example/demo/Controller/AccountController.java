@@ -58,27 +58,33 @@ public class AccountController {
 	}
 
 	@RequestMapping(value = "/moveUserInfoSetting")
-	public String moveUserSetting(@SessionAttribute(value = "user_id") String ui, Model model) {
-		
+	public String moveUserSetting(Model model, @SessionAttribute(value = "user_id") String ui) {
+
 		model.addAttribute("email", um.findUserByID(ui).get(0).getEmail());
-		
+
 		List<MyComments> l = cm.findByCommenter(ui);
 		for (MyComments c : l) {
 			c.setC_contents(c.getC_contents().replace(System.getProperty("line.separator"), "<br>").replace("[", "[[")
-			.replace("]", "]]").replace("{", "{{").replace("}", "}}").replace(",", ",,").replace("'", "&quot")
-			.replace("\"", "&quot"));
+					.replace("]", "]]").replace("{", "{{").replace("}", "}}").replace(",", ",,").replace("'", "&quot")
+					.replace("\"", "&quot"));
 		}
 		Collections.reverse(l);
 		model.addAttribute("commentList", l);
-		
+
 		List<PostInfoVO> postlist = pm.findByUserid(ui);
-		for(PostInfoVO elem : postlist){
+		for (PostInfoVO elem : postlist) {
 			elem.setWrittenTime(elem.getWrittenTime().replace(":", "."));
-			/* 글작성시간을 그냥 년 원일 일 시분 이렇게 한글로 바꿔서 넘기자 */
 			elem.setContents("");
 		}
-
 		model.addAttribute("IwroteitList", postlist);
+
+		List<PostInfoVO> likepostlist = pm.getLikepostByUserid(ui);
+		for (PostInfoVO elem : likepostlist) {
+			elem.setWrittenTime(elem.getWrittenTime().replace(":", "."));
+			elem.setContents("");
+		}
+		model.addAttribute("likepostlist", likepostlist);
+
 		return "UserInfoSetting";
 	}
 
@@ -87,7 +93,7 @@ public class AccountController {
 		return ac.checkedOverlapUserInfo(map.get("user_id"), map.get("email"), map.get("user_pw")) + "";
 	}
 
-	@RequestMapping(value = "/checkEmail")/* email은 {email : email}같이 ajax로 보낸 데이터이다. */
+	@RequestMapping(value = "/checkEmail") /* email은 {email : email}같이 ajax로 보낸 데이터이다. */
 	public @ResponseBody String checkOverlapEmail(@ModelAttribute("email") String email) {
 		return ac.checkedOverlapEmail(email) + "";
 	}
@@ -126,7 +132,7 @@ public class AccountController {
 
 	@PostMapping(value = "/login")
 	@ResponseBody
-	public String login(HttpServletRequest req, HttpServletResponse resp) {
+	public String login(HttpServletRequest req) {
 		HttpSession s = req.getSession();
 
 		int result = ac.signin(req.getParameter("user_id"), req.getParameter("user_pw"));

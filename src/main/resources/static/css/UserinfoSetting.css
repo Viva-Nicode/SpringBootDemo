@@ -1,8 +1,9 @@
 #index-nav {
 	position: fixed;
 	top: 15%;
-	left: 3%;
+	left: 3vw;
 	width: 23vw;
+	max-width: 300px;
 }
 
 #scroll-div {
@@ -92,4 +93,23 @@
 #svg2 {
 	position: relative;
 	top: -15px
+}
+
+.notExistnotting {
+	position: relative;
+	left: 50%;
+	height: 250px;
+	opacity: 0.4;
+	transform: translate(-50%);
+}
+
+#nottingMsg {
+	position: relative;
+	margin-top: 10px;
+	height: 70px;
+	text-align: right;
+	font-family: 'Poor Story', cursive;
+	font-size: 30px;
+	opacity: 0.4;
+	text-align: center;
 }

@@ -89,12 +89,8 @@
 					submit.disabled = true;
 				}
 			});
-
-			/* profileForm.addEventListener('submit', function (event) {
-			}); */
 			/* The Quick Brown Fox Jumps Over The Lazy Dog. */
 			/* Bright vixens jump, dozy fowl quack. */
-
 		}
 
 		function commentListRerender(commentid) {
@@ -115,10 +111,23 @@
 						think.append('<div id=\'' + commentJsonObjectList[idx].commentid + '\' class=\'card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded fadeInCom\' style=\'--offset:' + offset + 'px;\'> <div class=\'card-header\' style=\'text-align:left;font-family: \"Poor Story\", cursive; font-size: 20px;\' >' + commentJsonObjectList[idx].title + ' at ' + commentJsonObjectList[idx].c_time + '</div><div class=\'card-body\'> <img id=\'xbtn\' src=\'/delete.png\' onclick=\'deleteMyComment(' + commentJsonObjectList[idx].commentid + ')\' /><span >' + commentJsonObjectList[idx].c_contents + '</span></div></div>');
 					}, 1200) */
 					$('div').remove('#' + commentJsonObjectList[idx].commentid)
-					think.append('<div id=\'' + commentJsonObjectList[idx].commentid + '\' class=\'card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded fadeInCom\' style=\'--offset:' + offset + 'px;\'> <div class=\'card-header\' style=\'text-align:left;font-family: \"Poor Story\", cursive; font-size: 20px;\' >' + commentJsonObjectList[idx].title + ' at ' + commentJsonObjectList[idx].c_time + '</div><div class=\'card-body\'> <img id=\'xbtn\' src=\'/delete.png\' onclick=\'deleteMyComment(' + commentJsonObjectList[idx].commentid + ')\' /><span >' + commentJsonObjectList[idx].c_contents + '</span></div></div>');
+					let temp = `<div id="${commentJsonObjectList[idx].commentid}" class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded fadeInCom" style="--offset: ${offset}px;">
+									<div class="card-header" style="text-align:left;font-family: 'Poor Story', cursive; font-size: 20px;">${commentJsonObjectList[idx].title} + ' at ' + ${commentJsonObjectList[idx].c_time}</div>
+										<div class="card-body">
+										<img id="xbtn" src="/delete.png" onclick="deleteMyComment(${commentJsonObjectList[idx].commentid})" />
+										<span>${commentJsonObjectList[idx].c_contents}</span>
+									</div>
+								</div>`
+					think.append(temp);
 				}
 			}
 			commentJsonObjectList.splice(removeIdx, 1)
+			if (commentJsonObjectList.length == 0) {
+				think.append(
+					`<img src="/nocomment.png" class="notExistnotting" style="width: 200px;" />
+					<div id="nottingMsg">아무런 댓글도 작성하지 않았어요!'</div>`
+				)
+			}
 		}
 
 		function postListRerender(postid) {
@@ -147,6 +156,12 @@
 				}
 			}
 			postJsonObjectList.splice(removeIdx, 1)
+			if (postJsonObjectList.length == 0) {
+				your_post.append(
+					`<img src="/nopost.png" class="notExistnotting" style="width: 200px;"/>
+					<div id="nottingMsg">아무런 글도 작성하지 않았어요!</div>`
+				)
+			}
 		}
 
 
@@ -212,7 +227,11 @@
 				url: "http://localhost:8080/Comments/deleteComment",
 				data: { commentid: commentid },
 				success: function (response) {
-					commentListRerender(commentid)
+					if (response == 'fail') {
+						location.reload()
+					} else {
+						commentListRerender(commentid)
+					}
 				},
 				error: function (request, status, error) {
 					alert("code: " + request.status + "message: " + request.responseText + "error: " + error);
@@ -251,7 +270,7 @@
 			</form>
 		</div><br>
 		<div class="row col-16" id="your_post">
-			<span class="badge text-bg-secondary" style="margin-top: 20px; margin-bottom: 20px; font-size: 20px; text-align: left;">I wrote it :) </span>
+			<span class="badge text-bg-success" style="margin-top: 20px; margin-bottom: 20px; font-size: 20px; text-align: left;">I wrote it :) </span>
 			<th:block th:each="mypost, index: ${IwroteitList}">
 				<div th:id="${mypost.postid}" class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded">
 					<div class="card-body">
@@ -262,32 +281,29 @@
 					</div>
 				</div>
 			</th:block>
+			<th:block th:if="${#lists.size(IwroteitList) <= 0}">
+				<img src="/nopost.png" class="notExistnotting" style="width: 200px;" />
+				<div id="nottingMsg" th:text="'아무런 글도 작성하지 않았어요!'"></div>
+			</th:block>
 		</div>
 		<div class="row col-16" id="your_like">
-			<span class="badge text-bg-secondary" style="margin-top: 20px; margin-bottom: 20px; font-size: 20px; text-align: left;">I like it :) </span>
-			<div class="card border-info row col-16 post">
-				<div class="card-body">
-					test card body
+			<span class="badge text-bg-success" style="margin-top: 20px; margin-bottom: 20px; font-size: 20px; text-align: left;">I like it :) </span>
+			<th:block th:each="mylikepost, index: ${likepostlist}">
+				<div th:id="${mylikepost.postid}" class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded">
+					<div class="card-body">
+						<span class="badge text-bg-warning" th:text="${mylikepost.postid}" /><br>
+						<span th:text="${mylikepost.writtenTime}" style="font-family: 'Poor Story', cursive; font-size: 19px;" /><br>
+						<a style="font-family: 'Poor Story', cursive; font-size: 19px;text-decoration-line : none;" th:text="${mylikepost.title}" th:href='@{/Post/PostViewer/__${mylikepost.postid}__}' />
+					</div>
 				</div>
-			</div>
-			<div class="card border-info row col-16 post">
-				<div class="card-body">
-					test card body
-				</div>
-			</div>
-			<div class="card border-info row col-16 post">
-				<div class="card-body">
-					test card body
-				</div>
-			</div>
-			<div class="card border-info row col-16 post">
-				<div class="card-body">
-					test card body
-				</div>
-			</div>
+			</th:block>
+			<th:block th:if="${#lists.size(likepostlist) <= 0}">
+				<img src="/nolike.png" class="notExistnotting" style="width: 200px;" />
+				<div id="nottingMsg" th:text="'어떤글에도 좋아요를 누르지 않았어요!'"></div>
+			</th:block>
 		</div>
 		<div class="row col-16" id="think">
-			<span class="badge text-bg-secondary" style="margin-top: 20px; margin-bottom: 20px; font-size: 20px; text-align: left;">I comment it :) </span>
+			<span class="badge text-bg-success" style="margin-top: 20px; margin-bottom: 20px; font-size: 20px; text-align: left;">I comment it :) </span>
 			<th:block th:each="mycomment, index: ${commentList}">
 				<div th:id="${mycomment.commentid}" class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded">
 					<div class="card-header" style="text-align:left;font-family: 'Poor Story', cursive; font-size: 20px;" th:text="${mycomment.title} + ' at ' + ${mycomment.c_time}" />
@@ -296,6 +312,10 @@
 						<span th:utext="${mycomment.c_contents}" />
 					</div>
 				</div>
+			</th:block>
+			<th:block th:if="${#lists.size(commentList) <= 0}">
+				<img src="/nocomment.png" class="notExistnotting" style="width: 200px;" />
+				<div id="nottingMsg" th:text="'아무런 댓글도 작성하지 않았어요!'"></div>
 			</th:block>
 		</div>
 	</div>

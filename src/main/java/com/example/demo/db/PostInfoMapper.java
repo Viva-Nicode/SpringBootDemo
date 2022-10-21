@@ -13,6 +13,8 @@ public interface PostInfoMapper {
 	public List<PostInfoVO> findByUserid(@Param("user_id") String user_id);
 
 	public String isMyself(@Param("map") Map<String, String> map);
-	
+
 	public void deletePost(@Param("postid") int postid);
+
+	public List<PostInfoVO> getLikepostByUserid(@Param("user_id") String user_id);
 }

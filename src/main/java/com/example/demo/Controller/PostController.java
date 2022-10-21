@@ -63,7 +63,7 @@ public class PostController {
 	private final ImageLabel il;
 
 	@RequestMapping(value = "/MoveWritePost")
-	public ModelAndView moveWritePost(HttpSession s) throws IOException {
+	public ModelAndView moveWritePost(@SessionAttribute(value = "user_id") String ui) throws IOException {
 
 		/*
 		 * Map<String, String> tagMap = PapagoTranslationAPI
@@ -84,16 +84,13 @@ public class PostController {
 		 * System.out.println(c.getColor().getBlue());
 		 * }
 		 */
-		String user_id = s.getAttribute("user_id") + "";
-		if (user_id.equals("null"))
-			return new ModelAndView("redirect:/");
 		return new ModelAndView("PostWriter");
 	}
 
 	@RequestMapping(value = "/InsertPost")
 	public ResponseEntity<?> insertPost(HttpServletRequest req) {
 
-		int count = 0;
+		int count = 0, postid = 0;
 		ArrayList<String> nameList = new ArrayList<>();
 		String savePath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/upload/";
 
@@ -117,7 +114,7 @@ public class PostController {
 			if (nameList.get(0) == null)
 				count = 0;
 
-			int postid = ps.insertPost(new PostInfoDTO(title, s.getAttribute("user_id") + "", contents, count));
+			postid = ps.insertPost(new PostInfoDTO(title, s.getAttribute("user_id") + "", contents, count));
 
 			for (int idx = 0; idx < nameList.size(); idx++) {
 				if (nameList.get(idx) != null)
@@ -128,7 +125,7 @@ public class PostController {
 		}
 
 		HttpHeaders headers = new HttpHeaders();
-		headers.setLocation(URI.create("/"));
+		headers.setLocation(URI.create("/Post/PostViewer/" + postid));
 		return new ResponseEntity<>(headers, HttpStatus.MOVED_PERMANENTLY);
 	}
 
@@ -169,20 +166,14 @@ public class PostController {
 	}
 
 	@RequestMapping(value = "/deletePost")
-	public @ResponseBody String deletePost(@RequestParam(value = "postid") int postid, HttpSession s) {
-		String ui = s.getAttribute("user_id") + "";
+	public @ResponseBody String deletePost(@RequestParam(value = "postid") int postid,
+			@SessionAttribute(value = "user_id") String ui) {
 
-		if (ui.equals("null")) { // 해당 postid를 가진 post를 쓴 사람이 session의 user_id와 일치하는가를 검사해야 함
-			return "fail";
-		} else {
-			String result = pm.isMyself(Map.of("postid", postid + "", "writer", ui));
-			if (result.equals("true")) {
-				pm.deletePost(postid);
-				return "success";
-			} else {
-				return "fail";
-			}
+		String result = pm.isMyself(Map.of("postid", postid + "", "writer", ui));
+		if (result.equals("true")) {
+			pm.deletePost(postid);
+			return "success";
 		}
+		return "fail";
 	}
-
 }

@@ -20,10 +20,8 @@ public class LikesService {
 
 	public void doLikes(int postid, String liker, int flag) {
 		if (flag == 1) {
-			System.out.println("delete");
 			lr.deleteById(new LikesId(postid, liker));
 		} else if (flag == 0) {
-			System.out.println("save");
 			lr.save(new LikesDTO(postid, liker));
 		}
 	}

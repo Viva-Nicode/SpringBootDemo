@@ -28,11 +28,15 @@
 				$('#myModal').modal('show');
 			} else {
 				const fieldcomment = $('#commentsField').val();
+				if(fieldcomment == ""){
+					alert('관리자 일침 : 뭐라고도 좀 쓰고 댓글 달아라 이자식아 상식적으로 빈 댓글 다는놈이 어딨어')
+					return
+				}
 				$.ajax({
 					type: "post",
 					async: false,
 					url: "http://localhost:8080/Comments/sendComment",
-					data: { user_id: user_id, postid: '[[${postinfo.postid}]]', comment: fieldcomment },
+					data: { postid: '[[${postinfo.postid}]]', comment: fieldcomment },
 					success: function (data, textStatus) {
 						let jsoninfo = JSON.parse(data);
 						$('div').remove('#generalComment');
@@ -156,7 +160,7 @@
 				</div>
 			</div>
 			<form id="c_form">
-				<textarea id="commentsField" placeholder="please insert comment here." maxlength=90 class="form-control col-sm-5" rows="3"></textarea>
+				<textarea id="commentsField" placeholder="please insert comment here." maxlength=90 class="form-control col-sm-5" rows="3" required></textarea>
 				<button id="sendCommentBtn" type="button" class="btn btn-primary" onclick="sendComment()">send</button>
 			</form>
 		</div>
