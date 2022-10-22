@@ -1,3 +1,4 @@
+
 <script th:inline="javascript" th:fragment="modalScript">
 	/* <![CDATA[ */
 	function showAlert() {
@@ -9,6 +10,8 @@
 	function checkLoginFail() {
 		const user_id = $('#user_id').val();
 		const user_pw = $('#user_pw').val();
+		const token = $("meta[name='_csrf']").attr("content");
+		const header = $("meta[name='_csrf_header']").attr("content");
 
 		/*
 		document.getElementById() 이거랑 var userEmailInput = $('#user_email'); 이거가 가져오는것은 값 자체가 아닌 태그이다.
@@ -18,6 +21,9 @@
 			type: "post",
 			async: false,
 			url: "http://localhost:8080/Account/login",
+			beforeSend: function (xhr) {
+				xhr.setRequestHeader(header, token);
+			},
 			data: { user_id: user_id, user_pw: user_pw },
 			success: function (data) {
 				if (data == 0) {

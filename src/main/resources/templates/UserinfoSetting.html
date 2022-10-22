@@ -4,6 +4,8 @@
 <head>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta id="_csrf" name="_csrf" th:content="${_csrf.token}" />
+	<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" th:href="@{/css/custom.css}">
 	<link rel="stylesheet" th:href="@{/css/UserinfoSetting.css}">
@@ -173,10 +175,15 @@
 				$('#errorMsg').html('wrong Email type');
 				return showAlert();
 			} else {
+				const token = $("meta[name='_csrf']").attr("content");
+				const header = $("meta[name='_csrf_header']").attr("content");
 				$.ajax({
 					type: "post",
 					async: false,
 					url: "http://localhost:8080/Account/checkEmail",
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader(header, token);
+					},
 					data: { email: email },
 					success: function (response) {
 						console.log('[[${email}]]');
@@ -202,10 +209,15 @@
 		}
 
 		function deleteMyPost(postid) {
+			const token = $("meta[name='_csrf']").attr("content");
+			const header = $("meta[name='_csrf_header']").attr("content");
 			$.ajax({
 				type: "post",
 				async: false,
 				url: "http://localhost:8080/Post/deletePost",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader(header, token);
+				},
 				data: { postid: postid },
 				success: function (response) {
 					if (response == 'success')
@@ -221,10 +233,15 @@
 		}
 
 		function deleteMyComment(commentid) {
+			const token = $("meta[name='_csrf']").attr("content");
+			const header = $("meta[name='_csrf_header']").attr("content");
 			$.ajax({
 				type: "post",
 				async: false,
 				url: "http://localhost:8080/Comments/deleteComment",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader(header, token);
+				},
 				data: { commentid: commentid },
 				success: function (response) {
 					if (response == 'fail') {
@@ -260,12 +277,13 @@
 	</div>
 	<div class="container" id="scroll-div" data-bs-spy="scroll" data-bs-target="#index-nav" data-bs-offset="0" tabindex="0">
 		<div class="card border-info row col-16" id="profileForm">
-			<form id="profileForm" method="post" th:action="@{/Account/profile}" class="needs-validation card-body " enctype="multipart/form-data">
+			<form id="profileForm" method="post" th:action="@{/Account/profile?__${_csrf.parameterName}__=__${_csrf.token}__}" class="needs-validation card-body " enctype="multipart/form-data">
 				<div class="input-group">
 					<input id="email" type="text" name="email" required style="text-align: left" th:value="${email}" class="form-control" placeholder="Email" aria-label="Email" aria-describedby="button-addon2">
 					<button onclick="checked_email_overlap()" disabled class="btn btn-secondary" type="button" id="apply">overLap check</button>
 				</div><br>
 				<input name="imagefile" class="form-control form-control-sm" id="profileInput" type="file" accept=".png, .jpg, .jpeg"><br>
+				<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 				<button id="profileBtn" class="btn btn-primary float-right" th:type="submit">Apply</button>
 			</form>
 		</div><br>

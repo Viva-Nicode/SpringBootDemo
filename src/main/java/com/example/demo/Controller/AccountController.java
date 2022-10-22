@@ -44,7 +44,7 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/Account")
 @RequiredArgsConstructor
-@SessionAttributes(value = "user_id")
+@SessionAttributes(value = {"user_id", "commentList","IwroteitList","likepostlist"})
 public class AccountController {
 
 	private final AccountService ac;
@@ -99,9 +99,9 @@ public class AccountController {
 	}
 
 	@RequestMapping(value = "/profile")
-	public ModelAndView uploadprofile(HttpServletRequest req) {
+	public String uploadprofile(HttpServletRequest req, Model model) {
 		Map<String, String> m = new HashMap<>();
-		ModelAndView mav = new ModelAndView("UserInfoSetting");
+		/* redirect:/Account/moveUserInfoSetting */
 		final String savePath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/profile/";
 
 		HttpSession s = req.getSession();
@@ -118,8 +118,8 @@ public class AccountController {
 				m.put("newEmail", email);
 				um.updateUserEmail(m);
 			}
-			mav.addObject("email", email);
-			mav.addObject("reroad", 1);
+			model.addAttribute("email", email);
+			model.addAttribute("reroad", 1);
 			m.put("profileImageName", imageName);
 			um.insertUserProfileImage(m);
 			s.setAttribute("profile", imageName);
@@ -127,7 +127,7 @@ public class AccountController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return mav;
+		return "UserinfoSetting";
 	}
 
 	@PostMapping(value = "/login")
