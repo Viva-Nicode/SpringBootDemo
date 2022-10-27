@@ -63,11 +63,13 @@ public class AccountController {
 		model.addAttribute("email", um.findUserByID(ui).get(0).getEmail());
 
 		List<MyComments> l = cm.findByCommenter(ui);
+
 		for (MyComments c : l) {
 			c.setC_contents(c.getC_contents().replace(System.getProperty("line.separator"), "<br>").replace("[", "[[")
 					.replace("]", "]]").replace("{", "{{").replace("}", "}}").replace(",", ",,").replace("'", "&quot")
 					.replace("\"", "&quot"));
 		}
+		
 		Collections.reverse(l);
 		model.addAttribute("commentList", l);
 

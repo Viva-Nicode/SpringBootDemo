@@ -12,7 +12,7 @@
 	<script src="https://kit.fontawesome.com/67d8dfef5a.js" crossorigin="anonymous"></script>
 	<script src="/js/jquery-3.6.0.min.js"></script>
 	<script src="/js/popper.js"></script>
-	<script src="/js/popper.js.map"></script>
+	<script type="text/map" src="/js/popper.js.map"></script>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
 	<script th:inline="javascript">
 		/* <![CDATA[ */
@@ -272,7 +272,7 @@
 		<a style="font-family: 'Poor Story', cursive; font-size: 19px;" class="list-group-item list-group-item-action" href="#your_post">I wrote it</a>
 		<a style="font-family: 'Poor Story', cursive; font-size: 19px;" class="list-group-item list-group-item-action" href="#your_like">I like it</a>
 		<a style="font-family: 'Poor Story', cursive; font-size: 19px;" class="list-group-item list-group-item-action" href="#think">I have think about it</a>
-		<a style="font-family: 'Poor Story', cursive; font-size: 19px;" class="list-group-item list-group-item-action" href="#tag">Tag Manager</a>
+		<a style="font-family: 'Poor Story', cursive; font-size: 19px;" class="list-group-item list-group-item-action" href="#tags">Tag Manager</a>
 		<a style="font-family: 'Poor Story', cursive; font-size: 19px;" class="list-group-item list-group-item-action" href="#tagset">Tagset Manager</a>
 	</div>
 	<div class="container" id="scroll-div" data-bs-spy="scroll" data-bs-target="#index-nav" data-bs-offset="0" tabindex="0">
@@ -321,7 +321,7 @@
 			</th:block>
 		</div>
 		<div class="row col-16" id="think">
-			<span class="badge text-bg-success" style="margin-top: 20px; margin-bottom: 20px; font-size: 20px; text-align: left;">I comment it :) </span>
+			<span class="badge text-bg-success" style="margin-top: 20px; margin-bottom: 20px; font-size: 20px; text-align: left;">I comment it :)</span>
 			<th:block th:each="mycomment, index: ${commentList}">
 				<div th:id="${mycomment.commentid}" class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded">
 					<div class="card-header" style="text-align:left;font-family: 'Poor Story', cursive; font-size: 20px;" th:text="${mycomment.title} + ' at ' + ${mycomment.c_time}" />
@@ -335,6 +335,9 @@
 				<img src="/nocomment.png" class="notExistnotting" style="width: 200px;" />
 				<div id="nottingMsg" th:text="'아무런 댓글도 작성하지 않았어요!'"></div>
 			</th:block>
+		</div>
+		<div class="row col-16" id="tags">
+			<span class="badge text-bg-success" style="margin-top: 20px; margin-bottom: 20px; font-size: 20px; text-align: left;">I tags it :) <img class="tagaddbtn" src="/plus.png"></img></span>
 		</div>
 	</div>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>

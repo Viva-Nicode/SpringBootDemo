@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface PostImageMapper {
 
-	public List<String> findByPostid(@Param("postid")int postid);
+	public String findByPostid(@Param("postid")int postid);
 
 }

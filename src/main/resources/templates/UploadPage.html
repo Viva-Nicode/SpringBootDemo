@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta id="_csrf" name="_csrf" th:content="${_csrf.token}" />
+	<link rel="stylesheet" th:href="@{/css/UploadPage.css}">
+	<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}" />
+	<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+	<script src="/js/jquery-3.6.0.min.js"></script>
+	<script src="/js/popper.js"></script>
+	<script type="text/map" src="/js/popper.js.map"></script>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+
+	<title>Document</title>
+	<script th:inline="javascript">
+		/* <![CDATA[ */
+		const user_id = '[[${session.user_id}]]';
+		let appliedTagList = [];
+		window.onload = function () {
+			if (user_id == 'null') {
+				$('#logOption').html('log in');
+			} else {
+				$('#logSpan').html('');
+				$('#nickname').html(user_id.substring(1, user_id.length - 1));
+				$('#logOption').html('log out');
+			}
+		}
+
+		function logAction() {
+			const tagVal = $('#logOption').html();
+			if (tagVal == 'log in') {
+				$('#myModal').modal('show');
+			} else {
+				location.href = '/Account/logout';
+			}
+		}
+
+		function clickTag(e) {
+			if (e.className == 'btn btn-outline-info optionBtn') {
+				e.className = 'btn btn-danger optionBtn'
+			} else {
+				e.className = 'btn btn-outline-info optionBtn'
+			}
+			/* 전역 객체 하나만들어서 적용된 태그들 리스트를  유지해주어야 한다. */
+		}
+		Dropzone.discover(); // deprecated 된 옵션. false로 해놓는걸 공식문서에서 명시
+		Dropzone.options.myDropzone = { // form.dropzone 의 id값을 명시. 만일 my-dropzone 이라고 id를 명시해도 자동으로 camel-case로 변경된다.
+			url: "http://localhost:8080/Pin/uploadPins",
+			method: 'post',
+			headers: {
+				'X-CSRF-TOKEN': $('meta[name="token"]').attr('content'),
+			},
+			async: true,
+			paramName: 'pins',
+			clickable: true,
+			autoQueue: true,
+			autoProcessQueue: true,
+			createImageThumbnails: true,
+			thumbnailHeight: 120,
+			thumbnailWidth: 120,
+			maxFiles: 300,
+			maxFilesize: 100,
+			parallelUploads: 300,
+			timeout: 1000 * 60,
+			addRemoveLinks: false,
+			acceptedFiles: '.jpeg,.jpg,.png,.gif,.JPEG,.JPG,.PNG,.GIF',
+			params: {
+				appliedTagList: appliedTagList,
+			},
+			init: function(){
+				this.on('addedfiles', function(){
+					let bl = document.querySelectorAll('#tegGrouprel > button');
+					appliedTagList.length = 0;
+					appliedTagList.push('$$empty$$')
+					bl.forEach(function(elem){
+						if(elem.className == 'btn btn-danger optionBtn'){
+							appliedTagList.push(elem.innerHTML)
+						}
+					})
+				})
+			}
+		}
+		/* ]]> */
+	</script>
+	<th:block th:replace="~{fragments/navbar::logAction}"></th:block>
+</head>
+
+<body>
+	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
+	<img id="bg" src="../wefw.jpg" alt="hello">
+	
+	<form style="border-radius: 20px;" th:action="@{/Pin/uploadPins?__${_csrf.parameterName}__=__${_csrf.token}__}" class="dropzone container" id="myDropzone" enctype="multipart/form-data" method="post">
+	</form>
+	<div id="btnGroup">
+		<div id="tegGrouprel">
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags1</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags2</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags3</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags4</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags5</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags6</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags7</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags8</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags9</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags10</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags11</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags12</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags13</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags14</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags15</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags16</button>
+			<button type="button" class="btn btn-outline-info optionBtn" onclick="clickTag(this)">Tags17</button>
+		</div>
+	</div>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+</body>
+
+</html>

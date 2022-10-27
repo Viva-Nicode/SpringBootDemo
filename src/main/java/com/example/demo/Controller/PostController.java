@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Map.Entry;
 import static java.lang.Integer.parseInt;
 import static java.lang.System.out;
@@ -22,9 +24,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.Service.DetectProperties;
@@ -60,69 +64,37 @@ public class PostController {
 	private final CommentsMapper cm;
 	private final PostInfoMapper pm;
 
-	private final ImageLabel il;
-
 	@RequestMapping(value = "/MoveWritePost")
 	public ModelAndView moveWritePost(@SessionAttribute(value = "user_id") String ui) throws IOException {
 
-		/*
-		 * Map<String, String> tagMap = PapagoTranslationAPI
-		 * .getTranslationTagList(il.getImageLabels(
-		 * "classpath:static/upload/hot_air_balloon1.jpeg"));
-		 * 
-		 * for (Entry<String, String> elem : tagMap.entrySet())
-		 * System.out.println(elem.getKey() + " " + elem.getValue());
-		 * 
-		 * List<ColorInfo> colorList = DetectProperties.detectProperties(
-		 * "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/upload/hot_air_balloon1.jpeg"
-		 * );
-		 * 
-		 * for (ColorInfo c : colorList) {
-		 * System.out.println(c.getPixelFraction());
-		 * System.out.println(c.getColor().getRed());
-		 * System.out.println(c.getColor().getGreen());
-		 * System.out.println(c.getColor().getBlue());
-		 * }
-		 */
 		return new ModelAndView("PostWriter");
 	}
 
 	@RequestMapping(value = "/InsertPost")
-	public ResponseEntity<?> insertPost(HttpServletRequest req) {
+	public ResponseEntity<?> insertPost(@RequestParam(value = "title") String title,
+			@RequestParam(value = "contents") String contents, @RequestParam(value = "imagefile") MultipartFile f,
+			@SessionAttribute("user_id") String ui) {
+		int postid = 0, imageNum = 0;
+		String des = "";
 
-		int count = 0, postid = 0;
-		ArrayList<String> nameList = new ArrayList<>();
-		String savePath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/upload/";
+		if (!f.isEmpty()) {
+			imageNum = 1;
+			des = UUID.randomUUID() + "." + f.getContentType().split("/")[1];
+			File dest = new File(
+					"/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/upload/" + des);
+			try {
+				f.transferTo(dest);
+				Thread.sleep(2000);/* 바로위 파일 입출력이 너무 느려서 어쩔 수없이 넣어준 sleep */
 
-		try {
-			MultipartRequest MPR = new MultipartRequest(req, savePath, 1024 * 1024 * 10, "utf-8",
-					new DefaultFileRenamePolicy());
-			String title = MPR.getParameter("title");
-			String contents = MPR.getParameter("contents");
-
-			HttpSession s = req.getSession();
-
-			Enumeration<?> files = MPR.getFileNames();
-
-			while (files.hasMoreElements()) {
-				count++;
-				String str = (String) files.nextElement();
-				String fileName = MPR.getFilesystemName(str);
-				nameList.add(fileName);
+			} catch (IllegalStateException | IOException | InterruptedException e) {
+				e.printStackTrace();
 			}
-
-			if (nameList.get(0) == null)
-				count = 0;
-
-			postid = ps.insertPost(new PostInfoDTO(title, s.getAttribute("user_id") + "", contents, count));
-
-			for (int idx = 0; idx < nameList.size(); idx++) {
-				if (nameList.get(idx) != null)
-					pir.save(new PostImageDTO(postid, nameList.get(idx)));
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
+
+		postid = ps.insertPost(new PostInfoDTO(title, ui, contents, imageNum));
+
+		if (!f.isEmpty())
+			pir.save(new PostImageDTO(postid, des));
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setLocation(URI.create("/Post/PostViewer/" + postid));
@@ -148,8 +120,8 @@ public class PostController {
 		else
 			mav.addObject("islikeAlready", 0);
 
-		List<String> l = pimb.findByPostid(pid);
-		mav.addObject("imageList", l);
+		String l = pimb.findByPostid(pid);
+		mav.addObject("image", l);
 
 		List<CommentsVO> commentsList = cm.findCommentsByPostid(pid);
 		for (CommentsVO c : commentsList)

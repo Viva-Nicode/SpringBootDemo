@@ -1,0 +1,51 @@
+#myDropzone {
+	position: absolute;
+	max-height: 75vh;
+	height: 75vh;
+	width: 80vw;
+	right: 3%;
+	top: 20%;
+	background-color: white;
+	opacity: 0.8;
+	overflow: auto;
+}
+
+#bg {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	object-fit: cover;
+	background-size: cover;
+	min-width: 100%;
+	min-height: 100%;
+}
+
+form:hover {
+	border-color: blue;
+	transition: 1s;
+}
+
+
+#btnGroup {
+	position: absolute;
+	top: 20%;
+	left: 1%;
+	width: 15vw;
+	height: 75vh;
+	background-color: white;
+	opacity: 0.8;
+	border-radius: 20px;
+	overflow: auto;
+}
+
+.optionBtn {
+	position: relative;
+	transform: translate(-50%);
+	width: 14vw;
+	height: 5vh;
+	min-height: 5vh;
+	/* top rignt bottom left */
+	margin-bottom: 5px;
+	margin-top: 5px;
+	left: 50%;
+}

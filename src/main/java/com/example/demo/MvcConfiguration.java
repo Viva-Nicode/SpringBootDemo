@@ -17,7 +17,7 @@ public class MvcConfiguration implements WebMvcConfigurer {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
 		registry.addResourceHandler("/*").addResourceLocations(
-				"classpath:/templates/", "classpath:/static/")
+				"classpath:/templates/", "classpath:/static/","classpath:/static/pins/")
 				.setCacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES));
 	}
 
