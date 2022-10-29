@@ -1,10 +1,11 @@
 #myDropzone {
 	position: absolute;
-	max-height: 75vh;
-	height: 75vh;
+	max-height: 63vh;
+	height: 63vh;
 	width: 80vw;
 	right: 3%;
-	top: 20%;
+	top: 32vh;
+	min-height: 63vh;
 	background-color: white;
 	opacity: 0.8;
 	overflow: auto;
@@ -28,10 +29,10 @@ form:hover {
 
 #btnGroup {
 	position: absolute;
-	top: 20%;
+	top: 32%;
 	left: 1%;
 	width: 15vw;
-	height: 75vh;
+	height: 63vh;
 	background-color: white;
 	opacity: 0.8;
 	border-radius: 20px;
@@ -48,4 +49,56 @@ form:hover {
 	margin-bottom: 5px;
 	margin-top: 5px;
 	left: 50%;
+}
+
+.tagaddbtn {
+	position: absolute;
+	top: 21vh;
+	right: 40px;
+	display: block;
+}
+
+#newTagTextfield {
+	position: absolute;
+	top: 26vh;
+	right: 110px;
+	width: 20vw;
+	border-radius: 17px;
+	display: block;
+}
+
+#searchTagTextfield{
+	position: absolute;
+	top: 26vh;
+	left: 1%;
+	width: 15vw;
+	border-radius: 10px;
+}
+
+@keyframes fadeInUp {
+	0% {
+		opacity: 0;
+		transform: translate3d(0, -40%, 0);
+		transform: translate(-50%);
+	}
+
+	to {
+		opacity: 0.9;
+		transform: translate(-50%);
+	}
+}
+
+.fadeIn {
+	animation: fadeInUp 0.5s;
+}
+
+#alert {
+	position: fixed;
+	width: 70vw;
+	height: 110px;
+	top: 10%;
+	left: 50%;
+	z-index: 9999;
+	opacity: 0.9;
+	transform: translate(-50%);
 }

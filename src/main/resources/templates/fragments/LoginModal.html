@@ -58,9 +58,9 @@
 							<font color="black">sign in form</font>
 						</legend>
 						<div style="color: blueviolet; text-align:left;">ID</div>
-						<input id="user_id" type="text" name="User_ID" required autofocus style="text-align: left"><br> <br>
+						<input id="user_id" type="text" onkeyPress="if(window.event.keyCode==13){ return checkLoginFail()}" name="User_ID" required autofocus style="text-align: left"><br> <br>
 						<div style="color: blueviolet; text-align:left;">PW</div>
-						<input id="user_pw" type="password" name="User_PW" required> <br> <br>
+						<input id="user_pw" type="password" onkeyPress="if(window.event.keyCode==13){ return checkLoginFail()}" name="User_PW" required> <br> <br>
 						<hr>
 					</fieldset>
 				</form>

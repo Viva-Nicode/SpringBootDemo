@@ -148,7 +148,7 @@
 		<address>Contact webmaster for more information. 070-1234-5678</address>
 	</footer> -->
 	<div id="icon" style="font-size: 60px;" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">
-		<img src="/cloud.gif" style="width: 150px; height: 150px;"></img>
+		<img src="/cloud.gif" type="button" style="width: 150px; height: 150px;"></img>
 	</div>
 
 	<div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
@@ -175,7 +175,7 @@
 				</div>
 			</div>
 			<form id="c_form">
-				<textarea id="commentsField" placeholder="please insert comment here." maxlength=90 class="form-control col-sm-5" rows="3" required></textarea>
+				<textarea id="commentsField" onkeyPress="if(window.event.keyCode==13 && !window.event.shiftKey){ return sendComment()}" placeholder="please insert comment here." maxlength=90 class="form-control col-sm-5" rows="3" required></textarea>
 				<button id="sendCommentBtn" type="button" class="btn btn-primary" onclick="sendComment()">send</button>
 			</form>
 		</div>

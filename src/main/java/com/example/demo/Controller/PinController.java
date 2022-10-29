@@ -20,22 +20,38 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import com.example.demo.Service.ImageLabel;
 import com.example.demo.Service.PapagoTranslationAPI;
+import com.example.demo.db.PinMapper;
+import com.example.demo.db.PinVO;
+import com.example.demo.db.TagMapper;
+import com.example.demo.db.tagVO;
 
 @Controller
 @RequestMapping("/Pin")
 @RequiredArgsConstructor
 public class PinController {
 	private final ImageLabel il;
+	private final PinMapper pm;
+	private final TagMapper tm;
 
-	@RequestMapping(value = "/uploadPins") // 이미지들과 태그들을 요청으로 받아서 db에 저장
+	@RequestMapping(value = "/uploadPins")
 	public @ResponseBody String uploadPins(@RequestParam(value = "pins") MultipartFile pins,
-			@RequestParam(value = "appliedTagList") List<String> appliedTagList) {
+			@RequestParam(value = "appliedTagList") List<String> appliedTagList,
+			@SessionAttribute(value = "user_id") String ui) {
+
+		out.println("tag List length : " + appliedTagList.size());
+		for (String tag : appliedTagList)
+			out.println(tag);
 
 		String des = UUID.randomUUID() + "." + pins.getContentType().split("/")[1];
 		File dest = new File(
 				"/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/pins/" + des);
 		try {
 			pins.transferTo(dest);
+			pm.insertPin(new PinVO(des, ui));
+			if (appliedTagList.size() >= 2) {
+				for (int idx = 1; idx < appliedTagList.size(); idx++) 
+					tm.insertTag(new tagVO(des, appliedTagList.get(idx)));
+			}
 			Thread.sleep(2500);
 			if (!dest.exists())
 				Thread.sleep(2500);
@@ -62,12 +78,7 @@ public class PinController {
 
 	@RequestMapping(value = "/moveUploadView")
 	public ModelAndView moveUploadView(Model model, @SessionAttribute(value = "user_id") String ui) {
+		model.addAttribute("tagList", tm.findTagByUserid(ui));
 		return new ModelAndView("UploadPage");
-	}
-
-	// 모든 이미지들을 대상으로 api이용해서 시스템 태그 생성
-	@RequestMapping(value = "cretaeSystemTag")
-	public void createSystemTag() {
-
 	}
 }

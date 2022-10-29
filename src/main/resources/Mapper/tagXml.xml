@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mappe 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.db.TagMapper">
+	<insert id="insertTag" parameterType="com.example.demo.db.tagVO">
+		insert into tag(pinName, tagName) values(#{pinName}, #{tagName})
+	</insert>
+
+	<select id="findTagByUserid" parameterType="String" resultType="String">
+		select distinct tagName 
+		from tag 
+		where pinName = some (
+			select pinName 
+			from Pin 
+			where uploader = #{user_id});
+	</select>
+</mapper>
