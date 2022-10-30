@@ -23,5 +23,14 @@
 		select pinName from Pin where uploader = #{user_id})) subQuery 
 		group by tagName
 	</select>
+
+	<delete id="deleteTagByUseridAndTagName" parameterType="hashMap">
+		delete from tag 
+		where tag.tagid = some ( 
+			select tagid 
+			from (select * from tag) tt inner join (select pinName from pin where uploader =#{map.user_id}) p 
+			on p.pinName = tt.pinName 
+			where tag.tagName = #{map.tagName}) 
+	</delete>
 </mapper>
 

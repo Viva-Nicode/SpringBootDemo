@@ -25,6 +25,8 @@
 		let profileForm;
 		let commentList = '[[${commentList}]]'
 		let postList = '[[${IwroteitList}]]'
+		let tagList = '[[${tagCountList}]]'
+		let tagJsonObjectList = JSON.parse(tagList)
 		let postJsonObjectList = JSON.parse(postList)
 		let commentJsonObjectList = JSON.parse(commentList)
 
@@ -127,7 +129,7 @@
 			if (commentJsonObjectList.length == 0) {
 				think.append(
 					`<img src="/nocomment.png" class="notExistnotting" style="width: 200px;" />
-					<div id="nottingMsg">아무런 댓글도 작성하지 않았어요!'</div>`
+					<div id="nottingMsg">아무런 댓글도 작성하지 않았어요!</div>`
 				)
 			}
 		}
@@ -164,6 +166,33 @@
 					<div id="nottingMsg">아무런 글도 작성하지 않았어요!</div>`
 				)
 			}
+		}
+
+		function tagListRerender(tagid) {
+			let sign = 0, removeIdx = 0, offset = 0;
+			let your_tags = $('#tags');
+			for (let idx in tagJsonObjectList) {
+				if (tagJsonObjectList[idx].forhtmlid == tagid) {
+					sign = 1;
+					offset += $('#' + tagid).outerHeight(true)
+					$('#' + tagid).remove();
+					removeIdx = idx;
+					continue
+				}
+				if (sign == 1) {
+					$('div').remove('#' + tagJsonObjectList[idx].forhtmlid)
+					let temp = `
+						<div id="${tagJsonObjectList[idx].forhtmlid}" class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded fadeInCom" style="--offset: ${offset}px;">
+							<div class="card-body">
+								<span class="badge text-bg-info">${tagJsonObjectList[idx].tagName}</span>
+								<span style="font-family: 'Poor Story', cursive; font-size: 19px;" >${tagJsonObjectList[idx].count}</span>
+								<img id="xbtn" type='button' onclick="deleteTag(${tagJsonObjectList[idx].forhtmlid}, '${tagJsonObjectList[idx].tagName}')" src="/delete.png" style=" width: 32px; height:32px;"></img>
+							</div>
+						</div>`
+					your_tags.append(temp)
+				}
+			}
+			tagJsonObjectList.splice(removeIdx, 1)
 		}
 
 
@@ -256,6 +285,31 @@
 				complete: function (data, textStatus) { }
 			});
 		}
+
+		function deleteTag(tid, tagname) {
+			const token = $("meta[name='_csrf']").attr("content");
+			const header = $("meta[name='_csrf_header']").attr("content");
+			$.ajax({
+				type: "post",
+				async: false,
+				url: "http://localhost:8080/Pin/deleteTagAll",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader(header, token);
+				},
+				data: { tagName: tagname },
+				success: function (response) {
+					if (response == 'success')
+						tagListRerender(tid)
+					else
+						console.log('abnormal access')
+				},
+				error: function (request, status, error) {
+					alert("code: " + request.status + "message: " + request.responseText + "error: " + error);
+				},
+				complete: function (data, textStatus) { }
+			});
+		}
+
 		/* ]]> */
 	</script>
 	<style>
@@ -292,7 +346,7 @@
 			<th:block th:each="mypost, index: ${IwroteitList}">
 				<div th:id="${mypost.postid}" class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded">
 					<div class="card-body">
-						<img id="xbtn" src="/delete.png" th:onclick="deleteMyPost([[${mypost.postid}]])" />
+						<img id="xbtn" type="button" src="/delete.png" th:onclick="deleteMyPost([[${mypost.postid}]])" />
 						<span class="badge text-bg-warning" th:text="${mypost.postid}" /><br>
 						<span th:text="${mypost.writtenTime}" style="font-family: 'Poor Story', cursive; font-size: 19px;" /><br>
 						<a style="font-family: 'Poor Story', cursive; font-size: 19px;text-decoration-line : none;" th:text="${mypost.title}" th:href='@{/Post/PostViewer/__${mypost.postid}__}' />
@@ -326,7 +380,7 @@
 				<div th:id="${mycomment.commentid}" class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded">
 					<div class="card-header" style="text-align:left;font-family: 'Poor Story', cursive; font-size: 20px;" th:text="${mycomment.title} + ' at ' + ${mycomment.c_time}" />
 					<div class="card-body">
-						<img id="xbtn" src="/delete.png" th:onclick="deleteMyComment([[${mycomment.commentid}]])" />
+						<img id="xbtn" type="button" src="/delete.png" th:onclick="deleteMyComment([[${mycomment.commentid}]])" />
 						<span th:utext="${mycomment.c_contents}" />
 					</div>
 				</div>
@@ -339,10 +393,11 @@
 		<div class="row col-16" id="tags">
 			<span class="badge text-bg-success" style="margin-top: 20px; margin-bottom: 20px; font-size: 20px; text-align: left;">I tags it :)</span>
 			<th:block th:each="tc, index: ${tagCountList}">
-				<div class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded">
+				<div th:id="${tc.forhtmlid}" class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded">
 					<div class="card-body">
-						<span class="badge text-bg-primary" th:text="${tc.tagName}" />
-						<span th:text="${tc.count}" style="font-family: 'Poor Story', cursive; font-size: 19px;" /><br>
+						<span class="badge text-bg-info" th:text="${tc.tagName}" />
+						<span th:text="${tc.count}" style="font-family: 'Poor Story', cursive; font-size: 19px;" />
+						<img id="xbtn" type="button" th:onclick="deleteTag([[${tc.forhtmlid}]], [[${tc.tagName}]])" src="/delete.png" style=" width: 32px; height:32px;" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Tooltip on left"></img>
 					</div>
 				</div>
 			</th:block>

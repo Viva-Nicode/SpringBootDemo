@@ -1,11 +1,16 @@
 package com.example.demo.db;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class TagCount {
 	private String tagName;
 	private long count;
+	private int forhtmlid;
+
+	public TagCount(String tagName, long count) {
+		this.tagName = tagName;
+		this.count = count;
+		this.forhtmlid = 0;
+	}
 }

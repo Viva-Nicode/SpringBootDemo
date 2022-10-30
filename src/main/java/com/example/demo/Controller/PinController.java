@@ -75,6 +75,14 @@ public class PinController {
 		return "";
 	}
 
+	@RequestMapping(value = "/deleteTagAll")
+	public @ResponseBody String deleteTagAll(@SessionAttribute(value = "user_id") String ui,
+			@RequestParam(value = "tagName") String tn) {
+		long deleteRecordNum = tm.deleteTagByUseridAndTagName(Map.of("user_id", ui, "tagName", tn));
+		out.println("삭제된 레코드 갯수 : " + deleteRecordNum);
+		return "success";
+	}
+
 	@RequestMapping(value = "/moveUploadView")
 	public ModelAndView moveUploadView(Model model, @SessionAttribute(value = "user_id") String ui) {
 		model.addAttribute("tagList", tm.findTagByUserid(ui));

@@ -1,6 +1,7 @@
 package com.example.demo.db;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
@@ -14,4 +15,6 @@ public interface TagMapper {
 	public List<String> findTagByUserid(@Param("user_id") String user_id);
 
 	public List<TagCount> getTagCountList(@Param("user_id") String user_id);
+
+	public int deleteTagByUseridAndTagName(@Param("map") Map<String, String> map);
 }
