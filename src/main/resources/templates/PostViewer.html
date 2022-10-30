@@ -137,11 +137,11 @@
 		</div>
 		<br><br>
 
-
+		<th:block th:if="${image != null}">
 			<div class="card text-bg-dark fadeIn">
 				<img id="postImg" th:src="@{/upload/__${image}__}" class="card-img" alt="이미지 못찾게슴">
 			</div><br>
-
+		</th:block>
 	</div>
 	<!-- <footer>
 		<p>Copyright © 2018 tcpschool.co.,Ltd. All rights reserved.</p>

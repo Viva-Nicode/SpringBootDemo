@@ -16,4 +16,12 @@
 			from Pin 
 			where uploader = #{user_id});
 	</select>
+
+	<select id ="getTagCountList" parameterType="String" resultType="com.example.demo.db.TagCount">
+		select tagName, count(pinName) as count 
+		from ( select * from tag where pinName = some ( 
+		select pinName from Pin where uploader = #{user_id})) subQuery 
+		group by tagName
+	</select>
 </mapper>
+

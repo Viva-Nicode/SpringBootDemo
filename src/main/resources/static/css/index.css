@@ -76,3 +76,7 @@
 	position: fixed;
 	top: 20%;
 }
+
+:root{
+	--bs-primary:#054544;
+}

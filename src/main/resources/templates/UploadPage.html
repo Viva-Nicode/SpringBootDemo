@@ -74,6 +74,7 @@
 			}
 			let newBtnTag = `<button type="button" class="btn btn-outline-secondary optionBtn" onclick="this.remove()">${newTag}</button>`;
 			taglist.append(newBtnTag);
+			document.querySelector('#newTagTextfield').value = ''
 		}
 
 		function tagListRerender(field) {
@@ -91,7 +92,7 @@
 			for (elem of tagList) {
 				if (!elem.innerHTML.includes(current_searchField_value)) {
 					elem.style.display = 'none';
-				}else{
+				} else {
 					elem.style.display = 'block';
 				}
 			}

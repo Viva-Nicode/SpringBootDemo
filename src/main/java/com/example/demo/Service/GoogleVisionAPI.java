@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 @NoArgsConstructor
 @Component
-public class ImageLabel {
+public class GoogleVisionAPI {
 
 	@Autowired
 	private ResourceLoader resourceLoader;

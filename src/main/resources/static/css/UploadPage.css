@@ -53,15 +53,17 @@ form:hover {
 
 .tagaddbtn {
 	position: absolute;
-	top: 21vh;
+	top: 26vh;
 	right: 40px;
 	display: block;
+	width: 32px;
+	height: 32px;
 }
 
 #newTagTextfield {
 	position: absolute;
 	top: 26vh;
-	right: 110px;
+	right: 78px;
 	width: 20vw;
 	border-radius: 17px;
 	display: block;

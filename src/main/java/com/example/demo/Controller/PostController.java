@@ -32,7 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.Service.DetectProperties;
-import com.example.demo.Service.ImageLabel;
+import com.example.demo.Service.GoogleVisionAPI;
 import com.example.demo.Service.LikesService;
 import com.example.demo.Service.PapagoTranslationAPI;
 import com.example.demo.Service.PostService;

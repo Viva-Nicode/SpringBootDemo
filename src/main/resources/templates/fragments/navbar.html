@@ -12,7 +12,7 @@
 	}
 </script>
 <div th:fragment="fragment-navbar">
-	<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+	<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark shadow-lg" style="border-radius: 30px; top:7px; width:98vw; left: 1vw; box-shadow: 20px 20px 20px grey;">
 		<div class="container-fluid">
 			<a class="navbar-brand" href="#"><img src="/sfw_adobe_express.svg" alt="" width="50" height="37">Hine~</a>
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +36,7 @@
 							</li> 메뉴들사이에 가로선을 긋는 용도이다. -->
 					<th:block th:if="${session.user_id != null}">
 						<li class="nav-item">
-							<a class="nav-link" href="#">Your Gallery</a>
+							<a class="nav-link" th:href="@{/Pin/movePinViewer}">Your Gallery</a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" th:href="@{/Pin/moveUploadView}">upload</a>
@@ -47,10 +47,17 @@
 					</th:block>
 					</li>
 				</ul>
-				<form class="d-flex" role="search">
-					<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-					<button class="btn btn-outline-warning" type="submit">Search</button>
-				</form>
+				<div class="d-flex align-items-center">
+					<a class="text-reset me-3" href="#">
+						<img class="fas" src="/github.png" style="width: 32px; height:32px"></img>
+					</a>
+					<a class="text-reset me-3" href="#">
+						<img class="fas" src="/google.png" style="width: 32px; height:32px"></img>
+					</a>
+					<a class="text-reset me-3" href="#">
+						<img class="fas" src="/facebook.png" style="width: 32px; height:32px"></img>
+					</a>
+				</div>
 			</div>
 		</div>
 	</nav>

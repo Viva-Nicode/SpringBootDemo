@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import com.example.demo.Service.ImageLabel;
+import com.example.demo.Service.GoogleVisionAPI;
 import com.example.demo.Service.PapagoTranslationAPI;
 import com.example.demo.db.PinMapper;
 import com.example.demo.db.PinVO;
+import com.example.demo.db.Sys_tagMapper;
+import com.example.demo.db.Sys_tagVO;
 import com.example.demo.db.TagMapper;
 import com.example.demo.db.tagVO;
 
@@ -29,9 +31,10 @@ import com.example.demo.db.tagVO;
 @RequestMapping("/Pin")
 @RequiredArgsConstructor
 public class PinController {
-	private final ImageLabel il;
+	private final GoogleVisionAPI googleVisionAPI;
 	private final PinMapper pm;
 	private final TagMapper tm;
+	private final Sys_tagMapper stm;
 
 	@RequestMapping(value = "/uploadPins")
 	public @ResponseBody String uploadPins(@RequestParam(value = "pins") MultipartFile pins,
@@ -49,7 +52,7 @@ public class PinController {
 			pins.transferTo(dest);
 			pm.insertPin(new PinVO(des, ui));
 			if (appliedTagList.size() >= 2) {
-				for (int idx = 1; idx < appliedTagList.size(); idx++) 
+				for (int idx = 1; idx < appliedTagList.size(); idx++)
 					tm.insertTag(new tagVO(des, appliedTagList.get(idx)));
 			}
 			Thread.sleep(2500);
@@ -58,15 +61,11 @@ public class PinController {
 			Map<String, String> tagMap;
 
 			tagMap = PapagoTranslationAPI
-					.getTranslationTagList(il.getImageLabels(
+					.getTranslationTagList(googleVisionAPI.getImageLabels(
 							"classpath:static/pins/" + des));
-			/*
-			 * synchronized (this) {
-			 * out.println("===========================================================");
-			 * for (Entry<String, String> elem : tagMap.entrySet())
-			 * out.println(elem.getKey() + " " + elem.getValue());
-			 * }
-			 */
+
+			for (Entry<String, String> elem : tagMap.entrySet())
+				stm.insertSystag(new Sys_tagVO(des, elem.getKey(), elem.getValue()));
 
 		} catch (IllegalStateException | IOException e) {
 			e.printStackTrace();
@@ -80,5 +79,10 @@ public class PinController {
 	public ModelAndView moveUploadView(Model model, @SessionAttribute(value = "user_id") String ui) {
 		model.addAttribute("tagList", tm.findTagByUserid(ui));
 		return new ModelAndView("UploadPage");
+	}
+
+	@RequestMapping(value = "/movePinViewer")
+	public ModelAndView movePinView(Model model, @SessionAttribute(value = "user_id") String ui) {
+		return new ModelAndView("PinViewer");
 	}
 }

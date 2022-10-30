@@ -12,4 +12,6 @@ public interface TagMapper {
 	public void insertTag(tagVO t);
 
 	public List<String> findTagByUserid(@Param("user_id") String user_id);
+
+	public List<TagCount> getTagCountList(@Param("user_id") String user_id);
 }

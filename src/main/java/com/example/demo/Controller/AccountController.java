@@ -11,7 +11,6 @@ import static java.lang.Integer.parseInt;
 import static java.lang.System.out;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.http.HttpHeaders;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.bind.annotation.SessionAttributes;
@@ -35,6 +33,8 @@ import com.example.demo.db.CommentsMapper;
 import com.example.demo.db.MyComments;
 import com.example.demo.db.PostInfoMapper;
 import com.example.demo.db.PostInfoVO;
+import com.example.demo.db.TagCount;
+import com.example.demo.db.TagMapper;
 import com.example.demo.db.UserMapper;
 import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
@@ -44,13 +44,14 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/Account")
 @RequiredArgsConstructor
-@SessionAttributes(value = {"user_id", "commentList","IwroteitList","likepostlist"})
+@SessionAttributes(value = { "user_id", "commentList", "IwroteitList", "likepostlist" })
 public class AccountController {
 
 	private final AccountService ac;
 	private final UserMapper um;
 	private final PostInfoMapper pm;
 	private final CommentsMapper cm;
+	private final TagMapper tm;
 
 	@RequestMapping(value = "/moveSignupPage")
 	public ModelAndView moveSignupPage() {
@@ -69,7 +70,7 @@ public class AccountController {
 					.replace("]", "]]").replace("{", "{{").replace("}", "}}").replace(",", ",,").replace("'", "&quot")
 					.replace("\"", "&quot"));
 		}
-		
+
 		Collections.reverse(l);
 		model.addAttribute("commentList", l);
 
@@ -81,11 +82,14 @@ public class AccountController {
 		model.addAttribute("IwroteitList", postlist);
 
 		List<PostInfoVO> likepostlist = pm.getLikepostByUserid(ui);
+
 		for (PostInfoVO elem : likepostlist) {
 			elem.setWrittenTime(elem.getWrittenTime().replace(":", "."));
 			elem.setContents("");
 		}
+
 		model.addAttribute("likepostlist", likepostlist);
+		model.addAttribute("tagCountList", tm.getTagCountList(ui));
 
 		return "UserInfoSetting";
 	}
