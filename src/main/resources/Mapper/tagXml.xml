@@ -32,5 +32,15 @@
 			on p.pinName = tt.pinName 
 			where tag.tagName = #{map.tagName}) 
 	</delete>
+
+	<update id="modifyTagName" parameterType="hashMap">
+		update tag
+		set tagName = #{map.ntn}
+		where tag.tagid = some ( 
+			select tagid 
+			from (select * from tag) tt inner join (select pinName from pin where uploader =#{map.user_id}) p 
+			on p.pinName = tt.pinName 
+			where tag.tagName = #{map.otn}) 
+	</update>
 </mapper>
 

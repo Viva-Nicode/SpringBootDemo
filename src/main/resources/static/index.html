@@ -43,12 +43,12 @@
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
 	<div id="profileBox" style="position: relative; width:50vh; height: 100vh;">
 		<img src="rain2.jpg" class="card-img" alt="hello" style="position:fixed; width:50vh; height: 100vh;">
-		<div class="box" style="background: #BDBDBD;">
-			<th:block th:if="${session.profile == null}">
+		<div class="box" style="background: #bdbdbd00;">
+			<th:block th:if="${session.profileImageName == null}">
 				<img class="profile" src="default_profile_logo3.svg">
 			</th:block>
-			<th:block th:unless="${session.profile == null}">
-				<img class="profile" th:src="@{/profile/__${session.profile}__}">
+			<th:block th:unless="${session.profileImageName == null}">
+				<img class="profile" th:src="@{/profile/__${session.profileImageName}__}">
 			</th:block>
 		</div>
 		<div id="nickDiv">

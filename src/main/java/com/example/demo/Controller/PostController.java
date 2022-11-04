@@ -140,7 +140,6 @@ public class PostController {
 	@RequestMapping(value = "/deletePost")
 	public @ResponseBody String deletePost(@RequestParam(value = "postid") int postid,
 			@SessionAttribute(value = "user_id") String ui) {
-
 		String result = pm.isMyself(Map.of("postid", postid + "", "writer", ui));
 		if (result.equals("true")) {
 			pm.deletePost(postid);

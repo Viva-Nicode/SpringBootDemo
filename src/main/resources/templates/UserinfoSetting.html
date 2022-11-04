@@ -61,6 +61,7 @@
 				console.log(reroad);
 				$('#successMsg').html('The changes have been applied.');
 				showAlert2();
+				reroad = 0
 			}
 
 			image.onchange = () => {
@@ -81,16 +82,19 @@
 
 			$("#email").on("propertychange change keyup paste input", function () {
 				const change_email = $('#email').val();
+				const emailtextfield = document.querySelector('#email')
 
 				if (change_email == user_email.substring(1, user_email.length - 1)) {
 					apply.className = 'btn btn-secondary';
 					applyStatus = 'secondary';
 					submit.disabled = false;
+					emailtextfield.className = 'form-control'
 				} else {
 					apply.className = 'btn btn-danger';
 					applyStatus = 'danger';
 					apply.disabled = false;
 					submit.disabled = true;
+					emailtextfield.className = 'form-control is-invalid'
 				}
 			});
 			/* The Quick Brown Fox Jumps Over The Lazy Dog. */
@@ -184,9 +188,10 @@
 					let temp = `
 						<div id="${tagJsonObjectList[idx].forhtmlid}" class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded fadeInCom" style="--offset: ${offset}px;">
 							<div class="card-body">
-								<span class="badge text-bg-info">${tagJsonObjectList[idx].tagName}</span>
+								<span class="badge text-bg-info">${tagJsonObjectList[idx].tagName}</span>&nbsp;&nbsp;&nbsp;&nbsp;
 								<span style="font-family: 'Poor Story', cursive; font-size: 19px;" >${tagJsonObjectList[idx].count}</span>
-								<img id="xbtn" type='button' onclick="deleteTag(${tagJsonObjectList[idx].forhtmlid}, '${tagJsonObjectList[idx].tagName}')" src="/delete.png" style=" width: 32px; height:32px;"></img>
+								<img id="xbtn" type="button" onclick="showModifyTagModal('${tagJsonObjectList[idx].tagName}')" src="/modify.png" style="right:50px; width: 30px; height: 30px; top:7px"></img>
+								<img id="xbtn" type='button' onclick="deleteTag(${tagJsonObjectList[idx].forhtmlid}, '${tagJsonObjectList[idx].tagName}')" src="/delete.png"></img>
 							</div>
 						</div>`
 					your_tags.append(temp)
@@ -199,6 +204,7 @@
 		function checked_email_overlap() {
 			const email = $('#email').val();
 			const regEmail = /^[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_\.]?[0-9a-zA-Z])*\.[a-zA-Z]{2,3}$/;
+			const emailtextfield = document.querySelector('#email')
 
 			if (!regEmail.test(email)) {
 				$('#errorMsg').html('wrong Email type');
@@ -215,15 +221,16 @@
 					},
 					data: { email: email },
 					success: function (response) {
-						console.log('[[${email}]]');
 						if (response == 0) { // 변경성공
 							apply.className = 'btn btn-success';
 							applyStatus = 'success';
 							apply.disabled = true;
 							submit.disabled = false;
-						} else if (response == 1) { // 변경 실패
+							emailtextfield.className = 'form-control'
+						} else if (response == 1) { // 변경실패
 							submit.disabled = true;
 							$('#errorMsg').html('email exist already');
+							emailtextfield.className = 'form-control is-invalid'
 							return showAlert();
 						}
 						return false;
@@ -310,6 +317,73 @@
 			});
 		}
 
+		function showModifyTagModal(tagname) {
+			$('#modifyTagNameModal').modal('show');
+			$('#floatingInput').val(tagname)
+			$('#tagnameformodify').val(tagname)
+		}
+
+		function modifyTagName(newTagname, originalTagname) {
+			const regex = /^[ㄱ-ㅎ|가-힣|a-z| |A-Z|0-9|]+$/;
+			let modifyDesIndex = 0;
+			for (let idx in tagJsonObjectList) {
+				if (tagJsonObjectList[idx].tagName == newTagname) {
+					$('#errorMsg').html('이미 있는 거랑 중복 됬다');
+					return showAlert();
+				} else if (tagJsonObjectList[idx].tagName == originalTagname) {
+					modifyDesIndex = idx;
+					break;
+				}
+			}
+
+			if (!regex.test(newTagname)) {
+				$('#errorMsg').html('한글영어 숫자만 써라');
+				return showAlert();
+			}
+
+			const token = $("meta[name='_csrf']").attr("content");
+			const header = $("meta[name='_csrf_header']").attr("content");
+			$.ajax({
+				type: "post",
+				async: false,
+				url: "http://localhost:8080/Pin/modifyTag",
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader(header, token);
+				},
+				data: { newTagname: newTagname, originalTagname: originalTagname },
+				success: function (response) {
+					if (response == 'success')
+						modifyTagRerender(newTagname, modifyDesIndex)
+					else
+						console.log('abnormal access')
+				},
+				error: function (request, status, error) {
+					alert("code: " + request.status + "message: " + request.responseText + "error: " + error);
+				},
+				complete: function (data, textStatus) { }
+			});
+
+			$('#modifyTagNameModal').modal('hide');
+			$('#successMsg').html('modify success!');
+			return showAlert2();
+		}
+
+		function modifyTagRerender(newT, modifyDesIndex) {
+			let id = tagJsonObjectList[modifyDesIndex].forhtmlid
+			let originTagname = tagJsonObjectList[modifyDesIndex].tagName
+			let tl = document.querySelectorAll('#tagSpan')
+			tagJsonObjectList[modifyDesIndex].tagName = newT
+
+			for (let ts of tl) {
+				if (ts.innerHTML == originTagname) {
+					ts.innerHTML = newT
+					document.getElementsByName('tagModifyButton')[modifyDesIndex].setAttribute('onclick', "showModifyTagModal(\'" + newT + "\')")
+					document.getElementsByName('tagDeleteButton')[modifyDesIndex].setAttribute('onclick', "deleteTag(" + id + ", \'" + newT + "\')")
+				}
+			}
+
+		}
+
 		/* ]]> */
 	</script>
 	<style>
@@ -327,13 +401,13 @@
 		<a style="font-family: 'Poor Story', cursive; font-size: 19px;" class="list-group-item list-group-item-action" href="#your_like">I like it</a>
 		<a style="font-family: 'Poor Story', cursive; font-size: 19px;" class="list-group-item list-group-item-action" href="#think">I have think about it</a>
 		<a style="font-family: 'Poor Story', cursive; font-size: 19px;" class="list-group-item list-group-item-action" href="#tags">Tag Manager</a>
-		<a style="font-family: 'Poor Story', cursive; font-size: 19px;" class="list-group-item list-group-item-action" href="#tagset">Tagset Manager</a>
 	</div>
 	<div class="container" id="scroll-div" data-bs-spy="scroll" data-bs-target="#index-nav" data-bs-offset="0" tabindex="0">
 		<div class="card border-info row col-16" id="profileForm">
 			<form id="profileForm" method="post" th:action="@{/Account/profile?__${_csrf.parameterName}__=__${_csrf.token}__}" class="needs-validation card-body " enctype="multipart/form-data">
-				<div class="input-group">
-					<input id="email" type="text" name="email" required style="text-align: left" th:value="${email}" class="form-control" placeholder="Email" aria-label="Email" aria-describedby="button-addon2">
+				<div class="input-group form-floating">
+					<input id="email" type="email" name="email" required style="text-align: left" th:value="${email}" class="form-control" placeholder="name@example.com" aria-label="Email" aria-describedby="button-addon2">
+					<label for="email">Email address</label>
 					<button onclick="checked_email_overlap()" disabled class="btn btn-secondary" type="button" id="apply">overLap check</button>
 				</div><br>
 				<input name="imagefile" class="form-control form-control-sm" id="profileInput" type="file" accept=".png, .jpg, .jpeg"><br>
@@ -394,10 +468,11 @@
 			<span class="badge text-bg-success" style="margin-top: 20px; margin-bottom: 20px; font-size: 20px; text-align: left;">I tags it :)</span>
 			<th:block th:each="tc, index: ${tagCountList}">
 				<div th:id="${tc.forhtmlid}" class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded">
-					<div class="card-body">
-						<span class="badge text-bg-info" th:text="${tc.tagName}" />
+					<div name="tagCardBody" class="card-body">
+						<span id="tagSpan" class="badge text-bg-info" th:text="${tc.tagName}" />&nbsp;&nbsp;&nbsp;&nbsp;
 						<span th:text="${tc.count}" style="font-family: 'Poor Story', cursive; font-size: 19px;" />
-						<img id="xbtn" type="button" th:onclick="deleteTag([[${tc.forhtmlid}]], [[${tc.tagName}]])" src="/delete.png" style=" width: 32px; height:32px;" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Tooltip on left"></img>
+						<img name="tagModifyButton" id="xbtn" type="button" th:onclick="showModifyTagModal([[${tc.tagName}]])" src="/modify.png" style="right:50px; width: 30px; height: 30px; top:7px"></img>
+						<img name="tagDeleteButton" id="xbtn" type="button" th:onclick="deleteTag([[${tc.forhtmlid}]], [[${tc.tagName}]])" src="/delete.png"></img>
 					</div>
 				</div>
 			</th:block>
@@ -416,6 +491,27 @@
 		<h4 style="text-align: left;">Notification</h4>
 		<div id="successMsg" style="text-align: left;"></div>
 	</div>
+	<div class="modal fade" id="modifyTagNameModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog-centered modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h1 class="modal-title fs-5" id="exampleModalLabel">Modification tagName! 😆</h1>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					Please enter a new name<br><br>
+					<div class="form-floating mb-3">
+						<input type="text" class="form-control" id="floatingInput" placeholder="tag name" autofocus>
+						<input type="hidden" id="tagnameformodify">
+						<label for="floatingInput">New Tag Name</label>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" onclick="modifyTagName($('#floatingInput').val(), $('#tagnameformodify').val())">Save changes</button>
+				</div>
+			</div>
+		</div>
 
 </body>
 

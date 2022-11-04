@@ -59,7 +59,7 @@
 			const taglist = $('#tegGrouprel');
 			const regex = /^[ㄱ-ㅎ|가-힣|a-z| |A-Z|0-9|]+$/;
 			let bl = document.querySelectorAll('#tegGrouprel > button');
-			const newTag = document.querySelector('#newTagTextfield').value;
+			const newTag = document.querySelector('#newTagTextfield').value.trim();
 			if (!regex.test(newTag)) {
 				$('#errorMsg').html('한글영어 숫자만 써라');
 				return showAlert();

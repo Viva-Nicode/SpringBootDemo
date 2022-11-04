@@ -31,7 +31,7 @@
 			} else {
 				const fieldcomment = $('#commentsField').val();
 				if (fieldcomment == "") {
-					alert('관리자 일침 : 뭐라고도 좀 쓰고 댓글 달아라 이자식아 상식적으로 빈 댓글 다는놈이 어딨어')
+					alert('관리자 일침 : 뭐라고도 좀 쓰고 댓글 달아라 이 자식아 상식적으로 빈 댓글 다는놈이 어딨어')
 					return
 				}
 				const token = $("meta[name='_csrf']").attr("content");
@@ -110,6 +110,9 @@
 	<style>
 		/* url('https://fonts.googleapis.com/css2?family=Mali:wght@300&display=swap'); */
 		@import url('https://fonts.googleapis.com/css2?family=Poor+Story&display=swap');
+		body{
+			height : 120%;
+		}
 	</style>
 	<th:block th:replace="~{fragments/navbar::logAction}"></th:block>
 	<th:block th:replace="~{fragments/LoginModal.html::modalScript}"></th:block>
@@ -124,7 +127,7 @@
 <body>
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
 	<img id="bg" th:src="@{/wefw.jpg}" alt="hello">
-	<div id="view" class="card container" style="width: 87vw;">
+	<div id="view" class="card container" style="width: 87vw; margin-bottom: 10px;">
 		<span id="hit" class="badge text-bg-primary">hits [[${postinfo.hits}]]</span>
 		<div id="wrtierandtime">
 			<p class="watp" style="text-align:right;font-family: 'Poor Story', cursive; font-size: 19px;" th:text="${postinfo.writtentime}"></p>
@@ -142,6 +145,9 @@
 				<img id="postImg" th:src="@{/upload/__${image}__}" class="card-img" alt="이미지 못찾게슴">
 			</div><br>
 		</th:block>
+	</div>
+	<div style="position:absolute; height:30px; width:87vw; display: block;">
+
 	</div>
 	<!-- <footer>
 		<p>Copyright © 2018 tcpschool.co.,Ltd. All rights reserved.</p>

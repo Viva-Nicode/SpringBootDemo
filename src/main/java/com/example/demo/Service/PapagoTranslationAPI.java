@@ -7,29 +7,36 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import static java.lang.System.out;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.example.demo.db.Sys_tagVO;
+
 public class PapagoTranslationAPI {
 
-	public static Map<String, String> getTranslationTagList(Map<String, Float> m) {
+	public static List<Sys_tagVO> getTranslationTagList(Map<String, Float> m) {
 
 		String data = "source=en&target=ko&text=";
 
-		Map<String, String> resultMap = new LinkedHashMap<>();
+		List<Sys_tagVO> systemTagList = new ArrayList<>();
 
 		for (Entry<String, Float> elem : m.entrySet()) {
 			data += elem.getKey() + "/";
-			resultMap.put(elem.getKey(), "");
+			systemTagList.add(new Sys_tagVO(elem.getKey(), elem.getValue()));
 		}
+
+		data = data.substring(0, data.length() - 1);
 
 		try {
 			URL url = new URL("https://openapi.naver.com/v1/papago/n2mt");
@@ -59,20 +66,25 @@ public class PapagoTranslationAPI {
 			JSONParser parser = new JSONParser();
 			JSONObject jo = (JSONObject) parser.parse(response);
 
+			out.println(((JSONObject) jo.get("message")).get("result"));
+
 			List<String> list = Arrays.asList(((JSONObject) ((JSONObject) jo.get("message")).get("result"))
 					.get("translatedText").toString().split("/")).stream()
 					.map(String::trim).collect(Collectors.toList());
 
-			int idx = 0;
-			for (Entry<String, String> elem : resultMap.entrySet())
-				elem.setValue(list.get(idx++));
+			if (list.size() == systemTagList.size()) {
+				for (int idx = 0; idx < systemTagList.size(); idx++)
+					systemTagList.get(idx).setKorSysTag(list.get(idx));
+			}
+			return systemTagList;
 
-			return resultMap;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (IndexOutOfBoundsException e) {
 			e.printStackTrace();
 		}
 		return null;

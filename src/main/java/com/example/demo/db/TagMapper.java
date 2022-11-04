@@ -17,4 +17,6 @@ public interface TagMapper {
 	public List<TagCount> getTagCountList(@Param("user_id") String user_id);
 
 	public int deleteTagByUseridAndTagName(@Param("map") Map<String, String> map);
+
+	public int modifyTagName(@Param("map") Map<String, String> map);
 }

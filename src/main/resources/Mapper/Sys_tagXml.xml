@@ -5,6 +5,7 @@
 
 <mapper namespace="com.example.demo.db.Sys_tagMapper">
 	<insert id="insertSystag" parameterType="com.example.demo.db.Sys_tagVO">
-		insert into sys_tag(pinName, engSysTag, korSysTag) values (#{pinName}, #{engSysTag}, #{korSysTag})
+		insert into sys_tag(pinName, engSysTag, korSysTag, importanceFraction) 
+		values (#{pinName}, #{engSysTag}, #{korSysTag}, #{importanceFraction})
 	</insert>
 </mapper>
