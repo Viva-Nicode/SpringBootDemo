@@ -30,7 +30,7 @@
 		let postJsonObjectList = JSON.parse(postList)
 		let commentJsonObjectList = JSON.parse(commentList)
 
-
+		console.log(tagJsonObjectList);
 		function showAlert() {
 			$('#alert').show()
 			setTimeout(() => { $('#alert').fadeOut() }, 2500);
@@ -97,9 +97,10 @@
 					emailtextfield.className = 'form-control is-invalid'
 				}
 			});
-			/* The Quick Brown Fox Jumps Over The Lazy Dog. */
-			/* Bright vixens jump, dozy fowl quack. */
 		}
+
+		/* The Quick Brown Fox Jumps Over The Lazy Dog. */
+		/* Bright vixens jump, dozy fowl quack. */
 
 		function commentListRerender(commentid) {
 			let sign = 0, removeIdx = 0, offset = 0;
@@ -183,15 +184,16 @@
 					removeIdx = idx;
 					continue
 				}
+
 				if (sign == 1) {
 					$('div').remove('#' + tagJsonObjectList[idx].forhtmlid)
 					let temp = `
 						<div id="${tagJsonObjectList[idx].forhtmlid}" class="card border-info row col-16 post shadow-lg p-1 mb-5 bg-body rounded fadeInCom" style="--offset: ${offset}px;">
-							<div class="card-body">
-								<span class="badge text-bg-info">${tagJsonObjectList[idx].tagName}</span>&nbsp;&nbsp;&nbsp;&nbsp;
+							<div name="tagCardBody" class="card-body">
+								<span id="tagSpan" class="badge text-bg-info">${tagJsonObjectList[idx].tagName}</span>&nbsp;&nbsp;&nbsp;&nbsp;
 								<span style="font-family: 'Poor Story', cursive; font-size: 19px;" >${tagJsonObjectList[idx].count}</span>
-								<img id="xbtn" type="button" onclick="showModifyTagModal('${tagJsonObjectList[idx].tagName}')" src="/modify.png" style="right:50px; width: 30px; height: 30px; top:7px"></img>
-								<img id="xbtn" type='button' onclick="deleteTag(${tagJsonObjectList[idx].forhtmlid}, '${tagJsonObjectList[idx].tagName}')" src="/delete.png"></img>
+								<img name="tagModifyButton" id="xbtn" type="button" onclick="showModifyTagModal('${tagJsonObjectList[idx].tagName}')" src="/modify.png" style="right:50px; width: 30px; height: 30px; top:7px"></img>
+								<img name="tagDeleteButton" id="xbtn" type='button' onclick="deleteTag(${tagJsonObjectList[idx].forhtmlid}, '${tagJsonObjectList[idx].tagName}')" src="/delete.png"></img>
 							</div>
 						</div>`
 					your_tags.append(temp)
@@ -327,12 +329,12 @@
 			const regex = /^[ㄱ-ㅎ|가-힣|a-z| |A-Z|0-9|]+$/;
 			let modifyDesIndex = 0;
 			for (let idx in tagJsonObjectList) {
-				if (tagJsonObjectList[idx].tagName == newTagname) {
+				let t = tagJsonObjectList[idx].tagName
+				if (t == newTagname) {
 					$('#errorMsg').html('이미 있는 거랑 중복 됬다');
 					return showAlert();
-				} else if (tagJsonObjectList[idx].tagName == originalTagname) {
+				} else if (t == originalTagname) {
 					modifyDesIndex = idx;
-					break;
 				}
 			}
 
@@ -479,6 +481,8 @@
 		</div>
 	</div>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+	<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+	<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 	<div id="alert" role="alert" class="alert alert-danger alert-dismissable fade show fadeIn" style="display: none;" th:fragment="Alert-div">
 		<svg id="svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
 			<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />

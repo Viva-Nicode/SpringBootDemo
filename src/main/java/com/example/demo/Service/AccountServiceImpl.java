@@ -1,6 +1,11 @@
 package com.example.demo.Service;
 
 import java.util.List;
+
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class AccountServiceImpl implements AccountService {
+public class AccountServiceImpl implements AccountService, UserDetailsService {
 
 	private final UserRepository ur;
 	private final PasswordEncoder pe;
@@ -49,5 +54,15 @@ public class AccountServiceImpl implements AccountService {
 			return 1;// 중복되서 불가능
 		}
 		return 0; // 중복 안되서 바꾸기 가능
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(String userid) throws UsernameNotFoundException {
+		List<UserDTO> ul = ur.findByID(userid);
+
+		if (ul.isEmpty())
+			throw new UsernameNotFoundException(userid);
+
+		return User.builder().username(userid).password(ul.get(0).getPW()).build();
 	}
 }

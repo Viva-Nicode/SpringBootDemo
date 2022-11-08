@@ -44,7 +44,7 @@ form:hover {
 	transform: translate(-50%);
 	width: 14vw;
 	height: 5vh;
-	min-height: 5vh;
+	/* min-height: 5vh; */
 	/* top rignt bottom left */
 	margin-bottom: 5px;
 	margin-top: 5px;

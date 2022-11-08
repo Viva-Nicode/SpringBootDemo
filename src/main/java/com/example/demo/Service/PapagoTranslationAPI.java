@@ -77,7 +77,6 @@ public class PapagoTranslationAPI {
 					systemTagList.get(idx).setKorSysTag(list.get(idx));
 			}
 			return systemTagList;
-
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

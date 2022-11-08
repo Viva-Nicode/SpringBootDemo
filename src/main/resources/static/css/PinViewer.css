@@ -1,9 +1,19 @@
-#bg {
-	position: fixed;
-	width: 100vw;
-	height: 100vh;
-	object-fit: cover;
-	background-size: cover;
-	min-width: 100%;
-	min-height: 100%;
+.pinContainer{
+	position: absolute;
+	display: flex;
+	top:20%;
+	left: 15vw;
+	border: solid;
+	border-radius: 20px;
+	width: 81vw;
+	flex-flow:row
 }
+
+.pinItem{
+	display: inline-block;
+	margin: 10px;
+	max-width: 150px;
+	height: 150px;
+	border-radius: 20px;
+}
+

@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.example.demo.Service.CompressImage;
+import com.example.demo.Service.ConvertPngToJpg;
 import com.example.demo.Service.GoogleVisionAPI;
 import com.example.demo.Service.PapagoTranslationAPI;
 import com.example.demo.db.PinMapper;
@@ -40,13 +43,13 @@ public class PinController {
 			@RequestParam(value = "appliedTagList") List<String> appliedTagList,
 			@SessionAttribute(value = "user_id") String ui) {
 
-		out.println("tag List length : " + appliedTagList.size());
-		for (String tag : appliedTagList)
-			out.println(tag);
+		final String pinPath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/pins/";
+		final String thumbnailPath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/Thumbnail/";
+		final String ext = pins.getContentType().split("/")[1];
 
-		String des = UUID.randomUUID() + "." + pins.getContentType().split("/")[1];
-		File dest = new File(
-				"/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/pins/" + des);
+		String des = UUID.randomUUID() + "." + ext;
+
+		File dest = new File(pinPath + des);
 		try {
 			pm.insertPin(new PinVO(des, ui));
 
@@ -75,6 +78,19 @@ public class PinController {
 							stm.insertSystag(s);
 						}
 
+						if (ext.equals("png")) {
+
+							ConvertPngToJpg.pngToJpg(pinPath + des, thumbnailPath + des);
+
+							Thread.sleep(2000);
+							if (!new File(thumbnailPath + des).exists())
+								Thread.sleep(2000);
+
+							CompressImage.compress(ConvertPngToJpg.changeExtension(thumbnailPath + des, "jpg"));
+						} else {
+							CompressImage.compress(pinPath + des,
+									ConvertPngToJpg.changeExtension(thumbnailPath + des, "jpg"));
+						}
 					} catch (IllegalStateException | IOException e) {
 						e.printStackTrace();
 					} catch (InterruptedException e) {
@@ -82,7 +98,6 @@ public class PinController {
 					}
 				}
 			});
-
 			t.start();
 
 		} catch (IllegalStateException e) {

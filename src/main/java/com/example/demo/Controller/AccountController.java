@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,14 +40,13 @@ import com.example.demo.db.PostInfoVO;
 import com.example.demo.db.TagCount;
 import com.example.demo.db.TagMapper;
 import com.example.demo.db.UserMapper;
-import com.oreilly.servlet.MultipartRequest;
-import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
 
 import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/Account")
 @RequiredArgsConstructor
+@CrossOrigin
 @SessionAttributes(value = { "user_id", "commentList", "IwroteitList", "likepostlist" })
 public class AccountController {
 

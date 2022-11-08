@@ -23,15 +23,186 @@
 			} else {
 				$('#logOption').html('log out');
 			}
+
+			$(window).scroll(function () {
+				let scrolltop = $(document).scrollTop();
+				let height = $(document).height();
+				let height_win = $(window).height();
+				if (Math.round($(window).scrollTop()) >= $(document).height() - $(window).height()) {
+					let temp = `<div class="card_small card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_medium card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_large card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>`
+					console.log('bottom')
+					$('.pin_container').append(temp)
+				}
+			});
 		}
+
 		/* ]]> */
 	</script>
+	<style>
+		:root {
+			--card_width: 250px;
+			--card_border_radius: 16px;
+			--row_increment: 10px;
+			--card_small: 26;
+			--card_medium: 33;
+			--card_large: 45;
+			--card_hover_duration: 0.5s;
+		}
+
+		body {
+			margin: 0;
+			padding: 0;
+		}
+
+		.pin_container {
+			margin: 0;
+			padding: 0;
+			width: 75vw;
+			position: absolute;
+			top: 20%;
+			left: 25vw;
+			border-radius: 20px;
+
+			display: grid;
+			grid-template-columns: repeat(auto-fill, var(--card_width));
+			grid-auto-rows: var(--row_increment);
+			justify-content: left;
+
+
+		}
+
+		.card {
+			padding: 0px;
+			margin: 15px 10px;
+			border-radius: var(--card_border_radius);
+
+			background-color: white;
+		}
+
+		.card_small {
+			grid-row-end: span var(--card_small);
+		}
+
+		.card_medium {
+			grid-row-end: span var(--card_medium);
+		}
+
+		.card_large {
+			grid-row-end: span var(--card_large);
+		}
+
+		.inner-img {
+			border-radius: 16px;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+
+		#explain {
+			position: absolute;
+			padding-left: 5px;
+			padding-right: 5px;
+			left: 50%;
+			transform: translateX(-50%);
+			opacity: 0;
+			background-color: white;
+			z-index: 999;
+			border-radius: 5px;
+		}
+
+		.text_photo:hover #explain {
+			opacity: 1;
+			transition-duration: var(--card_hover_duration);
+		}
+
+		img:nth-child(1n):hover {
+			-webkit-filter: blur(5px);
+			transition-duration: var(--card_hover_duration);
+		}
+
+		.tagGroup {
+			position: fixed;
+			top: 20%;
+			left: 2vw;
+			width: 19vw;
+			height: 75vh;
+			justify-content: center;
+			border: solid;
+			border-color: black;
+			border-radius: 20px;
+		}
+
+		.tag {
+			position: relative;
+			left: 50%;
+			transform: translateX(-50%);
+			text-align: center;
+			width: 17vw;
+			margin-top: 5px;
+			margin-bottom: 5px;
+		}
+	</style>
 </head>
 
 <body>
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
-	<img id="bg" src="../wefw.jpg" alt="hello">
+	<div class="tagGroup">
+		<button type="button" class="btn btn-outline-info tag" onclick="clickTag(this)">tag11</button>
+	</div>
+	<div class="pin_container">
+		<div class="card_small card text_photo">
+			<p id='explain'>tag3</p>
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_medium card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_large card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_small card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_medium card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_large card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_small card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_medium card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_large card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_small card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_medium card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+		<div class="card_large card">
+			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
+		</div>
+
+
+
+	</div>
+
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+	<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+	<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 </body>
 
 </html>
