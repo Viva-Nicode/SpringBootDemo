@@ -6,6 +6,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Mapper
 public interface PinMapper {
-	
 	public void insertPin(PinVO p);
 }

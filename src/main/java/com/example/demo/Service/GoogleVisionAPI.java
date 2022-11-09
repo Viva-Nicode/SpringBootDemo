@@ -1,12 +1,15 @@
 package com.example.demo.Service;
 
+import com.example.demo.db.Sys_tagVO;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.EntityAnnotation;
 import com.google.cloud.vision.v1.Feature.Type;
 
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -15,6 +18,7 @@ import org.springframework.cloud.gcp.vision.CloudVisionTemplate;
 
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
+import java.util.Map.Entry;
 
 @NoArgsConstructor
 @Component
@@ -25,8 +29,8 @@ public class GoogleVisionAPI {
 	@Autowired
 	private CloudVisionTemplate cloudVisionTemplate;
 
-	public Map<String, Float> getImageLabels(final String resourcePath) {
-
+	public synchronized List<Sys_tagVO> getImageLabels(final String resourcePath) {
+		List<Sys_tagVO> systemTagList = new ArrayList<>();
 		AnnotateImageResponse response = cloudVisionTemplate.analyzeImage(
 				resourceLoader.getResource(resourcePath), Type.LABEL_DETECTION, Type.TEXT_DETECTION);
 
@@ -39,6 +43,8 @@ public class GoogleVisionAPI {
 									throw new IllegalStateException(String.format("Duplicate key %s", u));
 								},
 								LinkedHashMap::new));
-		return imageLabels;
+		for (Entry<String, Float> elem : imageLabels.entrySet()) 
+			systemTagList.add(new Sys_tagVO(elem.getKey(), elem.getValue()));
+		return systemTagList;
 	}
 }

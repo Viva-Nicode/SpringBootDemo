@@ -5,6 +5,11 @@
 
 <mapper namespace="com.example.demo.db.PinMapper">
 	<insert id="insertPin" parameterType="com.example.demo.db.PinVO">
-		insert into Pin(pinName, uploader) values(#{pinName}, #{uploader})
+		insert into Pin(pinName, uploader, resolutionRatio) values(#{pinName}, #{uploader}, #{resolutionRatio})
 	</insert>
+
+	<select id="selectPinbyTags">
+	
+	</select>
+
 </mapper>

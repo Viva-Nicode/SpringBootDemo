@@ -4,8 +4,15 @@
 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.demo.db.TagMapper">
-	<insert id="insertTag" parameterType="com.example.demo.db.tagVO">
-		insert into tag(pinName, tagName) values(#{pinName}, #{tagName})
+	<insert id="insertTag" parameterType="java.util.List">
+		insert into tag(pinName, tagName) 
+		values 
+			<foreach collection="list" item="item" separator=",">
+			(
+				#{item.pinName}, 
+				#{item.tagName}
+			)
+			</foreach>
 	</insert>
 
 	<select id="findTagByUserid" parameterType="String" resultType="String">
@@ -42,5 +49,16 @@
 			on p.pinName = tt.pinName 
 			where tag.tagName = #{map.otn}) 
 	</update>
+
+	<select id="getPininfoListByUploader" parameterType="String" resultType="com.example.demo.Service.PinInfoObject">
+		select p.pinName, group_concat(tagName) as taglist, 
+		avg(uploadDate) as uploadDate, avg(resolutionRatio) as resolutionRatio 
+		from ( select * from tag ) tt right join (select * from pin where uploader = #{uploader} ) p 
+		on tt.pinName = p.pinName  
+		group by pinName;
+	</select>
+	
 </mapper>
+
+
 

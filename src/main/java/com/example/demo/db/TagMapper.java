@@ -5,12 +5,15 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
+
+import com.example.demo.Service.PinInfoObject;
+
 import org.apache.ibatis.annotations.Param;
 
 @Mapper
 @Repository
 public interface TagMapper {
-	public void insertTag(tagVO t);
+	public void insertTag(List<tagVO> l);
 
 	public List<String> findTagByUserid(@Param("user_id") String user_id);
 
@@ -19,4 +22,6 @@ public interface TagMapper {
 	public int deleteTagByUseridAndTagName(@Param("map") Map<String, String> map);
 
 	public int modifyTagName(@Param("map") Map<String, String> map);
+
+	public List<PinInfoObject> getPininfoListByUploader(@Param("uploader") String uploader);
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 
 <head>
 	<meta charset="UTF-8">
@@ -12,10 +12,21 @@
 	<link rel="stylesheet" th:href="@{/css/PinViewer.css}">
 	<script type="text/map" src="/js/popper.js.map"></script>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
-	<title>Document</title>
+	<title>Pin Viewer</title>
 	<th:block th:replace="~{fragments/navbar.html::logAction}"></th:block>
 	<script th:inline="javascript">
 		/* <![CDATA[ */
+		let allPinsize = Number('[[${allpinsize}]]');
+		let allPinlist = JSON.parse('[[${allpinlist}]]');
+		let currentPinsize = Number('[[${current_pinsize}]]');
+		let currentPinlist = JSON.parse('[[${current_pinlist}]]');
+		let pressedTagSearchRequest = null
+
+		console.log(allPinsize);
+		console.log(allPinlist);
+		console.log(currentPinsize);
+		console.log(currentPinlist);
+
 		window.onload = function () {
 			const user_id = '[[${session.user_id}]]';
 			if (user_id == 'null') {
@@ -29,21 +40,121 @@
 				let height = $(document).height();
 				let height_win = $(window).height();
 				if (Math.round($(window).scrollTop()) >= $(document).height() - $(window).height()) {
-					let temp = `<div class="card_small card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_medium card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_large card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>`
-					console.log('bottom')
-					$('.pin_container').append(temp)
+					let jsonObj = { imageNameArray: [] }
+					let remainingPinsize = allPinsize - currentPinsize
+					if (8 <= remainingPinsize) {
+						console.log('request get 8 pins.')
+						for (let idx = currentPinsize; idx < currentPinsize + 8; idx++)
+							jsonObj.imageNameArray.push(allPinlist[idx])
+						currentPinsize += 8;
+					} else if (8 >= remainingPinsize && remainingPinsize >= 1) {
+						console.log('request get ' + allPinsize - currentPinsize + ' pins.')
+						for (let idx = currentPinsize; idx < allPinlist.length; idx++)
+							jsonObj.imageNameArray.push(allPinlist[idx]);
+						currentPinsize = allPinsize;
+					} else {
+						console.log("There are no more pins left.")
+						return;
+					}
+
+					const token = $("meta[name='_csrf']").attr("content")
+					const header = $("meta[name='_csrf_header']").attr("content")
+
+					$.ajax({
+						type: "post",
+						async: true,
+						contentType: 'application/json',
+						beforeSend: function (xhr) {
+							xhr.setRequestHeader(header, token);
+						},
+						url: "http://localhost:8080/Pin/morePins",
+						data: JSON.stringify(jsonObj),
+						success: function (data, textStatus) {
+							morePinRenderer(jsonObj.imageNameArray, JSON.parse(data).responseJsonArray)
+							return false;
+						},
+						error: function (request, status, error) {
+							alert("code: " + request.status + "message: " + request.responseText + "error: " + error)
+						},
+						complete: function (data, textStatus) { }
+					})
 				}
-			});
+			})
 		}
 
+		function morePinRenderer(mustRenderPinlist, pinImageDatalist) {
+			for (let idx = 0; idx < mustRenderPinlist.length; idx++) {
+				let temp = getPinHtml(mustRenderPinlist[idx].resolutionRatio,
+					mustRenderPinlist[idx].taglist, pinImageDatalist[idx])
+				$('.pin_container').append(temp)
+			}
+		}
+
+		function getPinHtml(pinsize, taglist, imageBinaryData) {
+			if (pinsize == 1) {
+				return `
+					<div class="card_small card text_photo">
+						<p id="explain">${taglist}</p>
+						<img class="inner-img" src="data:image/jpg;base64,${imageBinaryData}" alt="sorry do not find image...">
+					</div>`
+			} else if (pinsize == 2) {
+				return `
+					<div class="card_medium card text_photo">
+						<p id="explain">${taglist}</p>
+						<img class="inner-img" src="data:image/jpg;base64,${imageBinaryData}" alt="sorry do not find image...">
+					</div>`
+			} else {
+				return `
+					<div class="card_large card text_photo">
+						<p id="explain">${taglist}</p>
+						<img class="inner-img" src="data:image/jpg;base64,${imageBinaryData}" alt="sorry do not find image...">
+					</div>`
+			}
+		}
+
+		function clickTag(pressedTag) {
+			clearTimeout(pressedTagSearchRequest)
+			toggleTagButton(pressedTag)
+			let ActiveBtnList = { taglist : getDangerButtonList()}
+			pressedTagSearchRequest = setTimeout(() => {
+				const token = $("meta[name='_csrf']").attr("content")
+				const header = $("meta[name='_csrf_header']").attr("content")
+				$.ajax({
+					type: "post",
+					async: true,
+					contentType: 'application/json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader(header, token);
+					},
+					url: "http://localhost:8080/Pin/search",
+					data: JSON.stringify(ActiveBtnList),
+					success: function (data, textStatus) {
+
+						return false;
+					},
+					error: function (request, status, error) {
+						alert("code: " + request.status + "message: " + request.responseText + "error: " + error)
+					},
+					complete: function (data, textStatus) { }
+				})
+			}, 2000)
+		}
+
+		function toggleTagButton(pressedTagButton) {
+			if (pressedTagButton.className == 'btn btn-outline-info tag')
+				pressedTagButton.className = 'btn btn-danger tag'
+			else
+				pressedTagButton.className = 'btn btn-outline-info tag'
+		}
+
+		function getDangerButtonList() {
+			let pressedBtnList = document.querySelectorAll('div.tagGroup > button.btn.btn-danger.tag')
+			let ActiveButtonList = []
+			pressedBtnList.forEach(function (item) {
+				ActiveButtonList.push(item.id)
+			})
+			return ActiveButtonList
+		}
 		/* ]]> */
 	</script>
 	<style>
@@ -85,6 +196,7 @@
 			border-radius: var(--card_border_radius);
 
 			background-color: white;
+			border-color: black;
 		}
 
 		.card_small {
@@ -136,18 +248,28 @@
 			height: 75vh;
 			justify-content: center;
 			border: solid;
-			border-color: black;
+			border-color: blanchedalmond;
+			background-color: gray;
 			border-radius: 20px;
+			overflow: auto;
 		}
 
 		.tag {
 			position: relative;
 			left: 50%;
+			top: 1%;
 			transform: translateX(-50%);
 			text-align: center;
 			width: 17vw;
 			margin-top: 5px;
 			margin-bottom: 5px;
+		}
+
+		.pin-select-box {
+			position: absolute;
+			left: 2%;
+			top: 1%;
+			z-index: 999;
 		}
 	</style>
 </head>
@@ -155,49 +277,34 @@
 <body>
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
 	<div class="tagGroup">
-		<button type="button" class="btn btn-outline-info tag" onclick="clickTag(this)">tag11</button>
+		<th:block th:each="t, index: ${taglist}">
+			<button th:id="${t}" type="button" class="btn btn-outline-info tag" onclick="clickTag(this)" th:text="${t}"></button>
+		</th:block>
 	</div>
 	<div class="pin_container">
-		<div class="card_small card text_photo">
-			<p id='explain'>tag3</p>
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_medium card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_large card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_small card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_medium card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_large card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_small card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_medium card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_large card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_small card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_medium card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-		<div class="card_large card">
-			<img class="inner-img" src="../wefw.jpg" alt="sorry do not find image...">
-		</div>
-
-
-
+		<th:block th:each="p, index: ${current_pinlist}">
+			<th:block th:if="${p.resolutionRatio == 1}">
+				<div class="card_small card text_photo">
+					<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
+					<p id="explain" th:text="${p.taglist}"></p>
+					<img class="inner-img" th:src="@{/Thumbnail/__${p.pinName}__}" alt="sorry do not find image...">
+				</div>
+			</th:block>
+			<th:block th:if="${p.resolutionRatio == 2}">
+				<div class="card_medium card text_photo">
+					<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
+					<p id="explain" th:text="${p.taglist}"></p>
+					<img class="inner-img" th:src="@{/Thumbnail/__${p.pinName}__}" alt="sorry do not find image...">
+				</div>
+			</th:block>
+			<th:block th:if="${p.resolutionRatio == 3}">
+				<div class="card_large card text_photo">
+					<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
+					<p id="explain" th:text="${p.taglist}"></p>
+					<img class="inner-img" th:src="@{/Thumbnail/__${p.pinName}__}" alt="sorry do not find image...">
+				</div>
+			</th:block>
+		</th:block>
 	</div>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>

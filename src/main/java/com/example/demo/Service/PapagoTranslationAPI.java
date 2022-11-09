@@ -25,7 +25,7 @@ import com.example.demo.db.Sys_tagVO;
 
 public class PapagoTranslationAPI {
 
-	public static List<Sys_tagVO> getTranslationTagList(Map<String, Float> m) {
+	public static synchronized List<Sys_tagVO> getTranslationTagList(Map<String, Float> m) {
 
 		String data = "source=en&target=ko&text=";
 

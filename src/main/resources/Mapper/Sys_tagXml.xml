@@ -4,8 +4,15 @@
 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.demo.db.Sys_tagMapper">
-	<insert id="insertSystag" parameterType="com.example.demo.db.Sys_tagVO">
-		insert into sys_tag(pinName, engSysTag, korSysTag, importanceFraction) 
-		values (#{pinName}, #{engSysTag}, #{korSysTag}, #{importanceFraction})
+	<insert id="insertSystag" parameterType="java.util.List">
+		insert into sys_tag(pinName, engSysTag, importanceFraction) 
+		values 
+		<foreach collection="list" item="item" separator=",">
+		(
+			#{item.pinName}, 
+			#{item.engSysTag}, 
+			#{item.importanceFraction}
+		)
+		</foreach>
 	</insert>
 </mapper>

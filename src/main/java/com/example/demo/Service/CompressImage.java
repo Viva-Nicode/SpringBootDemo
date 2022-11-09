@@ -72,4 +72,13 @@ public class CompressImage {
 			e.printStackTrace();
 		}
 	}
+
+	public static int getResolutionRatio(int width, int height) {
+		if (width >= height)
+			return 1;
+		else if (height - width <= width / 2)
+			return 2;
+		else
+			return 3;
+	}
 }
