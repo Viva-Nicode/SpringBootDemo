@@ -236,7 +236,7 @@ public class PinController {
 			 * cs = piol.size();
 			 * else
 			 * cs = 20;
-			 * 
+			 * 커런트, 올 리스트 사이즈들 제이슨에 넣어서 응답
 			 */
 
 		} catch (ParseException e) {
