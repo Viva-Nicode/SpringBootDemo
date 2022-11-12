@@ -22,7 +22,6 @@
 		/* <![CDATA[ */
 		const user_id = '[[${session.user_id}]]';
 		let appliedTagList = []
-		let visibility = { v: '' }
 		let addTagObject;
 		let input
 		let output
@@ -36,6 +35,15 @@
 				$('#nickname').html(user_id.substring(1, user_id.length - 1))
 				$('#logOption').html('log out')
 			}
+
+			let check = window.sessionStorage.getItem('visibility')
+
+			if (check == 'false')
+				$("#switch").prop('checked', false)
+			else if (check == 'true')
+				$("#switch").prop('checked', true)
+			else if (check == null)
+				window.sessionStorage.setItem('visibility', 'false')
 
 			input = document.querySelector('#tagInput')
 			output = document.querySelector('.tags')
@@ -93,14 +101,13 @@
 		$(document).ready(function () {
 			$("#switch").change(function () {
 				if ($("#switch").is(":checked")) {
-					visibility.v = 'true'
-					console.log(visibility.v)
+					window.sessionStorage.setItem('visibility', 'true')
+
 				} else {
-					visibility.v = 'false'
-					console.log(visibility.v)
+					window.sessionStorage.setItem('visibility', 'false')
 				}
-			});
-		});
+			})
+		})
 
 		function showAlert() {
 			$('#alert').show()
@@ -181,7 +188,7 @@
 							appliedTagList.push(elem.innerHTML)
 						}
 					})
-					appliedTagList.push(visibility.v)
+					appliedTagList.push(sessionStorage.getItem('visibility'))
 				})
 			}
 		}
@@ -252,7 +259,7 @@
 			margin-bottom: 1.5em;
 		}
 
-		.tags-apply-btn{
+		.tags-apply-btn {
 			position: absolute;
 			right: 4%;
 			bottom: 6%;

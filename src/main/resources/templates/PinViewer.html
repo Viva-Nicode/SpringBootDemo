@@ -35,7 +35,25 @@
 				$('#logOption').html('log out');
 			}
 			$(window).scroll(scrollEvent)
+
+			let check = window.sessionStorage.getItem('visibility')
+
+			if (check == 'false' || check == undefined)
+				$("#switch").prop('checked', false)
+			else if (check == 'true')
+				$("#switch").prop('checked', true)
 		}
+
+		$(document).ready(function () {
+			$("#switch").change(function () {
+				if ($("#switch").is(":checked")) {
+					window.sessionStorage.setItem('visibility', 'true')
+
+				} else {
+					window.sessionStorage.setItem('visibility', 'false')
+				}
+			})
+		})
 
 		function scrollEvent() {
 			let height = $(document).height();

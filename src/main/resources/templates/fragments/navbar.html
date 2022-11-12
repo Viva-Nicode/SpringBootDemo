@@ -10,6 +10,16 @@
 			location.href = '/Account/logout';
 		}
 	}
+
+	function movePinViewer() {
+		let check = window.sessionStorage.getItem('visibility')
+		if (check == null) {
+			window.sessionStorage.setItem('visibility', false)
+			location.href = 'http://localhost:8080/Pin/movePinViewer?visibility=false'
+		} else {
+			location.href = 'http://localhost:8080/Pin/movePinViewer?visibility=' + check
+		}
+	}
 </script>
 
 <div th:fragment="fragment-navbar">
@@ -46,7 +56,7 @@
 							<span class="icon">
 								<ion-icon name="images-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
 							</span>
-							<a class="nav-link" th:href="@{/Pin/movePinViewer}" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Gallery</a>
+							<a class="nav-link" type='button' onclick="movePinViewer()" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Gallery</a>
 						</li>
 						<li class="nav-item" style="text-align: center;">
 							<span class="icon">

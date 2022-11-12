@@ -181,9 +181,15 @@ public class PinController {
 	}
 
 	@RequestMapping(value = "/movePinViewer") /* 16개씩만 로딩한다. */
-	public ModelAndView movePinView(Model model, @SessionAttribute(value = "user_id") String ui) {
+	public ModelAndView movePinView(Model model, @SessionAttribute(value = "user_id") String ui,
+			@RequestParam(value = "visibility") String visibility) {
 		int cs = 0;
 
+		/*
+		 * ture : 전부 보여줘
+		 * false : 프라이빗 빼고 보여줘
+		*/
+		
 		List<PinInfoObject> l = tm.getPininfoListByUploader(ui);
 
 		model.addAttribute("validTaglist", new ArrayList<Object>());
