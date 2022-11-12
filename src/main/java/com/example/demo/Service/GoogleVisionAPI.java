@@ -7,6 +7,7 @@ import com.google.cloud.vision.v1.Feature.Type;
 
 import lombok.NoArgsConstructor;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,7 +30,7 @@ public class GoogleVisionAPI {
 	@Autowired
 	private CloudVisionTemplate cloudVisionTemplate;
 
-	public synchronized List<Sys_tagVO> getImageLabels(final String resourcePath) {
+	public synchronized List<Sys_tagVO> getImageLabels(final String resourcePath) throws FileNotFoundException{
 		List<Sys_tagVO> systemTagList = new ArrayList<>();
 		AnnotateImageResponse response = cloudVisionTemplate.analyzeImage(
 				resourceLoader.getResource(resourcePath), Type.LABEL_DETECTION, Type.TEXT_DETECTION);

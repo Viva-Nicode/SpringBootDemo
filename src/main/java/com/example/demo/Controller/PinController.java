@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+
 import java.util.Base64;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,11 +72,11 @@ public class PinController {
 			BufferedImage bufferedImage = ImageIO.read(pins.getInputStream());
 			/* pin 테이블에 요청으로 넘어온 이미지 정보를 insert 한다. */
 			boolean visi;
-			if (appliedTagList.get(appliedTagList.size() - 1).equals("true")) {
+			if (appliedTagList.get(appliedTagList.size() - 1).equals("true"))
 				visi = true;
-			} else {
+			else
 				visi = false;
-			}
+
 			pm.insertPin(new PinVO(des, ui,
 					CompressImage.getResolutionRatio(bufferedImage.getWidth(), bufferedImage.getHeight()), visi));
 
@@ -94,14 +95,12 @@ public class PinController {
 				@Override
 				public void run() {
 					try {
-
 						synchronized (this) {
 							pins.transferTo(dest);
 						}
 
 						List<Sys_tagVO> systemTagList;
-
-						Thread.sleep(5000);
+						Thread.sleep(3500);
 
 						/* 구글 비전에서 시스탬 태그를 획득한다. */
 						systemTagList = googleVisionAPI.getImageLabels(
@@ -110,6 +109,7 @@ public class PinController {
 						/* 시스템 태그를 foreach insert 한다. */
 						for (Sys_tagVO s : systemTagList)
 							s.setPinName(des);
+
 						stm.insertSystag(systemTagList);
 
 						if (ext.equals("png")) {
@@ -130,14 +130,49 @@ public class PinController {
 						e.printStackTrace();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
+					} catch (org.springframework.cloud.gcp.vision.CloudVisionException e) {
+						try {
+							out.println("=======================================================");
+							out.println("Generated Exception.");
+							out.println("file not found exception!!");
+							out.println("=======================================================");
+							List<Sys_tagVO> systemTagList;
+							Thread.sleep(3500);
+
+							/* 구글 비전에서 시스탬 태그를 획득한다. */
+							systemTagList = googleVisionAPI.getImageLabels(
+									"classpath:static/pins/" + des);
+
+							/* 시스템 태그를 foreach insert 한다. */
+							for (Sys_tagVO s : systemTagList)
+								s.setPinName(des);
+
+							stm.insertSystag(systemTagList);
+
+							if (ext.equals("png")) {
+
+								ConvertPngToJpg.pngToJpg(pinPath + des, thumbnailPath + des);
+
+								Thread.sleep(2000);
+								if (!new File(thumbnailPath + des).exists())
+									Thread.sleep(2000);
+
+								CompressImage.compress(ConvertPngToJpg.changeExtension(thumbnailPath + des, "jpg"));
+							} else {
+								CompressImage.compress(pinPath + des,
+										ConvertPngToJpg.changeExtension(thumbnailPath + des, "jpg"));
+							}
+						} catch (IllegalStateException | IOException ee) {
+							ee.printStackTrace();
+						} catch (InterruptedException ee) {
+							ee.printStackTrace();
+						}
 					}
 				}
 			});
 			t.start();
 
 		} catch (IllegalStateException e) {
-			out.println("Generated Exception.");
-		} catch (org.springframework.cloud.gcp.vision.CloudVisionException e) {
 			out.println("Generated Exception.");
 		} catch (IOException e1) {
 			e1.printStackTrace();
