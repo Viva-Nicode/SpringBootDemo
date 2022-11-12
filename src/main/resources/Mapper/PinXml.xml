@@ -5,11 +5,13 @@
 
 <mapper namespace="com.example.demo.db.PinMapper">
 	<insert id="insertPin" parameterType="com.example.demo.db.PinVO">
-		insert into Pin(pinName, uploader, resolutionRatio) values(#{pinName}, #{uploader}, #{resolutionRatio})
+		insert into Pin(pinName, uploader, resolutionRatio, visibility) 
+		values(#{pinName}, #{uploader}, #{resolutionRatio}, #{visibility})
 	</insert>
 
-	<select id="selectPinbyTags">
-	
+	<select id="checkPinByUserid" parameterType="hashMap" resultType="com.example.demo.db.PinVO">
+		select * 
+		from pin
+		where uploader = #{map.user_id} and pinName = #{map.pinName}
 	</select>
-
 </mapper>

@@ -53,20 +53,14 @@ form:hover {
 
 .tagaddbtn {
 	position: absolute;
-	top: 26vh;
-	right: 40px;
+	top: 25vh;
+	right: 42px;
 	display: block;
-	width: 32px;
-	height: 32px;
-}
-
-#newTagTextfield {
-	position: absolute;
-	top: 26vh;
-	right: 78px;
-	width: 20vw;
-	border-radius: 17px;
-	display: block;
+	width: 36px;
+	height: 36px;
+	background-color: white;
+	border-radius: 5px;
+	padding: 3px;
 }
 
 #searchTagTextfield{

@@ -47,7 +47,8 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 @Controller
 @RequestMapping("/Pin")
 @RequiredArgsConstructor
-@SessionAttributes(value = { "validTaglist" })
+@SessionAttributes(value = { "validTaglist", "visibility" })
+// 사용자가 검색조건으로 클릭한 태그 리스트이다. 같은 검색조건일땐 그냥 아무동작하지 않기위해 저장해놓은것이다.
 
 public class PinController {
 	private final GoogleVisionAPI googleVisionAPI;
@@ -69,16 +70,22 @@ public class PinController {
 
 			BufferedImage bufferedImage = ImageIO.read(pins.getInputStream());
 			/* pin 테이블에 요청으로 넘어온 이미지 정보를 insert 한다. */
+			boolean visi;
+			if (appliedTagList.get(appliedTagList.size() - 1).equals("true")) {
+				visi = true;
+			} else {
+				visi = false;
+			}
 			pm.insertPin(new PinVO(des, ui,
-					CompressImage.getResolutionRatio(bufferedImage.getWidth(), bufferedImage.getHeight())));
+					CompressImage.getResolutionRatio(bufferedImage.getWidth(), bufferedImage.getHeight()), visi));
 
 			/*
 			 * 넘어온 태그가 존재한다면 이를 리스트로 만들어서 foreach insert 해준다.
 			 * 태그가 하나도 없다면 동작하지 않는다.
 			 */
-			if (appliedTagList.size() >= 2) {
+			if (appliedTagList.size() >= 3) {
 				List<tagVO> l = new ArrayList<>();
-				for (int idx = 1; idx < appliedTagList.size(); idx++)
+				for (int idx = 1; idx < appliedTagList.size() - 1; idx++)
 					l.add(new tagVO(des, appliedTagList.get(idx)));
 				tm.insertTag(l);
 			}
@@ -91,11 +98,10 @@ public class PinController {
 						synchronized (this) {
 							pins.transferTo(dest);
 						}
+
 						List<Sys_tagVO> systemTagList;
 
-						Thread.sleep(3000);
-						while (!dest.exists())
-							Thread.sleep(2500);
+						Thread.sleep(5000);
 
 						/* 구글 비전에서 시스탬 태그를 획득한다. */
 						systemTagList = googleVisionAPI.getImageLabels(
@@ -139,6 +145,127 @@ public class PinController {
 		return "";
 	}
 
+	@RequestMapping(value = "/movePinViewer") /* 16개씩만 로딩한다. */
+	public ModelAndView movePinView(Model model, @SessionAttribute(value = "user_id") String ui) {
+		int cs = 0;
+
+		List<PinInfoObject> l = tm.getPininfoListByUploader(ui);
+
+		model.addAttribute("validTaglist", new ArrayList<Object>());
+		model.addAttribute("allpinlist", l);
+		model.addAttribute("allpinsize", l.size());
+		model.addAttribute("taglist", tm.findTagByUserid(ui));
+
+		if (l.size() <= 16)
+			cs = l.size();
+		else
+			cs = 16;
+
+		model.addAttribute("current_pinsize", cs);
+		model.addAttribute("current_pinlist", new ArrayList<>(l.subList(0, cs)));
+		return new ModelAndView("PinViewer");
+	}
+
+	@RequestMapping(value = "/morePins") /* 8개씩 로딩 */
+	public @ResponseBody String morePinsRequest(@SessionAttribute("user_id") String ui,
+			@RequestBody String jsonImageRequest) {
+		JSONParser parser = new JSONParser();
+		JSONObject responseJsonObject = new JSONObject();
+		responseJsonObject.put("responseJsonArray", new JSONArray());
+
+		try {
+			JSONArray imageNameList = (JSONArray) ((JSONObject) parser.parse(jsonImageRequest)).get("imageNameArray");
+
+			for (int idx = 0; idx < imageNameList.size(); idx++) {
+
+				JSONObject jo = (JSONObject) imageNameList.get(idx);
+				BufferedImage img = ImageIO.read(new File(thumbnailPath + jo.get("thumbnailName").toString()));
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ImageIO.write(img, "jpg", baos);
+				byte[] bytes = baos.toByteArray();
+				((JSONArray) responseJsonObject.get("responseJsonArray"))
+						.add(Base64.getEncoder().encodeToString(bytes));
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return responseJsonObject.toJSONString();
+	}
+
+	@RequestMapping(value = "/search") /* 최대16개 로딩 */
+	public @ResponseBody String changeSearchPredicate(Model model, @RequestBody String jsonTagRequest,
+			@SessionAttribute(value = "user_id") String ui,
+			@SessionAttribute(value = "validTaglist") List<Object> vtl) {
+		JSONParser parser = new JSONParser();
+		JSONObject responseJsonObject = new JSONObject();
+		responseJsonObject.put("imageDataList", new JSONArray());
+
+		int cs = 0;
+
+		try {
+			List<Object> l = Arrays
+					.asList(((JSONArray) ((JSONObject) parser.parse(jsonTagRequest)).get("taglist")).toArray());
+			List<String> ls = new ArrayList<>();
+			for (Object o : l)
+				ls.add(o.toString());
+			model.addAttribute("validTaglist", l);
+			List<PinInfoObject> piol = tm.getPininfoListByUploader(ui);
+			List<Object> validPiol = new ArrayList<>();
+
+			for (PinInfoObject pio : piol) {
+				out.println("taglist in search : " + pio.getTaglist());
+				if (Arrays.asList(pio.getTaglist().split(",")).containsAll(ls)) {
+					validPiol.add(pio);
+					if (cs++ <= 15) {
+						BufferedImage img = ImageIO.read(new File(thumbnailPath + pio.getThumbnailName()));
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						ImageIO.write(img, "jpg", baos);
+						byte[] bytes = baos.toByteArray();
+						((JSONArray) responseJsonObject.get("imageDataList"))
+								.add(Base64.getEncoder().encodeToString(bytes));
+					}
+				}
+			}
+
+			if (validPiol.size() <= 16)
+				cs = validPiol.size();
+			else
+				cs = 16;
+
+			responseJsonObject.put("allpinlist", validPiol);
+			responseJsonObject.put("allpinsize", validPiol.size());
+			responseJsonObject.put("current_pinsize", cs);
+			responseJsonObject.put("current_pinlist", new ArrayList<>(validPiol.subList(0, cs)));
+
+		} catch (ParseException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return responseJsonObject.toJSONString();
+	}
+
+	@RequestMapping(value = "/OriginPin")
+	public @ResponseBody String getOriginPin(@SessionAttribute(value = "user_id") String ui,
+			@RequestParam(value = "originPinName") String opn) {
+
+		if (pm.checkPinByUserid(Map.of("pinName", opn, "user_id", ui)).isEmpty())
+			return null;
+		try {
+			BufferedImage img = ImageIO.read(new File(pinPath + opn));
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(img, ConvertPngToJpg.getExtentioString(opn), baos);
+			byte[] bytes = baos.toByteArray();
+			return Base64.getEncoder().encodeToString(bytes);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 	@RequestMapping(value = "/deleteTagAll")
 	public @ResponseBody String deleteTagAll(@SessionAttribute(value = "user_id") String ui,
 			@RequestParam(value = "tagName") String tn) {
@@ -159,89 +286,5 @@ public class PinController {
 	public ModelAndView moveUploadView(Model model, @SessionAttribute(value = "user_id") String ui) {
 		model.addAttribute("tagList", tm.findTagByUserid(ui));
 		return new ModelAndView("UploadPage");
-	}
-
-	@RequestMapping(value = "/movePinViewer") /* 20개씩만 로딩한다. */
-	public ModelAndView movePinView(Model model, @SessionAttribute(value = "user_id") String ui) {
-		int cs = 0;
-
-		List<PinInfoObject> l = tm.getPininfoListByUploader(ui);
-
-		for (PinInfoObject p : l)
-			p.setPinName(ConvertPngToJpg.changeExtension(p.getPinName(), "jpg"));
-		model.addAttribute("validTaglist", new ArrayList<Object>());
-		model.addAttribute("allpinlist", l);
-		model.addAttribute("allpinsize", l.size());
-		model.addAttribute("taglist", tm.findTagByUserid(ui));
-
-		if (l.size() <= 20)
-			cs = l.size();
-		else
-			cs = 20;
-
-		model.addAttribute("current_pinsize", cs);
-		model.addAttribute("current_pinlist", new ArrayList<>(l.subList(0, cs)));
-		return new ModelAndView("PinViewer");
-	}
-
-	@RequestMapping(value = "/morePins") /* 8개씩 로딩 */
-	public @ResponseBody String morePinsRequest(@SessionAttribute("user_id") String ui,
-			@RequestBody String jsonImageRequest) {
-		JSONParser parser = new JSONParser();
-		JSONObject responseJsonObject = new JSONObject();
-		responseJsonObject.put("responseJsonArray", new JSONArray());
-
-		try {
-			JSONArray imageNameList = (JSONArray) ((JSONObject) parser.parse(jsonImageRequest)).get("imageNameArray");
-
-			for (int idx = 0; idx < imageNameList.size(); idx++) {
-
-				JSONObject jo = (JSONObject) imageNameList.get(idx);
-				BufferedImage img = ImageIO.read(new File(thumbnailPath + jo.get("pinName").toString()));
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				ImageIO.write(img, "jpg", baos);
-				byte[] bytes = baos.toByteArray();
-				((JSONArray) responseJsonObject.get("responseJsonArray"))
-						.add(Base64.getEncoder().encodeToString(bytes));
-			}
-		} catch (ParseException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return responseJsonObject.toJSONString();
-	}
-
-	@RequestMapping(value = "/search")
-	public @ResponseBody String changeSearchPredicate(Model model, @RequestBody String jsonTagRequest,
-			@SessionAttribute(value = "user_id") String ui,
-			@SessionAttribute(value = "validTaglist") List<Object> vtl) {
-		JSONParser parser = new JSONParser();
-
-		if (vtl.isEmpty())
-			out.println("비어있음");
-
-		for (Object tag : vtl)
-			out.println(tag);
-
-		try {
-			JSONArray vaildTagList = (JSONArray) ((JSONObject) parser.parse(jsonTagRequest)).get("taglist");
-			List<Object> l = Arrays.asList(vaildTagList.toArray());
-			model.addAttribute("validTaglist", l);
-			/*
-			 * List<PinInfoObject> piol = pm.selectPinsByTags(l)
-			 * for (PinInfoObject p : piol)
-			 * p.setPinName(ConvertPngToJpg.changeExtension(p.getPinName(), "jpg"));
-			 * if (piol.size() <= 20)
-			 * cs = piol.size();
-			 * else
-			 * cs = 20;
-			 * 커런트, 올 리스트 사이즈들 제이슨에 넣어서 응답 하하gkgkgkgkgk
-			 */
-
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		return "";
 	}
 }

@@ -29,9 +29,10 @@ public class PinVO {
 	private Boolean visibility;
 	private int resolutionRatio;
 
-	public PinVO(String pinName, String uploader, int resolutionRatio) {
+	public PinVO(String pinName, String uploader, int resolutionRatio, Boolean visi) {
 		this.pinName = pinName;
 		this.uploader = uploader;
 		this.resolutionRatio = resolutionRatio;
+		this.visibility = visi;
 	}
 }

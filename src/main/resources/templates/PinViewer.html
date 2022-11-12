@@ -22,10 +22,10 @@
 		let currentPinlist = JSON.parse('[[${current_pinlist}]]');
 		let pressedTagSearchRequest = null
 
-		console.log(allPinsize);
-		console.log(allPinlist);
-		console.log(currentPinsize);
-		console.log(currentPinlist);
+		console.log('all pin size : ' + allPinsize);
+		/* console.log(allPinlist); */
+		console.log('current pin size : ' + currentPinsize);
+		/* console.log(currentPinlist); */
 
 		window.onload = function () {
 			const user_id = '[[${session.user_id}]]';
@@ -34,80 +34,96 @@
 			} else {
 				$('#logOption').html('log out');
 			}
+			$(window).scroll(scrollEvent)
+		}
 
-			$(window).scroll(function () {
-				let scrolltop = $(document).scrollTop();
-				let height = $(document).height();
-				let height_win = $(window).height();
-				if (Math.round($(window).scrollTop()) >= $(document).height() - $(window).height()) {
-					let jsonObj = { imageNameArray: [] }
-					let remainingPinsize = allPinsize - currentPinsize
-					if (8 <= remainingPinsize) {
-						console.log('request get 8 pins.')
-						for (let idx = currentPinsize; idx < currentPinsize + 8; idx++)
-							jsonObj.imageNameArray.push(allPinlist[idx])
-						currentPinsize += 8;
-					} else if (8 >= remainingPinsize && remainingPinsize >= 1) {
-						console.log('request get ' + allPinsize - currentPinsize + ' pins.')
-						for (let idx = currentPinsize; idx < allPinlist.length; idx++)
-							jsonObj.imageNameArray.push(allPinlist[idx]);
-						currentPinsize = allPinsize;
-					} else {
-						console.log("There are no more pins left.")
-						return;
-					}
-
-					const token = $("meta[name='_csrf']").attr("content")
-					const header = $("meta[name='_csrf_header']").attr("content")
-
-					$.ajax({
-						type: "post",
-						async: true,
-						contentType: 'application/json',
-						beforeSend: function (xhr) {
-							xhr.setRequestHeader(header, token);
-						},
-						url: "http://localhost:8080/Pin/morePins",
-						data: JSON.stringify(jsonObj),
-						success: function (data, textStatus) {
-							morePinRenderer(jsonObj.imageNameArray, JSON.parse(data).responseJsonArray)
-							return false;
-						},
-						error: function (request, status, error) {
-							alert("code: " + request.status + "message: " + request.responseText + "error: " + error)
-						},
-						complete: function (data, textStatus) { }
-					})
+		function scrollEvent() {
+			let height = $(document).height();
+			let height_win = $(window).height();
+			if (Math.round($(window).scrollTop()) >= $(document).height() - $(window).height()) {
+				$(window).unbind()
+				let jsonObj = { imageNameArray: [] }
+				let remainingPinsize = allPinsize - currentPinsize
+				if (8 <= remainingPinsize) {
+					console.log('request get 8 pins.')
+					for (let idx = currentPinsize; idx < currentPinsize + 8; idx++)
+						jsonObj.imageNameArray.push(allPinlist[idx])
+					currentPinsize += 8;
+				} else if (8 >= remainingPinsize && remainingPinsize >= 1) {
+					console.log('request get ' + allPinsize - currentPinsize + ' pins.')
+					for (let idx = currentPinsize; idx < allPinlist.length; idx++)
+						jsonObj.imageNameArray.push(allPinlist[idx]);
+					currentPinsize = allPinsize;
+				} else {
+					console.log("There are no more pins left.")
+					$(window).scroll(scrollEvent)
+					return;
 				}
-			})
+
+				const token = $("meta[name='_csrf']").attr("content")
+				const header = $("meta[name='_csrf_header']").attr("content")
+				$.ajax({
+					type: "post",
+					async: true,
+					contentType: 'application/json',
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader(header, token);
+					},
+					url: "http://localhost:8080/Pin/morePins",
+					data: JSON.stringify(jsonObj),
+					success: function (data, textStatus) {
+						morePinRenderer(jsonObj.imageNameArray, JSON.parse(data).responseJsonArray)
+						return false;
+					},
+					error: function (request, status, error) {
+						alert("code: " + request.status + "message: " + request.responseText + "error: " + error)
+					},
+					complete: function (data, textStatus) { }
+				})
+			}
 		}
 
 		function morePinRenderer(mustRenderPinlist, pinImageDatalist) {
 			for (let idx = 0; idx < mustRenderPinlist.length; idx++) {
 				let temp = getPinHtml(mustRenderPinlist[idx].resolutionRatio,
-					mustRenderPinlist[idx].taglist, pinImageDatalist[idx])
+					mustRenderPinlist[idx].taglist, pinImageDatalist[idx], mustRenderPinlist[idx].pinName)
 				$('.pin_container').append(temp)
 			}
+			$(window).scroll(scrollEvent)
 		}
 
-		function getPinHtml(pinsize, taglist, imageBinaryData) {
+		function getPinHtml(pinsize, taglist, imageBinaryData, originPinName) {
+			let tagarray = taglist.trim().split(',')
+			temp = ``
+			for (let idx = 0; idx < tagarray.length; idx++)
+				temp = temp + `<p>${tagarray[idx]}</p>`
+
 			if (pinsize == 1) {
 				return `
-					<div class="card_small card text_photo">
-						<p id="explain">${taglist}</p>
-						<img class="inner-img" src="data:image/jpg;base64,${imageBinaryData}" alt="sorry do not find image...">
+					<div class="card_small card text_photo fadeInCom">
+						<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
+							<div class='explain' onclick='requestOriginImage("${originPinName}")'>
+								` + temp + `
+							</div>
+						<img class="inner-img" src="data:image/jpg;base64,${imageBinaryData}" alt="err" onclick='requestOriginImage("${originPinName}")'>
 					</div>`
 			} else if (pinsize == 2) {
 				return `
-					<div class="card_medium card text_photo">
-						<p id="explain">${taglist}</p>
-						<img class="inner-img" src="data:image/jpg;base64,${imageBinaryData}" alt="sorry do not find image...">
+					<div class="card_medium card text_photo fadeInCom">
+						<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
+							<div class='explain' onclick='requestOriginImage("${originPinName}")'>
+								` + temp + `
+							</div>
+						<img class="inner-img" src="data:image/jpg;base64,${imageBinaryData}" alt="err" onclick='requestOriginImage("${originPinName}")'>
 					</div>`
 			} else {
 				return `
-					<div class="card_large card text_photo">
-						<p id="explain">${taglist}</p>
-						<img class="inner-img" src="data:image/jpg;base64,${imageBinaryData}" alt="sorry do not find image...">
+					<div class="card_large card text_photo fadeInCom">
+						<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
+							<div class='explain' onclick='requestOriginImage("${originPinName}")'>
+								` + temp + `
+							</div>
+						<img class="inner-img" src="data:image/jpg;base64,${imageBinaryData}" alt="err"onclick='requestOriginImage("${originPinName}")'>
 					</div>`
 			}
 		}
@@ -115,7 +131,7 @@
 		function clickTag(pressedTag) {
 			clearTimeout(pressedTagSearchRequest)
 			toggleTagButton(pressedTag)
-			let ActiveBtnList = { taglist : getDangerButtonList()}
+			let ActiveBtnList = { taglist: getDangerButtonList() }
 			pressedTagSearchRequest = setTimeout(() => {
 				const token = $("meta[name='_csrf']").attr("content")
 				const header = $("meta[name='_csrf_header']").attr("content")
@@ -129,7 +145,16 @@
 					url: "http://localhost:8080/Pin/search",
 					data: JSON.stringify(ActiveBtnList),
 					success: function (data, textStatus) {
-
+						let jsonData = JSON.parse(data)
+						allPinsize = Number(jsonData.allpinsize)
+						allPinlist = jsonData.allpinlist
+						currentPinsize = Number(jsonData.current_pinsize)
+						currentPinlist = jsonData.current_pinlist
+						console.log('new all pin size : ' + allPinsize)
+						/* console.log(allPinlist) */
+						console.log('new current pin size : ' + currentPinsize)
+						/* console.log(currentPinlist) */
+						rerenderPins(currentPinlist, jsonData.imageDataList)
 						return false;
 					},
 					error: function (request, status, error) {
@@ -141,10 +166,10 @@
 		}
 
 		function toggleTagButton(pressedTagButton) {
-			if (pressedTagButton.className == 'btn btn-outline-info tag')
+			if (pressedTagButton.className == 'btn btn-info tag')
 				pressedTagButton.className = 'btn btn-danger tag'
 			else
-				pressedTagButton.className = 'btn btn-outline-info tag'
+				pressedTagButton.className = 'btn btn-info tag'
 		}
 
 		function getDangerButtonList() {
@@ -154,6 +179,46 @@
 				ActiveButtonList.push(item.id)
 			})
 			return ActiveButtonList
+		}
+
+		function rerenderPins(newCurrentPinsList, imageBinaryData) {
+			$('body > div.pin_container > div:nth-child(1n)').remove()
+			for (let idx = 0; idx < newCurrentPinsList.length; idx++) {
+				let temp = getPinHtml(newCurrentPinsList[idx].resolutionRatio,
+					newCurrentPinsList[idx].taglist, imageBinaryData[idx], newCurrentPinsList[idx].pinName)
+				$('.pin_container').append(temp)
+			}
+		}
+
+		function requestOriginImage(pinOriginName) {
+			$('.card.text-bg-dark').append(
+				`<div class="center">
+					<div class="ring"></div>
+					<span>loading...</span>
+				</div>`)
+			$('#OriginPinImage').attr('src', '')
+			$('#originPinViewModal').modal('show');
+
+			const token = $("meta[name='_csrf']").attr("content")
+			const header = $("meta[name='_csrf_header']").attr("content")
+			$.ajax({
+				type: "post",
+				async: true,
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader(header, token);
+				},
+				url: "http://localhost:8080/Pin/OriginPin",
+				data: { originPinName: pinOriginName },
+				success: function (data, textStatus) {
+					$('.center').remove()
+					$('#OriginPinImage').attr('src', 'data:image/png;base64,' + data)
+					return false;
+				},
+				error: function (request, status, error) {
+					alert("code: " + request.status + "message: " + request.responseText + "error: " + error)
+				},
+				complete: function (data, textStatus) { }
+			})
 		}
 		/* ]]> */
 	</script>
@@ -166,11 +231,72 @@
 			--card_medium: 33;
 			--card_large: 45;
 			--card_hover_duration: 0.5s;
+			--card_not_hover_duration: 0.8s;
 		}
 
 		body {
 			margin: 0;
 			padding: 0;
+			background-color: black;
+		}
+
+		.center {
+			display: flex;
+			text-align: center;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+		}
+
+		.ring {
+			position: absolute;
+			width: 200px;
+			height: 200px;
+			border-radius: 50%;
+			animation: ring 2s linear infinite;
+		}
+
+		@keyframes ring {
+			0% {
+				transform: rotate(0deg);
+				box-shadow: 1px 5px 2px #e65c00;
+			}
+
+			50% {
+				transform: rotate(180deg);
+				box-shadow: 1px 5px 2px #18b201;
+			}
+
+			100% {
+				transform: rotate(360deg);
+				box-shadow: 1px 5px 2px #0456c8;
+			}
+		}
+
+		.ring:before {
+			position: absolute;
+			content: '';
+			left: 0;
+			top: 0;
+			height: 100%;
+			width: 100%;
+			border-radius: 50%;
+			box-shadow: 0 0 5px rgba(255, 255, 255, .3);
+		}
+
+		.ring>span {
+			color: #737373;
+			font-size: 20px;
+			letter-spacing: 1px;
+			text-transform: uppercase;
+			line-height: 200px;
+			animation: text 3s ease-in-out linear;
+		}
+
+		@keyframes text {
+			50% {
+				color: black;
+			}
 		}
 
 		.pin_container {
@@ -181,22 +307,19 @@
 			top: 20%;
 			left: 25vw;
 			border-radius: 20px;
-
 			display: grid;
 			grid-template-columns: repeat(auto-fill, var(--card_width));
 			grid-auto-rows: var(--row_increment);
 			justify-content: left;
-
-
 		}
 
 		.card {
 			padding: 0px;
 			margin: 15px 10px;
 			border-radius: var(--card_border_radius);
-
 			background-color: white;
-			border-color: black;
+			border-color: white;
+			border-width: 0px;
 		}
 
 		.card_small {
@@ -218,26 +341,60 @@
 			object-fit: cover;
 		}
 
-		#explain {
+		.explain {
 			position: absolute;
-			padding-left: 5px;
-			padding-right: 5px;
+			top: 10%;
 			left: 50%;
 			transform: translateX(-50%);
 			opacity: 0;
 			background-color: white;
+			border-color: black;
+			border-width: 3px;
 			z-index: 999;
 			border-radius: 5px;
+			align-content: center;
 		}
 
-		.text_photo:hover #explain {
+		.explain>p {
+			position: relative;
+			text-align: center;
+			color: black;
+			border-radius: 5px;
+			margin: 0px 2px 0px 2px;
+			padding: 2px 2px 2px 2px;
+		}
+
+		.text_photo:hover .explain {
 			opacity: 1;
 			transition-duration: var(--card_hover_duration);
 		}
 
-		img:nth-child(1n):hover {
+		div.card.text_photo.fadeInCom>img:nth-child(1n):hover {
+			border: 10px solid white;
 			-webkit-filter: blur(5px);
 			transition-duration: var(--card_hover_duration);
+		}
+
+		div.card.text_photo.fadeInCom>img:nth-child(1n):not(:hover) {
+			border: 0px solid white;
+			transition-duration: var(--card_not_hover_duration);
+		}
+
+		@keyframes fadeInUpCom {
+			0% {
+				opacity: 0;
+				transform: translate3d(0, 10%, 0);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateZ(0);
+			}
+		}
+
+		.fadeInCom {
+			position: relative;
+			animation: fadeInUpCom 1s;
 		}
 
 		.tagGroup {
@@ -249,7 +406,7 @@
 			justify-content: center;
 			border: solid;
 			border-color: blanchedalmond;
-			background-color: gray;
+			background-color: black;
 			border-radius: 20px;
 			overflow: auto;
 		}
@@ -271,6 +428,67 @@
 			top: 1%;
 			z-index: 999;
 		}
+
+		#OriginPinImage {
+			border-radius: 5px;
+			max-height: 90vh;
+			max-width: 100%;
+			height: auto;
+		}
+
+		.modal-dialog.modal-dialog-centered {
+			max-width: 85vw;
+			max-height: 85vh;
+		}
+
+		input[name='toggle'] {
+			appearance: none;
+			width: 60px;
+			height: 30px;
+			background-color: #707070;
+			border-radius: 50px;
+			position: fixed;
+			cursor: pointer;
+			transition: .3s;
+			z-index: 9999;
+			top: 15%;
+			left: 2%;
+		}
+
+		input[name='toggle']::before {
+			content: "";
+			position: absolute;
+			width: 20px;
+			height: 20px;
+			background-color: #d5d5d5;
+			border-radius: 50%;
+			left: 7px;
+			top: 5px;
+			transition: .3s;
+		}
+
+		input[name="toggle"]::after {
+			position: absolute;
+			color: #34384b;
+			font-size: 20px;
+			left: 20px;
+			top: 29px;
+			transition: .3s;
+		}
+
+		input[name='toggle']:checked {
+			background: linear-gradient(91deg, #ff01a5d4, #4b00ffd4);
+		}
+
+		input[name="toggle"]:checked:before {
+			background: #000;
+			left: 32px;
+		}
+
+		input[name='toggle']:checked::after {
+			color: #FFF;
+			left: 85px;
+		}
 	</style>
 </head>
 
@@ -278,35 +496,58 @@
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
 	<div class="tagGroup">
 		<th:block th:each="t, index: ${taglist}">
-			<button th:id="${t}" type="button" class="btn btn-outline-info tag" onclick="clickTag(this)" th:text="${t}"></button>
+			<button th:id="${t}" type="button" class="btn btn-info tag" onclick="clickTag(this)" th:text="${t}"></button>
 		</th:block>
 	</div>
 	<div class="pin_container">
 		<th:block th:each="p, index: ${current_pinlist}">
 			<th:block th:if="${p.resolutionRatio == 1}">
-				<div class="card_small card text_photo">
+				<div class="card_small card text_photo fadeInCom">
 					<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
-					<p id="explain" th:text="${p.taglist}"></p>
-					<img class="inner-img" th:src="@{/Thumbnail/__${p.pinName}__}" alt="sorry do not find image...">
+					<div class="explain" th:onclick="requestOriginImage([[${p.pinName}]])">
+						<th:block th:each="ppap : ${#strings.arraySplit(p.taglist, ',')}">
+							<p th:text="${ppap}"></p>
+						</th:block>
+					</div>
+					<img class="inner-img" th:src="@{/Thumbnail/__${p.thumbnailName}__}" alt="err" th:onclick="requestOriginImage([[${p.pinName}]])">
 				</div>
 			</th:block>
 			<th:block th:if="${p.resolutionRatio == 2}">
-				<div class="card_medium card text_photo">
+				<div class="card_medium card text_photo fadeInCom">
 					<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
-					<p id="explain" th:text="${p.taglist}"></p>
-					<img class="inner-img" th:src="@{/Thumbnail/__${p.pinName}__}" alt="sorry do not find image...">
+					<div class="explain" th:onclick="requestOriginImage([[${p.pinName}]])">
+						<th:block th:each="ppap : ${#strings.arraySplit(p.taglist, ',')}">
+							<p th:text="${ppap}"></p>
+						</th:block>
+					</div>
+					<img class="inner-img" th:src="@{/Thumbnail/__${p.thumbnailName}__}" alt="err" th:onclick="requestOriginImage([[${p.pinName}]])">
 				</div>
 			</th:block>
 			<th:block th:if="${p.resolutionRatio == 3}">
-				<div class="card_large card text_photo">
+				<div class="card_large card text_photo fadeInCom">
 					<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
-					<p id="explain" th:text="${p.taglist}"></p>
-					<img class="inner-img" th:src="@{/Thumbnail/__${p.pinName}__}" alt="sorry do not find image...">
+					<div class="explain" th:onclick="requestOriginImage([[${p.pinName}]])">
+						<th:block th:each="ppap : ${#strings.arraySplit(p.taglist, ',')}">
+							<p th:text="${ppap}"></p>
+						</th:block>
+					</div>
+					<img class="inner-img" th:src="@{/Thumbnail/__${p.thumbnailName}__}" alt="err" th:onclick="requestOriginImage([[${p.pinName}]])">
 				</div>
 			</th:block>
 		</th:block>
 	</div>
-
+	<div class="modal fade" id="originPinViewModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body">
+					<div class="card text-bg-dark">
+						<img id="OriginPinImage" src="">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<input type="checkbox" name="toggle" id="switch">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
 	<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
 	<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>

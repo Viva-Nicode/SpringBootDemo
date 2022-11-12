@@ -1,5 +1,6 @@
 package com.example.demo.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,6 +26,20 @@ public class PinInfoObject {
 	}
 
 	public List<String> getTagCollection() {
-		return Arrays.asList(this.taglist.split(","));
+		try {
+			return Arrays.asList(taglist.split(","));
+		} catch (NullPointerException e) {
+			return new ArrayList<String>();
+		}
+	}
+
+	public String getThumbnailName() {
+		return ConvertPngToJpg.changeExtension(pinName, "jpg");
+	}
+
+	@Override
+	public String toString() {
+		return "{\"pinName\":\"" + pinName + "\",\"taglist\":\"" + taglist + "\",\"uploadDate\":\"" + uploadDate
+				+ "\",\"resolutionRatio\":" + resolutionRatio + ",\"thumbnailName\":\"" + getThumbnailName() + "\"}";
 	}
 }

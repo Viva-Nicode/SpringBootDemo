@@ -53,4 +53,12 @@ public class ConvertPngToJpg {
 		}
 		return "not fount extention";
 	}
+
+	public static String getExtentioString(String filename) {
+		for (int idx = filename.length() - 1; idx >= 0; idx--) {
+			if (filename.charAt(idx) == 46)
+				return filename.substring(idx + 1);
+		}
+		return "";
+	}
 }
