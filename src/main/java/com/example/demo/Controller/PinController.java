@@ -1,5 +1,8 @@
 package com.example.demo.Controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -43,6 +46,8 @@ import com.example.demo.db.Sys_tagMapper;
 import com.example.demo.db.Sys_tagVO;
 import com.example.demo.db.TagMapper;
 import com.example.demo.db.tagVO;
+
+
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 @Controller
@@ -52,6 +57,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 // 사용자가 검색조건으로 클릭한 태그 리스트이다. 같은 검색조건일땐 그냥 아무동작하지 않기위해 저장해놓은것이다.
 
 public class PinController {
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final GoogleVisionAPI googleVisionAPI;
 	private final PinMapper pm;
 	private final TagMapper tm;
@@ -70,26 +76,27 @@ public class PinController {
 		try {
 
 			BufferedImage bufferedImage = ImageIO.read(pins.getInputStream());
-			/* pin 테이블에 요청으로 넘어온 이미지 정보를 insert 한다. */
 			boolean visi;
+
 			if (appliedTagList.get(appliedTagList.size() - 1).equals("true"))
 				visi = true;
 			else
 				visi = false;
 
-			pm.insertPin(new PinVO(des, ui,
-					CompressImage.getResolutionRatio(bufferedImage.getWidth(), bufferedImage.getHeight()), visi));
+			/*
+			 * pm.insertPin(new PinVO(des, ui,
+			 * CompressImage.getResolutionRatio(bufferedImage.getWidth(),
+			 * bufferedImage.getHeight()), visi));
+			 */
 
 			/*
-			 * 넘어온 태그가 존재한다면 이를 리스트로 만들어서 foreach insert 해준다.
-			 * 태그가 하나도 없다면 동작하지 않는다.
+			 * if (appliedTagList.size() >= 3) {
+			 * List<tagVO> l = new ArrayList<>();
+			 * for (int idx = 1; idx < appliedTagList.size() - 1; idx++)
+			 * l.add(new tagVO(des, appliedTagList.get(idx)));
+			 * tm.insertTag(l);
+			 * }
 			 */
-			if (appliedTagList.size() >= 3) {
-				List<tagVO> l = new ArrayList<>();
-				for (int idx = 1; idx < appliedTagList.size() - 1; idx++)
-					l.add(new tagVO(des, appliedTagList.get(idx)));
-				tm.insertTag(l);
-			}
 
 			Thread t = new Thread(new Runnable() {
 				@Override
@@ -187,15 +194,21 @@ public class PinController {
 
 		/*
 		 * ture : 전부 보여줘
-		 * false : 프라이빗 빼고 보여줘
-		*/
-		
-		List<PinInfoObject> l = tm.getPininfoListByUploader(ui);
+		 * false : 퍼블릭만 보여줘
+		 */
+		List<PinInfoObject> l;
+		if (visibility.equals("true")) {
+			l = tm.getPininfoListByUploaderAll(ui);
+			model.addAttribute("taglist", tm.findTagByUseridAll(ui));
+		} else {
+			l = tm.getPininfoListByUploaderOnlyPublic(ui);
+			model.addAttribute("taglist", tm.findTagByUseridOnlyPublic(ui));
+		}
 
 		model.addAttribute("validTaglist", new ArrayList<Object>());
+
 		model.addAttribute("allpinlist", l);
 		model.addAttribute("allpinsize", l.size());
-		model.addAttribute("taglist", tm.findTagByUserid(ui));
 
 		if (l.size() <= 16)
 			cs = l.size();
@@ -248,15 +261,25 @@ public class PinController {
 		try {
 			List<Object> l = Arrays
 					.asList(((JSONArray) ((JSONObject) parser.parse(jsonTagRequest)).get("taglist")).toArray());
+			String visibility = ((JSONObject) parser.parse(jsonTagRequest)).get("visibility") + "";
+
 			List<String> ls = new ArrayList<>();
 			for (Object o : l)
 				ls.add(o.toString());
+
 			model.addAttribute("validTaglist", l);
-			List<PinInfoObject> piol = tm.getPininfoListByUploader(ui);
+
+			List<PinInfoObject> piol;
+
+			if (visibility.equals("true")) {
+				piol = tm.getPininfoListByUploaderAll(ui);
+			} else {
+				piol = tm.getPininfoListByUploaderOnlyPublic(ui);
+			}
+
 			List<Object> validPiol = new ArrayList<>();
 
 			for (PinInfoObject pio : piol) {
-				out.println("taglist in search : " + pio.getTaglist());
 				if (Arrays.asList(pio.getTaglist().split(",")).containsAll(ls)) {
 					validPiol.add(pio);
 					if (cs++ <= 15) {
@@ -325,7 +348,7 @@ public class PinController {
 
 	@RequestMapping(value = "/moveUploadView")
 	public ModelAndView moveUploadView(Model model, @SessionAttribute(value = "user_id") String ui) {
-		model.addAttribute("tagList", tm.findTagByUserid(ui));
+		model.addAttribute("tagList", tm.findTagByUseridAll(ui));
 		return new ModelAndView("UploadPage");
 	}
 }

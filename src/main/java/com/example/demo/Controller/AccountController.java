@@ -14,6 +14,8 @@ import static java.lang.System.out;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +52,7 @@ import lombok.RequiredArgsConstructor;
 @SessionAttributes(value = { "user_id", "commentList", "IwroteitList", "likepostlist" })
 public class AccountController {
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final AccountService ac;
 	private final UserMapper um;
 	private final PostInfoMapper pm;
@@ -114,7 +117,8 @@ public class AccountController {
 
 	@RequestMapping(value = "/profile")
 	public String uploadprofile(@RequestParam(value = "email") String email,
-			@RequestParam(value = "imagefile") MultipartFile f, @SessionAttribute("user_id") String ui, HttpSession s, Model model) {
+			@RequestParam(value = "imagefile") MultipartFile f, @SessionAttribute("user_id") String ui, HttpSession s,
+			Model model) {
 		Map<String, String> m = new HashMap<>();
 		/* redirect:/Account/moveUserInfoSetting */
 		final String savePath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/profile/";
@@ -156,6 +160,7 @@ public class AccountController {
 		int result = ac.signin(req.getParameter("user_id"), req.getParameter("user_pw"));
 
 		if (result == 0) {
+			logger.info(req.getParameter("user_id") + " is login");
 			s.setAttribute("user_id", req.getParameter("user_id"));
 			s.setAttribute("profileImageName", um.findUserByID(req.getParameter("user_id")).get(0).getProfile());
 			return result + "";

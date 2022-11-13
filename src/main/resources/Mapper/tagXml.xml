@@ -15,13 +15,22 @@
 			</foreach>
 	</insert>
 
-	<select id="findTagByUserid" parameterType="String" resultType="String">
+	<select id="findTagByUseridAll" parameterType="String" resultType="String">
 		select distinct tagName 
 		from tag 
 		where pinName = some (
 			select pinName 
 			from Pin 
 			where uploader = #{user_id});
+	</select>
+
+	<select id="findTagByUseridOnlyPublic" parameterType="String" resultType="String">
+		select distinct tagName 
+		from tag 
+		where pinName = some (
+			select pinName 
+			from Pin 
+			where uploader = #{user_id} and visibility = 0);
 	</select>
 
 	<select id ="getTagCountList" parameterType="String" resultType="com.example.demo.db.TagCount">
@@ -50,10 +59,18 @@
 			where tag.tagName = #{map.otn}) 
 	</update>
 
-	<select id="getPininfoListByUploader" parameterType="String" resultType="com.example.demo.Service.PinInfoObject">
+	<select id="getPininfoListByUploaderAll" parameterType="String" resultType="com.example.demo.Service.PinInfoObject">
 		select p.pinName, group_concat(tagName) as taglist, 
 		avg(uploadDate) as uploadDate, avg(resolutionRatio) as resolutionRatio 
 		from ( select * from tag ) tt right join (select * from pin where uploader = #{uploader} ) p 
+		on tt.pinName = p.pinName  
+		group by pinName;
+	</select>
+
+	<select id="getPininfoListByUploaderOnlyPublic" parameterType="String" resultType="com.example.demo.Service.PinInfoObject">
+		select p.pinName, group_concat(tagName) as taglist, 
+		avg(uploadDate) as uploadDate, avg(resolutionRatio) as resolutionRatio 
+		from ( select * from tag ) tt right join (select * from pin where uploader = #{uploader} and visibility = 0) p 
 		on tt.pinName = p.pinName  
 		group by pinName;
 	</select>

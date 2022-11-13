@@ -149,7 +149,7 @@
 		function clickTag(pressedTag) {
 			clearTimeout(pressedTagSearchRequest)
 			toggleTagButton(pressedTag)
-			let ActiveBtnList = { taglist: getDangerButtonList() }
+			let ActiveBtnList = { taglist: getDangerButtonList(), visibility: sessionStorage.getItem('visibility') }
 			pressedTagSearchRequest = setTimeout(() => {
 				const token = $("meta[name='_csrf']").attr("content")
 				const header = $("meta[name='_csrf_header']").attr("content")
@@ -468,7 +468,6 @@
 			position: fixed;
 			cursor: pointer;
 			transition: .3s;
-			z-index: 9999;
 			top: 15%;
 			left: 2%;
 		}

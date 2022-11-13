@@ -15,7 +15,9 @@ import org.apache.ibatis.annotations.Param;
 public interface TagMapper {
 	public void insertTag(List<tagVO> l);
 
-	public List<String> findTagByUserid(@Param("user_id") String user_id);
+	public List<String> findTagByUseridAll(@Param("user_id") String user_id);
+
+	public List<String> findTagByUseridOnlyPublic(@Param("user_id") String user_id);
 
 	public List<TagCount> getTagCountList(@Param("user_id") String user_id);
 
@@ -23,5 +25,7 @@ public interface TagMapper {
 
 	public int modifyTagName(@Param("map") Map<String, String> map);
 
-	public List<PinInfoObject> getPininfoListByUploader(@Param("uploader") String uploader);
+	public List<PinInfoObject> getPininfoListByUploaderAll(@Param("uploader") String uploader);
+
+	public List<PinInfoObject> getPininfoListByUploaderOnlyPublic(@Param("uploader") String uploader);
 }

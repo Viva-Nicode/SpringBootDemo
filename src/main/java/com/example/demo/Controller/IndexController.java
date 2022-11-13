@@ -27,6 +27,7 @@ public class IndexController {
 	@Autowired
 	final private PostRepository u;
 	final String thumbnailPath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/Thumbnail/";
+
 	@RequestMapping(value = "/")
 	public ModelAndView indexRequest(HttpSession s) {
 
