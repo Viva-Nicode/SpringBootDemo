@@ -15,6 +15,16 @@
 			</foreach>
 	</insert>
 
+	<insert id="insertTagNone" parameterType="java.util.List">
+		insert into tag(pinName)
+		values
+		<foreach collection="list" item="item" separator=",">
+			(
+				#{item}
+			)
+		</foreach>
+	</insert>
+
 	<select id="findTagByUseridAll" parameterType="String" resultType="String">
 		select distinct tagName 
 		from tag 
@@ -48,6 +58,12 @@
 			on p.pinName = tt.pinName 
 			where tag.tagName = #{map.tagName}) 
 	</delete>
+
+	<select id="selectNottingTagPinsNone" parameterType="String" resultType="String">
+		select P.pinName
+		from (select * from tag) T right join (select pinName from pin where uploader = 'dmswns0147') P on T.pinName = P.pinName
+		where T.tagName is NULL;
+	</select>
 
 	<update id="modifyTagName" parameterType="hashMap">
 		update tag

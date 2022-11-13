@@ -296,6 +296,10 @@
 		}
 
 		function deleteTag(tid, tagname) {
+			if (tagname == 'none') {
+				$('#errorMsg').html('이건 삭제 못함');
+				return showAlert();
+			}
 			const token = $("meta[name='_csrf']").attr("content");
 			const header = $("meta[name='_csrf_header']").attr("content");
 			$.ajax({
@@ -320,6 +324,10 @@
 		}
 
 		function showModifyTagModal(tagname) {
+			if (tagname == 'none') {
+				$('#errorMsg').html('이건 수정 못함');
+				return showAlert();
+			}
 			$('#modifyTagNameModal').modal('show');
 			$('#floatingInput').val(tagname)
 			$('#tagnameformodify').val(tagname)
@@ -340,6 +348,11 @@
 
 			if (!regex.test(newTagname)) {
 				$('#errorMsg').html('한글영어 숫자만 써라');
+				return showAlert();
+			}
+
+			if (newTagname == 'none') {
+				$('#errorMsg').html('this tag to use system tag.');
 				return showAlert();
 			}
 

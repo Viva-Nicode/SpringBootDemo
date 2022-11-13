@@ -72,6 +72,11 @@
 							return showAlert();
 						}
 
+						if (newTag == 'none') {
+							$('#errorMsg').html('this tag to use system tag.');
+							return showAlert();
+						}
+
 						const tag =
 							`<span class='tag' type='button' onclick="this.remove()">
 							<b>${newTag}</b>

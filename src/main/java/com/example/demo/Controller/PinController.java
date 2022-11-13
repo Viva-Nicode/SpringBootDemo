@@ -106,7 +106,9 @@ public class PinController {
 					l.add(new tagVO(des, appliedTagList.get(idx)));
 				tm.insertTag(l);
 			} else {
-				/* notting any tag? */
+				List<String> l = new ArrayList<>();
+				l.add(des);
+				tm.insertTagNone(l);
 			}
 
 			/* 시스템 태그를 foreach insert 한다. */
@@ -290,14 +292,19 @@ public class PinController {
 	@RequestMapping(value = "/deleteTagAll")
 	public @ResponseBody String deleteTagAll(@SessionAttribute(value = "user_id") String ui,
 			@RequestParam(value = "tagName") String tn) {
+		if (tn.equalsIgnoreCase("none"))
+			return "fail";
 		long deleteRecordNum = tm.deleteTagByUseridAndTagName(Map.of("user_id", ui, "tagName", tn));
 		out.println("삭제된 레코드 갯수 : " + deleteRecordNum);
+		tm.insertTagNone(tm.selectNottingTagPinsNone(ui));
 		return "success";
 	}
 
 	@RequestMapping(value = "/modifyTag")
 	public @ResponseBody String modifyTagName(@SessionAttribute(value = "user_id") String ui,
 			@RequestParam(value = "newTagname") String ntn, @RequestParam(value = "originalTagname") String otn) {
+		if (otn.equalsIgnoreCase("none"))
+			return "fail";
 		long modifyRecordNum = tm.modifyTagName(Map.of("otn", otn, "ntn", ntn, "user_id", ui));
 		out.println("수정된 레코드 갯수 : " + modifyRecordNum);
 		return "success";
@@ -305,7 +312,9 @@ public class PinController {
 
 	@RequestMapping(value = "/moveUploadView")
 	public ModelAndView moveUploadView(Model model, @SessionAttribute(value = "user_id") String ui) {
-		model.addAttribute("tagList", tm.findTagByUseridAll(ui));
+		List<String> l = tm.findTagByUseridAll(ui);
+		l.remove("none");
+		model.addAttribute("tagList", l);
 		return new ModelAndView("UploadPage");
 	}
 }

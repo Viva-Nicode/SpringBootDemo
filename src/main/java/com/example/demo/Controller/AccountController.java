@@ -97,8 +97,9 @@ public class AccountController {
 		model.addAttribute("likepostlist", likepostlist);
 		List<TagCount> taglist = tm.getTagCountList(ui);
 
-		for (int idx = 0; idx < taglist.size(); idx++)
+		for (int idx = 0; idx < taglist.size(); idx++) {
 			taglist.get(idx).setForhtmlid(idx);
+		}
 
 		model.addAttribute("tagCountList", taglist);
 
