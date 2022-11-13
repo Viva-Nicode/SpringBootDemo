@@ -47,7 +47,6 @@ import com.example.demo.db.Sys_tagVO;
 import com.example.demo.db.TagMapper;
 import com.example.demo.db.tagVO;
 
-
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 @Controller
@@ -73,9 +72,22 @@ public class PinController {
 		final String ext = pins.getContentType().split("/")[1];
 		String des = UUID.randomUUID() + "." + ext;
 		File dest = new File(pinPath + des);
-		try {
 
+		try {
 			BufferedImage bufferedImage = ImageIO.read(pins.getInputStream());
+
+			synchronized (this) {
+				pins.transferTo(dest);
+			}
+
+			Thread.sleep(4000);
+
+			List<Sys_tagVO> systemTagList;
+
+			/* 구글 비전에서 시스탬 태그를 획득한다. */
+			systemTagList = googleVisionAPI.getImageLabels(
+					"classpath:static/pins/" + des);
+
 			boolean visi;
 
 			if (appliedTagList.get(appliedTagList.size() - 1).equals("true"))
@@ -83,108 +95,53 @@ public class PinController {
 			else
 				visi = false;
 
-			/*
-			 * pm.insertPin(new PinVO(des, ui,
-			 * CompressImage.getResolutionRatio(bufferedImage.getWidth(),
-			 * bufferedImage.getHeight()), visi));
-			 */
+			pm.insertPin(new PinVO(des, ui,
+					CompressImage.getResolutionRatio(bufferedImage.getWidth(),
+							bufferedImage.getHeight()),
+					visi));
 
-			/*
-			 * if (appliedTagList.size() >= 3) {
-			 * List<tagVO> l = new ArrayList<>();
-			 * for (int idx = 1; idx < appliedTagList.size() - 1; idx++)
-			 * l.add(new tagVO(des, appliedTagList.get(idx)));
-			 * tm.insertTag(l);
-			 * }
-			 */
+			if (appliedTagList.size() >= 3) {
+				List<tagVO> l = new ArrayList<>();
+				for (int idx = 1; idx < appliedTagList.size() - 1; idx++)
+					l.add(new tagVO(des, appliedTagList.get(idx)));
+				tm.insertTag(l);
+			} else {
+				/* notting any tag? */
+			}
 
-			Thread t = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						synchronized (this) {
-							pins.transferTo(dest);
-						}
+			/* 시스템 태그를 foreach insert 한다. */
+			for (Sys_tagVO s : systemTagList)
+				s.setPinName(des);
 
-						List<Sys_tagVO> systemTagList;
-						Thread.sleep(3500);
+			stm.insertSystag(systemTagList);
 
-						/* 구글 비전에서 시스탬 태그를 획득한다. */
-						systemTagList = googleVisionAPI.getImageLabels(
-								"classpath:static/pins/" + des);
+			if (ext.equals("png")) {
 
-						/* 시스템 태그를 foreach insert 한다. */
-						for (Sys_tagVO s : systemTagList)
-							s.setPinName(des);
+				ConvertPngToJpg.pngToJpg(pinPath + des, thumbnailPath + des);
 
-						stm.insertSystag(systemTagList);
+				Thread.sleep(2000);
+				if (!new File(thumbnailPath + des).exists())
+					Thread.sleep(2000);
 
-						if (ext.equals("png")) {
-
-							ConvertPngToJpg.pngToJpg(pinPath + des, thumbnailPath + des);
-
-							Thread.sleep(2000);
-							if (!new File(thumbnailPath + des).exists())
-								Thread.sleep(2000);
-
-							CompressImage.compress(ConvertPngToJpg.changeExtension(thumbnailPath + des, "jpg"));
-						} else {
-							CompressImage.compress(pinPath + des,
-									ConvertPngToJpg.changeExtension(thumbnailPath + des, "jpg"));
-						}
-
-					} catch (IllegalStateException | IOException e) {
-						e.printStackTrace();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					} catch (org.springframework.cloud.gcp.vision.CloudVisionException e) {
-						try {
-							out.println("=======================================================");
-							out.println("Generated Exception.");
-							out.println("file not found exception!!");
-							out.println("=======================================================");
-							List<Sys_tagVO> systemTagList;
-							Thread.sleep(3500);
-
-							/* 구글 비전에서 시스탬 태그를 획득한다. */
-							systemTagList = googleVisionAPI.getImageLabels(
-									"classpath:static/pins/" + des);
-
-							/* 시스템 태그를 foreach insert 한다. */
-							for (Sys_tagVO s : systemTagList)
-								s.setPinName(des);
-
-							stm.insertSystag(systemTagList);
-
-							if (ext.equals("png")) {
-
-								ConvertPngToJpg.pngToJpg(pinPath + des, thumbnailPath + des);
-
-								Thread.sleep(2000);
-								if (!new File(thumbnailPath + des).exists())
-									Thread.sleep(2000);
-
-								CompressImage.compress(ConvertPngToJpg.changeExtension(thumbnailPath + des, "jpg"));
-							} else {
-								CompressImage.compress(pinPath + des,
-										ConvertPngToJpg.changeExtension(thumbnailPath + des, "jpg"));
-							}
-						} catch (IllegalStateException | IOException ee) {
-							ee.printStackTrace();
-						} catch (InterruptedException ee) {
-							ee.printStackTrace();
-						}
-					}
-				}
-			});
-			t.start();
+				CompressImage.compress(ConvertPngToJpg.changeExtension(thumbnailPath + des, "jpg"));
+			} else {
+				CompressImage.compress(pinPath + des,
+						ConvertPngToJpg.changeExtension(thumbnailPath + des, "jpg"));
+			}
 
 		} catch (IllegalStateException e) {
-			out.println("Generated Exception.");
+			e.printStackTrace();
 		} catch (IOException e1) {
+			logger.error("Generated IOException during the save " + des);
 			e1.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (org.springframework.cloud.gcp.vision.CloudVisionException e) {
+			logger.error("Generated cloud.gcp.vision.CloudVisionException during the save " + des);
+			dest.delete();
+			return "{ \"response\" : \"fail\"}";
 		}
-		return "";
+		return "{ \"response\" : \"success\" }";
 	}
 
 	@RequestMapping(value = "/movePinViewer") /* 16개씩만 로딩한다. */

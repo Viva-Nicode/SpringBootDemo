@@ -51,33 +51,36 @@
 
 			input.addEventListener('keypress', function (e) {
 				if (e.keyCode == 13) {
-
-					const regex = /^[ㄱ-ㅎ|가-힣|a-z| |A-Z|0-9|]+$/;
-					let bl = document.querySelectorAll('#tegGrouprel > button');
-					const newTag = input.value.trim();
-					if (!regex.test(newTag)) {
-						$('#errorMsg').html('한글영어 숫자만 써라');
-						return showAlert();
-					}
-
-					for (elem of bl) {
-						if (elem.innerHTML == newTag) {
-							$('#errorMsg').html('tag name overlap');
+					if (input.value.trim().length != 0) {
+						const regex = /^[ㄱ-ㅎ|가-힣|a-z| |A-Z|0-9|]+$/;
+						let bl = document.querySelectorAll('#tegGrouprel > button');
+						const newTag = input.value.trim();
+						if (!regex.test(newTag)) {
+							$('#errorMsg').html('한글영어 숫자만 써라');
 							return showAlert();
 						}
-					}
 
-					if ($('div.tags').children('span.tag').length == 5) {
-						$('#errorMsg').html('5개 까지만 가능 ㅇㅇ');
-						return showAlert();
-					}
+						for (elem of bl) {
+							if (elem.innerHTML == newTag) {
+								$('#errorMsg').html('tag name overlap');
+								return showAlert();
+							}
+						}
 
-					const tag =
-						`<span class='tag' type='button' onclick="this.remove()">
+						if ($('div.tags').children('span.tag').length == 5) {
+							$('#errorMsg').html('5개 까지만 가능 ㅇㅇ');
+							return showAlert();
+						}
+
+						const tag =
+							`<span class='tag' type='button' onclick="this.remove()">
 							<b>${newTag}</b>
 						</span>`
-					output.innerHTML += tag
-					input.value = ""
+						output.innerHTML += tag
+						input.value = ""
+					} else {
+						applyTag()
+					}
 				}
 			})
 		}
@@ -171,7 +174,7 @@
 			thumbnailWidth: 120,
 			maxFiles: 200,
 			maxFilesize: 100,
-			parallelUploads: 16,
+			parallelUploads: 10,
 			timeout: 1000 * 60,
 			addRemoveLinks: false,
 			acceptedFiles: '.jpeg, .jpg, .png, .JPEG, .JPG, .PNG',
@@ -189,6 +192,12 @@
 						}
 					})
 					appliedTagList.push(sessionStorage.getItem('visibility'))
+				})
+				this.on('success', function () {
+					var args = Array.prototype.slice.call(arguments);
+					let name = args[0].name
+					let response = args[1].response;
+					console.log(name + " is " + response)
 				})
 			}
 		}
@@ -345,7 +354,7 @@
 					<div class="tag-input">
 						<h2>Tags</h2>
 						<div class="input-wrap">
-							<input type="text" placeholder="Add a tag..." id="tagInput" maxlength="15" autocomplete="off" />
+							<input type="text" placeholder="Add a tag..." id="tagInput" maxlength="15" autocomplete="off" autofocus />
 						</div>
 						<div class="tags"></div>
 						<button class="btn btn-info tags-apply-btn" onclick="applyTag()">Apply</button>

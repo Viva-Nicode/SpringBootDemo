@@ -11,7 +11,7 @@
 	<appender name="DAILY_ROLLING_FILE_APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>logs/logback.log</file>
 		<encoder>
-			<pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread] %F %M %green(%-5level) %logger{35}  %cyan(%logger{15}) - %msg  %n</pattern>
+			<pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread] %F %M %-5level %logger{35:%line}  %cyan(%logger{15}) - %msg  %n</pattern>
 		</encoder>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>${LOGS_PATH}/logback.%d{yyyy-MM-dd}.%i.log.gz
