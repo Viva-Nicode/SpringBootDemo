@@ -34,7 +34,7 @@ public class PinInfoObject {
 	}
 
 	public String getThumbnailName() {
-		return ConvertPngToJpg.changeExtension(pinName, "jpg");
+		return ImageUtil.changeExtension(pinName, "jpg");
 	}
 
 	@Override

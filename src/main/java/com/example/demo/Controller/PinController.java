@@ -36,8 +36,7 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.example.demo.Service.CompressImage;
-import com.example.demo.Service.ConvertPngToJpg;
+import com.example.demo.Service.ImageUtil;
 import com.example.demo.Service.GoogleVisionAPI;
 import com.example.demo.Service.PinInfoObject;
 import com.example.demo.db.PinMapper;
@@ -96,7 +95,7 @@ public class PinController {
 				visi = false;
 
 			pm.insertPin(new PinVO(des, ui,
-					CompressImage.getResolutionRatio(bufferedImage.getWidth(),
+					ImageUtil.getResolutionRatio(bufferedImage.getWidth(),
 							bufferedImage.getHeight()),
 					visi));
 
@@ -119,16 +118,16 @@ public class PinController {
 
 			if (ext.equals("png")) {
 
-				ConvertPngToJpg.pngToJpg(pinPath + des, thumbnailPath + des);
+				ImageUtil.pngToJpg(pinPath + des, thumbnailPath + des);
 
 				Thread.sleep(2000);
 				if (!new File(thumbnailPath + des).exists())
 					Thread.sleep(2000);
 
-				CompressImage.compress(ConvertPngToJpg.changeExtension(thumbnailPath + des, "jpg"));
+				ImageUtil.compress(ImageUtil.changeExtension(thumbnailPath + des, "jpg"));
 			} else {
-				CompressImage.compress(pinPath + des,
-						ConvertPngToJpg.changeExtension(thumbnailPath + des, "jpg"));
+				ImageUtil.compress(pinPath + des,
+						ImageUtil.changeExtension(thumbnailPath + des, "jpg"));
 			}
 
 		} catch (IllegalStateException e) {
@@ -230,11 +229,10 @@ public class PinController {
 
 			List<PinInfoObject> piol;
 
-			if (visibility.equals("true")) {
+			if (visibility.equals("true"))
 				piol = tm.getPininfoListByUploaderAll(ui);
-			} else {
+			else
 				piol = tm.getPininfoListByUploaderOnlyPublic(ui);
-			}
 
 			List<Object> validPiol = new ArrayList<>();
 
@@ -251,17 +249,14 @@ public class PinController {
 					}
 				}
 			}
-
 			if (validPiol.size() <= 16)
 				cs = validPiol.size();
 			else
 				cs = 16;
-
 			responseJsonObject.put("allpinlist", validPiol);
 			responseJsonObject.put("allpinsize", validPiol.size());
 			responseJsonObject.put("current_pinsize", cs);
 			responseJsonObject.put("current_pinlist", new ArrayList<>(validPiol.subList(0, cs)));
-
 		} catch (ParseException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -277,15 +272,17 @@ public class PinController {
 		if (pm.checkPinByUserid(Map.of("pinName", opn, "user_id", ui)).isEmpty())
 			return null;
 		try {
-			BufferedImage img = ImageIO.read(new File(pinPath + opn));
+			File f = new File(pinPath + opn);
+			BufferedImage img = ImageUtil.checkImage(f, ImageUtil.getOrientation(f));
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(img, ConvertPngToJpg.getExtentioString(opn), baos);
+			ImageIO.write(img, ImageUtil.getExtentioString(opn), baos);
 			byte[] bytes = baos.toByteArray();
 			return Base64.getEncoder().encodeToString(bytes);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-
 		return null;
 	}
 
