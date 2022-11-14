@@ -127,7 +127,9 @@ public class ImageUtil {
 		Metadata metadata = ImageMetadataReader.readMetadata(file);
 		Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
 		if (directory != null) {
-			orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+			if (directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+				orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+			}
 		}
 		return orientation;
 	}
