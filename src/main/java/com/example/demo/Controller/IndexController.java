@@ -17,7 +17,6 @@ import com.example.demo.db.PostRepository;
 
 import lombok.RequiredArgsConstructor;
 
-/* 116.39.246.101 */
 /* 223.130.195.200 */
 
 @Controller
@@ -44,7 +43,8 @@ public class IndexController {
 		Collections.reverse(writenTimeList);
 		mav.addObject("postlist", l);
 		mav.addObject("wtl", writenTimeList);
-
+		s.setAttribute("PATH", "localhost");
+		/* s.setAttribute("PATH", "116.39.246.101"); */
 		return mav;
 	}
 }

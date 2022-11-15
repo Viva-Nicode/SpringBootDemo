@@ -5,16 +5,18 @@
 	<meta id="_csrf" name="_csrf" th:content="${_csrf.token}" />
 	<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}" />
 	<script src="https://kit.fontawesome.com/67d8dfef5a.js" crossorigin="anonymous"></script>
-	<script type="text/javascript" charset="UTF-8">
-		let islikeAlready = Number('[[${islikeAlready}]]');
-		let likeNum = Number('[[${postinfo.likes}]]');
-		const user_id = '[[${user_id}]]';
+	<script th:inline="javascript">
+		/* <![CDATA[ */
+		let islikeAlready = Number('[[${islikeAlready}]]')
+		let likeNum = Number('[[${postinfo.likes}]]')
+		const user_id = '[[${session.user_id}]]'
+		const _PATH = '[[${session.PATH}]]'.substring(1, '[[${session.PATH}]]'.length - 1)
 
 		let toggleLike = function () {
 			if (islikeAlready == 0) {
-				islikeAlready = 1;
+				islikeAlready = 1
 				document.getElementById('likeBtn').className = 'btn btn-outline-danger';
-				likeNum = likeNum + 1;
+				likeNum = likeNum + 1
 				$('#likeBtn').html('❤️ Like ' + likeNum);
 			} else if (islikeAlready == 1) {
 				islikeAlready = 0;
@@ -39,7 +41,7 @@
 				$.ajax({
 					type: "post",
 					async: false,
-					url: "http://localhost:8080/Comments/sendComment",
+					url: "http://" + _PATH + ":8080/Comments/sendComment",
 					beforeSend: function (xhr) {
 						xhr.setRequestHeader(header, token);
 					},
@@ -68,7 +70,7 @@
 				$('#modalMsg').html('You need to log in before you can click Like.');
 				$('#myModal').modal('show');
 			} else {
-				let likeData = { user_id: '[[${user_id}]]', postid: '[[${postinfo.postid}]]', likeAlready: islikeAlready }
+				let likeData = { postid: '[[${postinfo.postid}]]', likeAlready: islikeAlready }
 				const token = $("meta[name='_csrf']").attr("content");
 				const header = $("meta[name='_csrf_header']").attr("content");
 				$.ajax({
@@ -78,7 +80,7 @@
 					beforeSend: function (xhr) {
 						xhr.setRequestHeader(header, token);
 					},
-					url: "http://localhost:8080/Post/likes",
+					url: "http://" + _PATH + ":8080/Post/likes",
 					data: JSON.stringify(likeData),
 					success: function (data, textStatus) {
 						toggleLike();
@@ -106,12 +108,14 @@
 				$('#likeBtn').html('❤️ Like ' + $('#likeBtn').html().substring(8))
 			}
 		}
+		/* ]]> */
 	</script>
 	<style>
 		/* url('https://fonts.googleapis.com/css2?family=Mali:wght@300&display=swap'); */
 		@import url('https://fonts.googleapis.com/css2?family=Poor+Story&display=swap');
-		body{
-			height : 120%;
+
+		body {
+			height: 120%;
 		}
 	</style>
 	<th:block th:replace="~{fragments/navbar::logAction}"></th:block>

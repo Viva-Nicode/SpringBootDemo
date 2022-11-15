@@ -2,7 +2,6 @@ package com.example.demo.Controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -12,30 +11,23 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import lombok.RequiredArgsConstructor;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-
 import java.util.Base64;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import javax.imageio.ImageIO;
-
 import static java.lang.System.out;
-
 import java.awt.image.BufferedImage;
-
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-
 import com.example.demo.Service.ImageUtil;
 import com.example.demo.Service.GoogleVisionAPI;
 import com.example.demo.Service.PinInfoObject;
@@ -45,7 +37,6 @@ import com.example.demo.db.Sys_tagMapper;
 import com.example.demo.db.Sys_tagVO;
 import com.example.demo.db.TagMapper;
 import com.example.demo.db.tagVO;
-
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 @Controller
@@ -314,4 +305,6 @@ public class PinController {
 		model.addAttribute("tagList", l);
 		return new ModelAndView("UploadPage");
 	}
+
+	
 }

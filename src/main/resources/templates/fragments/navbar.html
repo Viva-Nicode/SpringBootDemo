@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <script th:inline="javascript" th:fragment="logAction">
+	/* <![CDATA[ */
 	/* #logOption은 window.onload에 넣어준 함수에 의해 log in 또는 log out을 가지게 된다. */
 	function logAction() {
 		const tagVal = $('#logOption').html();
@@ -15,11 +16,28 @@
 		let check = window.sessionStorage.getItem('visibility')
 		if (check == null) {
 			window.sessionStorage.setItem('visibility', false)
-			location.href = 'http://localhost:8080/Pin/movePinViewer?visibility=false'
+			/* location.href = "http://" + _PATH + ":8080/Pin/movePinViewer?visibility=false" */
+			location.href = '/Pin/movePinViewer?visibility=false'
 		} else {
-			location.href = 'http://localhost:8080/Pin/movePinViewer?visibility=' + check
+			/* location.href = "http://" + _PATH + ":8080/Pin/movePinViewer?visibility=" + check */
+			location.href = '/Pin/movePinViewer?visibility=' + check
 		}
 	}
+
+	function move(elem) {
+		if (elem.name == "home-outline") {
+			location.href = '/'
+		} else if (elem.name == 'person-circle-outline') {
+			location.href = '/Account/moveSignupPage'
+		} else if (elem.name == 'images-outline') {
+			movePinViewer();
+		} else if (elem.name == 'cloud-upload-outline') {
+			location.href = '/Pin/moveUploadView'
+		} else if (elem.name == 'settings-outline') {
+			location.href = '/Account/moveUserInfoSetting'
+		}
+	}
+	/* ]]> */
 </script>
 
 <div th:fragment="fragment-navbar">
@@ -33,40 +51,40 @@
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 					<li class="nav-item" style="text-align: center;">
 						<span class="icon">
-							<ion-icon name="home-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
+							<ion-icon type="button" onclick="move(this)" name="home-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
 						</span>
 						<a class="nav-link active" aria-current="page" th:href="@{/}" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Home</a>
 					</li>
 					<th:block th:if="${session.user_id == null}">
 						<li class="nav-item" style="text-align: center;">
 							<span class="icon">
-								<ion-icon name="person-circle-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
+								<ion-icon type="button" onclick="move(this)" name="person-circle-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
 							</span>
 							<a class="nav-link" th:href="@{/Account/moveSignupPage}" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Sign up</a>
 						</li>
 					</th:block>
 					<li class="nav-item" style="text-align: center;">
 						<span class="icon">
-							<ion-icon name="key-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
+							<ion-icon type="button" onclick="logAction()" name="key-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
 						</span>
 						<a class="nav-link" href="#" id="logOption" onclick="logAction()" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;"></a>
 					</li>
 					<th:block th:if="${session.user_id != null}">
 						<li class="nav-item" style="text-align: center;">
 							<span class="icon">
-								<ion-icon name="images-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
+								<ion-icon type="button" onclick="move(this)" name="images-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
 							</span>
 							<a class="nav-link" type='button' onclick="movePinViewer()" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Gallery</a>
 						</li>
 						<li class="nav-item" style="text-align: center;">
 							<span class="icon">
-								<ion-icon name="cloud-upload-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
+								<ion-icon type="button" onclick="move(this)" name="cloud-upload-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
 							</span>
 							<a class="nav-link" th:href="@{/Pin/moveUploadView}" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">upload</a>
 						</li>
 						<li class="nav-item" style="text-align: center;">
 							<span class="icon">
-								<ion-icon name="settings-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
+								<ion-icon type="button" onclick="move(this)" name="settings-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
 							</span>
 							<a class="nav-link" th:href="@{/Account/moveUserInfoSetting}" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Setting</a>
 						</li>

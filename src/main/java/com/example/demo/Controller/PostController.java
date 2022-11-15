@@ -107,7 +107,7 @@ public class PostController {
 		String ui = s.getAttribute("user_id") + "";
 
 		ModelAndView mav = new ModelAndView("PostViewer");
-		mav.addObject("user_id", ui);
+		/* mav.addObject("user_id", ui); */
 
 		ps.increasedHits(pid);
 
@@ -133,8 +133,8 @@ public class PostController {
 	}
 
 	@RequestMapping(value = "/likes")
-	public void dolike(@RequestBody Map<String, String> map) {
-		ls.doLikes(parseInt(map.get("postid")), map.get("user_id"), parseInt(map.get("likeAlready")));
+	public void dolike(@RequestBody Map<String, String> map, @SessionAttribute(value = "user_id") String ui) {
+		ls.doLikes(parseInt(map.get("postid")), ui, parseInt(map.get("likeAlready")));
 	}
 
 	@RequestMapping(value = "/deletePost")

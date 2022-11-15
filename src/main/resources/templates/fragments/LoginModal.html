@@ -1,4 +1,3 @@
-
 <script th:inline="javascript" th:fragment="modalScript">
 	/* <![CDATA[ */
 	function showAlert() {
@@ -17,10 +16,11 @@
 		document.getElementById() 이거랑 var userEmailInput = $('#user_email'); 이거가 가져오는것은 값 자체가 아닌 태그이다.
 		마찬가지로 form.User_ID 가 가져오는것도 값 자체가 아니므로 .value를 붙여줘야 값을 가져온다.
 		*/
+		const _PATH = '[[${session.PATH}]]'.substring(1, '[[${session.PATH}]]'.length - 1)
 		$.ajax({
 			type: "post",
 			async: false,
-			url: "http://localhost:8080/Account/login",
+			url: "http://" + _PATH + ":8080/Account/login",
 			beforeSend: function (xhr) {
 				xhr.setRequestHeader(header, token);
 			},

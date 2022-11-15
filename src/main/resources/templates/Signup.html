@@ -6,12 +6,15 @@
 	<link rel="stylesheet" th:href="@{/css/Signup.css}">
 	<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
 	<link rel="stylesheet" th:href="@{/css/custom.css}">
+	<meta id="_csrf" name="_csrf" th:content="${_csrf.token}" />
+	<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}" />
 	<script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
 	<script src="/js/popper.js"></script>
 	<script type="text/map" src="/js/popper.js.map"></script>
 	<script src="/js/bootstrap.min.js"></script>
 	<script th:inline="javascript">
 		/* <![CDATA[ */
+		const _PATH = '[[${session.PATH}]]'.substring(1, '[[${session.PATH}]]'.length - 1)
 		function showAlert() {
 			$('#alert').show()
 			setTimeout(() => { $('#alert').fadeOut() }, 2500);
@@ -56,11 +59,16 @@
 				return showAlert();
 			} else {
 				let user_datas = { user_id: id, email: lastDomain, user_pw: pw }
+				const token = $("meta[name='_csrf']").attr("content");
+				const header = $("meta[name='_csrf_header']").attr("content");
 				$.ajax({
 					type: "post",
 					async: false,
 					contentType: 'application/json',
-					url: "http://localhost:8080/Account/checkSignupOverlap",
+					url: "http://" + _PATH + ":8080/Account/checkSignupOverlap",
+					beforeSend: function (xhr) {
+						xhr.setRequestHeader(header, token);
+					},
 					data: JSON.stringify(user_datas),
 					success: function (response) {
 						if (response == 0) {

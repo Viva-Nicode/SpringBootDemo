@@ -21,6 +21,7 @@
 	<script th:inline="javascript">
 		/* <![CDATA[ */
 		const user_id = '[[${session.user_id}]]';
+		const _PATH = '[[${session.PATH}]]'.substring(1, '[[${session.PATH}]]'.length - 1)
 		let appliedTagList = []
 		let addTagObject;
 		let input
@@ -164,7 +165,7 @@
 
 		Dropzone.discover();
 		Dropzone.options.myDropzone = {
-			url: "http://localhost:8080/Pin/uploadPins",
+			url: "http://" + _PATH + ":8080/Pin/uploadPins",
 			method: 'post',
 			headers: {
 				'X-CSRF-TOKEN': $('meta[name="token"]').attr('content'),

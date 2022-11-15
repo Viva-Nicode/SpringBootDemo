@@ -22,6 +22,7 @@
 		let currentPinsize = Number('[[${current_pinsize}]]');
 		let currentPinlist = JSON.parse('[[${current_pinlist}]]');
 		let pressedTagSearchRequest = null
+		const _PATH = '[[${session.PATH}]]'.substring(1, '[[${session.PATH}]]'.length - 1)
 
 		console.log('all pin size : ' + allPinsize);
 		/* console.log(allPinlist); */
@@ -88,7 +89,7 @@
 					beforeSend: function (xhr) {
 						xhr.setRequestHeader(header, token);
 					},
-					url: "http://localhost:8080/Pin/morePins",
+					url: "http://" + _PATH + ":8080/Pin/morePins",
 					data: JSON.stringify(jsonObj),
 					success: function (data, textStatus) {
 						morePinRenderer(jsonObj.imageNameArray, JSON.parse(data).responseJsonArray)
@@ -161,7 +162,7 @@
 					beforeSend: function (xhr) {
 						xhr.setRequestHeader(header, token);
 					},
-					url: "http://localhost:8080/Pin/search",
+					url: "http://" + _PATH + ":8080/Pin/search",
 					data: JSON.stringify(ActiveBtnList),
 					success: function (data, textStatus) {
 						let jsonData = JSON.parse(data)
@@ -226,7 +227,7 @@
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader(header, token);
 				},
-				url: "http://localhost:8080/Pin/OriginPin",
+				url: "http://" + _PATH + ":8080/Pin/OriginPin",
 				data: { originPinName: pinOriginName },
 				success: function (data, textStatus) {
 					$('.center').remove()
@@ -239,6 +240,10 @@
 				},
 				complete: function (data, textStatus) { }
 			})
+		}
+
+		function viewOptions() {
+			$('')
 		}
 		/* ]]> */
 	</script>
@@ -510,6 +515,79 @@
 			color: #FFF;
 			left: 85px;
 		}
+
+		.option-navigation {
+			position: fixed;
+			bottom: 2%;
+			right: 2%;
+			width: 50px;
+			height: 50px;
+			background: #FFF;
+			transition: 0.5s;
+			z-index: 9999;
+			border-radius: 4px;
+			overflow: hidden;
+		}
+
+		.option-navigation.active {
+			height: 350px;
+			transition: 0.5s;
+		}
+
+		.option-navigation .plus-toggle {
+			position: relative;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 50px;
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+			background: #FF4081;
+			transition: 0.5s;
+			cursor: pointer;
+		}
+
+		.option-navigation .plus-toggle.active {
+			background: #2196f3;
+		}
+
+		.option-navigation .plus-toggle::before {
+			content: '+';
+			position: absolute;
+			font-size: 2em;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 50px;
+			height: 50px;
+			color: #FFF;
+			font-weight: 400;
+			transition: 0.5s;
+		}
+
+		.option-navigation .plus-toggle.active::before {
+			transform: rotate(315deg);
+		}
+
+		.option {
+			text-align: center;
+			align-items: center;
+			justify-content: center;
+			border-radius: 0;
+			border-width: 0;
+			position: relative;
+			width: 50px;
+			height: 50px;
+			left: 50%;
+			transform: translateX(-50%);
+		}
+
+		.inner-option-item {
+			position: relative;
+			left: 50%;
+			transform: translateX(-50%);
+		}
 	</style>
 </head>
 
@@ -557,12 +635,109 @@
 			</th:block>
 		</th:block>
 	</div>
+	<div class="option-navigation">
+		<div class="plus-toggle"></div>
+		<button class="btn btn-primary option" style="background: #f6afe5;">
+			<svg style="bottom:3px" class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="32.000000pt" height="32.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet" role="img">
+				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+					<path d="M115 491 c-154 -71 -150 -280 7 -346 52 -21 97 -19 151 9 l47 23 47
+		-23 c56 -29 104 -30 158 -5 151 70 151 272 0 342 -54 25 -102 24 -158 -5 l-47
+		-23 -47 23 c-56 29 -104 30 -158 5z m154 -21 l39 -19 -24 -47 c-30 -60 -30
+		-108 0 -168 l24 -47 -39 -19 c-75 -39 -172 -16 -221 52 -33 47 -33 149 0 196
+		49 68 146 91 221 52z m261 0 c61 -31 85 -73 85 -150 0 -52 -5 -72 -23 -98 -49
+		-68 -146 -91 -221 -52 l-39 19 24 47 c30 60 30 108 0 168 l-24 47 37 19 c47
+		25 112 25 161 0z m-192 -65 c11 -24 10 -25 -18 -25 -28 0 -29 1 -18 25 6 14
+		14 25 18 25 4 0 12 -11 18 -25z m22 -80 c0 -41 -26 -115 -40 -115 -4 0 -12 11
+		-18 24 -10 23 -9 25 16 29 25 4 24 4 -5 6 -31 1 -33 3 -33 36 0 33 2 35 38 37
+		l37 1 -37 4 c-51 6 -49 23 2 23 l40 0 0 -45z" />
+					<path d="M303 313 c9 -2 25 -2 35 0 9 3 1 5 -18 5 -19 0 -27 -2 -17 -5z" />
+					<path d="M303 293 c9 -2 25 -2 35 0 9 3 1 5 -18 5 -19 0 -27 -2 -17 -5z" />
+				</g>
+			</svg>
+		</button>
+		<button class="btn btn-info option" style="background: #9bb2e9;">
+			<svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
+
+				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+					<path d="M393 488 c-137 -139 -152 -157 -161 -200 -12 -60 -4 -68 56 -56 43 9
+61 24 200 161 83 84 152 159 152 167 0 20 -61 80 -81 80 -8 0 -82 -69 -166
+-152z m192 92 c14 -16 16 -23 7 -32 -10 -10 -17 -7 -33 9 -12 11 -18 26 -15
+32 10 16 21 14 41 -9z m-153 -192 c-78 -78 -126 -118 -140 -118 -48 0 -24 41
+95 162 l117 118 23 -22 24 -23 -119 -117z" />
+					<path d="M25 516 l-25 -25 0 -224 c0 -293 -26 -267 269 -267 l222 0 25 25 c24
+24 24 26 22 177 -3 135 -5 153 -20 156 -16 3 -18 -11 -20 -155 l-3 -158 -225
+0 -225 0 0 225 0 225 158 3 c144 2 158 4 155 20 -3 15 -21 17 -156 20 -151 2
+-153 2 -177 -22z" />
+				</g>
+			</svg>
+		</button>
+		<button class="btn btn-danger option" style="background: #f6af61;">
+			<svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
+
+				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+					<path d="M216 624 c-9 -8 -19 -26 -22 -40 -5 -21 -12 -24 -54 -24 -72 0 -106
+-53 -60 -95 19 -17 20 -31 20 -201 0 -184 6 -226 38 -250 24 -19 340 -19 364
+0 32 24 38 66 38 250 0 170 1 184 20 201 47 42 12 95 -63 95 -39 0 -47 3 -53
+23 -15 49 -31 57 -125 57 -66 0 -91 -4 -103 -16z m193 -33 c6 -10 7 -21 4 -25
+-8 -8 -178 -8 -186 0 -3 4 -2 15 4 25 8 16 22 19 89 19 67 0 81 -3 89 -19z
+m136 -86 c0 -19 -8 -20 -219 -23 -130 -1 -224 2 -229 7 -5 5 -7 17 -4 26 6 13
+34 15 229 13 215 -3 223 -4 223 -23z m-35 -243 c0 -154 -3 -192 -16 -210 -15
+-21 -21 -22 -174 -22 -153 0 -159 1 -174 22 -13 18 -16 56 -16 210 l0 188 190
+0 190 0 0 -188z" />
+					<path d="M220 255 c0 -121 3 -156 13 -152 17 5 17 299 0 305 -10 3 -13 -32
+-13 -153z" />
+					<path d="M305 388 c-11 -45 -1 -281 13 -286 9 -3 12 32 12 152 0 95 -4 156
+-10 156 -5 0 -12 -10 -15 -22z" />
+					<path d="M394 397 c-2 -7 -3 -75 -2 -152 2 -100 6 -140 16 -143 9 -3 12 32 12
+152 0 101 -4 156 -10 156 -6 0 -13 -6 -16 -13z" />
+				</g>
+			</svg>
+		</button>
+		<button class="btn btn-secondary option" style="background: #e0d4e3;"><svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
+
+				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+					<path d="M58 574 c-52 -27 -58 -56 -58 -254 0 -272 -2 -270 270 -270 193 0
+		   222 6 254 52 22 31 23 188 1 188 -23 0 -35 -34 -35 -98 0 -92 -1 -92 -222 -92
+		   -166 0 -187 2 -201 18 -15 16 -17 45 -17 204 0 166 2 187 18 201 16 15 45 17
+		   204 17 157 0 188 2 199 16 23 28 -9 34 -201 33 -144 0 -191 -3 -212 -15z" />
+					<path d="M420 435 l-124 -124 -57 54 c-32 30 -61 55 -66 55 -12 0 -73 -63 -73
+		   -76 0 -5 42 -51 94 -103 72 -71 98 -92 113 -87 23 7 333 318 333 333 0 22 -52
+		   73 -74 73 -14 0 -63 -41 -146 -125z" />
+				</g>
+			</svg></button>
+		<button class="btn btn-light option" style="background: #c0fb6d;"><svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
+
+				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+					<path d="M71 606 c-47 -26 -50 -46 -51 -284 0 -243 5 -267 55 -290 40 -18 457
+		   -17 494 2 47 25 51 49 51 286 0 237 -4 261 -51 286 -39 20 -462 20 -498 0z
+		   m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
+		   -240 -20 -207 0 -221 1 -240 20 -19 19 -20 33 -20 240 0 207 1 221 20 240 19
+		   19 33 20 240 20 207 0 221 -1 240 -20z" />
+				</g>
+			</svg></button>
+		<button class="btn btn-warning option" style="background: #F6bbbd;">
+			<svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
+
+				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+					<path d="M223 622 c-109 -39 -178 -112 -210 -221 -29 -102 4 -228 82 -306 122
+-121 328 -121 450 0 91 92 118 241 64 356 -69 146 -241 223 -386 171z m205
+-94 c23 -11 56 -36 72 -56 30 -37 57 -99 47 -109 -3 -3 -48 9 -99 26 -51 17
+-109 31 -129 31 -19 0 -75 -14 -124 -30 -49 -17 -93 -30 -98 -30 -13 0 1 49
+25 88 61 99 192 134 306 80z m-68 -168 c11 -11 20 -29 20 -40 0 -26 -34 -60
+-62 -60 -50 0 -76 63 -41 102 21 24 58 23 83 -2z m-115 -120 c3 -5 9 -42 12
+-80 l6 -71 -28 11 c-45 17 -84 50 -111 91 -13 21 -24 41 -24 43 0 15 136 20
+145 6z m291 -3 c9 -9 -44 -84 -74 -106 -16 -11 -42 -25 -57 -31 l-28 -11 6 71
+c3 38 9 75 13 81 7 11 129 8 140 -4z" />
+				</g>
+			</svg>
+		</button>
+	</div>
+	</button>
 	<div class="modal fade" id="originPinViewModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal-body">
 					<div class="card text-bg-dark">
-						<!-- <ion-icon name="reload-outline" onclick="rotateImage($('#OriginPinImage'))"></ion-icon> -->
 						<img id="OriginPinImage" onclick="$('#originPinViewModal').modal('hide');" src="">
 					</div>
 				</div>
@@ -573,6 +748,13 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
 	<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
 	<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+	<script>
+		const navigation = document.querySelector('.option-navigation')
+		document.querySelector('.plus-toggle').onclick = function () {
+			this.classList.toggle('active')
+			navigation.classList.toggle('active')
+		}
+	</script>
 </body>
 
 </html>
