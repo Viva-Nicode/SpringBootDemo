@@ -17,20 +17,36 @@
 	<th:block th:replace="~{fragments/navbar.html::logAction}"></th:block>
 	<script th:inline="javascript">
 		/* <![CDATA[ */
-		let allPinsize = Number('[[${allpinsize}]]');
-		let allPinlist = JSON.parse('[[${allpinlist}]]');
-		let currentPinsize = Number('[[${current_pinsize}]]');
-		let currentPinlist = JSON.parse('[[${current_pinlist}]]');
+		let allPinsize = Number('[[${allpinsize}]]')
+		let allPinlist = JSON.parse('[[${allpinlist}]]')
+		let currentPinsize = Number('[[${current_pinsize}]]')
+		let currentPinlist = JSON.parse('[[${current_pinlist}]]')
+		let AlltagListFromServer = JSON.parse('[[${taglist}]]')
 		let pressedTagSearchRequest = null
+		let commonTags, complementTags, remainderTags, modifyModalTagInputTextField,
+			_tagListsObjectForModifyInModal, checkAllState = false
+
+
 		const _PATH = '[[${session.PATH}]]'.substring(1, '[[${session.PATH}]]'.length - 1)
 
 		console.log('all pin size : ' + allPinsize);
-		/* console.log(allPinlist); */
+		console.log(allPinlist);
 		console.log('current pin size : ' + currentPinsize);
-		/* console.log(currentPinlist); */
+		console.log(currentPinlist);
+
+		function showAlert() {
+			$('#alert').show()
+			setTimeout(() => { $('#alert').fadeOut() }, 2500);
+			return false;
+		}
 
 		window.onload = function () {
 			const user_id = '[[${session.user_id}]]';
+			commonTags = document.querySelector('#commonTags')
+			complementTags = document.querySelector('#complementTags')
+			remainderTags = document.querySelector('#remainderTags')
+			modifyModalTagInputTextField = document.querySelector('#tagInput')
+
 			if (user_id == 'null') {
 				$('#logOption').html('log in');
 			} else {
@@ -44,6 +60,65 @@
 				$("#switch").prop('checked', false)
 			else if (check == 'true')
 				$("#switch").prop('checked', true)
+
+			modifyModalTagInputTextField.addEventListener('keypress', function (e) {
+				if (e.keyCode == 13) {
+					if (modifyModalTagInputTextField.value.trim().length != 0) {
+						const regex = /^[ㄱ-ㅎ|가-힣|a-z| |A-Z|0-9|]+$/
+						const newTag = modifyModalTagInputTextField.value.trim();
+
+						if (!regex.test(newTag)) {
+							$('#errorMsg').html('한글영어 숫자만 써라');
+							return showAlert();
+						}
+
+						if (_tagListsObjectForModifyInModal.checkOverlapCommontag(newTag)) {
+							$('#errorMsg').html('이미 있잖아');
+							return showAlert();
+						}
+
+						/* if ($('div.tags').children('span.tag').length == 5) {
+							$('#errorMsg').html('5개 까지만 가능 ㅇㅇ');
+							return showAlert();
+						} */
+
+						if (newTag.toUpperCase() === 'NONE') {
+							$('#errorMsg').html('this tag to use system tag.');
+							return showAlert();
+						}
+
+						_tagListsObjectForModifyInModal.insertNewtag(newTag)
+						modifyModalTagInputTextField.value = ''
+					} else {
+						const token = $("meta[name='_csrf']").attr("content")
+						const header = $("meta[name='_csrf_header']").attr("content")
+						$.ajax({
+							type: "post",
+							async: true,
+							contentType: 'application/json',
+							beforeSend: function (xhr) {
+								xhr.setRequestHeader(header, token);
+							},
+							url: "http://" + _PATH + ":8080/Pin/modifyPin",
+							data: JSON.stringify(_tagListsObjectForModifyInModal.getObject()),
+							success: function (data, textStatus) {
+								/* location.reload() */
+								return false;
+							},
+							error: function (request, status, error) {
+								alert("code: " + request.status + "message: " + request.responseText + "error: " + error)
+							},
+							complete: function (data, textStatus) { }
+						})
+					}
+				}
+			})
+
+			const navigation = document.querySelector('.option-navigation')
+			document.querySelector('.plus-toggle').onclick = function () {
+				this.classList.toggle('active')
+				navigation.classList.toggle('active')
+			}
 		}
 
 		$(document).ready(function () {
@@ -121,7 +196,7 @@
 			if (pinsize == 1) {
 				return `
 					<div class="card_small card text_photo fadeInCom">
-						<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
+						<input class="form-check-input pin-select-box" type="checkbox" value="" id="${originPinName}">
 							<div class='explain' onclick='requestOriginImage("${originPinName}")'>
 								` + temp + `
 							</div>
@@ -130,7 +205,7 @@
 			} else if (pinsize == 2) {
 				return `
 					<div class="card_medium card text_photo fadeInCom">
-						<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
+						<input class="form-check-input pin-select-box" type="checkbox" value="" id="${originPinName}">
 							<div class='explain' onclick='requestOriginImage("${originPinName}")'>
 								` + temp + `
 							</div>
@@ -139,7 +214,7 @@
 			} else {
 				return `
 					<div class="card_large card text_photo fadeInCom">
-						<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
+						<input class="form-check-input pin-select-box" type="checkbox" value="" id="${originPinName}">
 							<div class='explain' onclick='requestOriginImage("${originPinName}")'>
 								` + temp + `
 							</div>
@@ -186,14 +261,14 @@
 		}
 
 		function toggleTagButton(pressedTagButton) {
-			if (pressedTagButton.className == 'btn btn-info tag')
-				pressedTagButton.className = 'btn btn-danger tag'
+			if (pressedTagButton.className == 'btn btn-info leftsidebtntag')
+				pressedTagButton.className = 'btn btn-danger leftsidebtntag'
 			else
-				pressedTagButton.className = 'btn btn-info tag'
+				pressedTagButton.className = 'btn btn-info leftsidebtntag'
 		}
 
 		function getDangerButtonList() {
-			let pressedBtnList = document.querySelectorAll('div.tagGroup > button.btn.btn-danger.tag')
+			let pressedBtnList = document.querySelectorAll('div.tagGroup > button.btn.btn-danger.leftsidebtntag')
 			let ActiveButtonList = []
 			pressedBtnList.forEach(function (item) {
 				ActiveButtonList.push(item.id)
@@ -242,9 +317,242 @@
 			})
 		}
 
-		function viewOptions() {
-			$('')
+		function showTagsModifyModal() {
+			let visibility = location.href.split('?')[1].split('=')[1]
+			if (visibility == 'false') {
+				$('#errorMsg').html('private 상태에서만 수정가능');
+				return showAlert();
+			} else {
+				$('#tagInput').val('')
+				_tagListsObjectForModifyInModal = get_TagListsObject_For_ModifyInModal_Instance(checkAllState)
+				$('#modifyTagNameModal').modal('show')
+			}
 		}
+
+		function get_TagListsObject_For_ModifyInModal_Instance(checkAllState) {
+			let targetPinlist = []
+			let commonTagList = []
+			let complementTaglist = []
+
+			const getElCount = (arr) => arr.reduce((ac, v) => ({ ...ac, [v]: (ac[v] || 0) + 1 }), {});
+
+			let deleteTagInArray = (array, value) => {
+				for (let i = 0; i < array.length; i++)
+					if (array[i] === value) array.splice(i--, 1)
+			}
+
+			let isOverlapTag = (array, value) => {
+				for (let i = 0; i < array.length; i++) {
+					if (array[i] == value)
+						return true
+				}
+				return false
+			}
+
+			if (checkAllState) {
+				/* 전체 싹다 */
+				for (let pin of allPinlist) {
+					targetPinlist.push(pin.pinName)
+					let taglist = pin.taglist.split(',')
+					complementTaglist = complementTaglist.concat(taglist)
+				}
+
+				for (let [key, value] of Object.entries(getElCount(complementTaglist))) {
+					if (value == allPinsize)
+						commonTagList.push(key)
+				}
+
+				complementTaglist = [...new Set(complementTaglist)];
+
+				$("#commonTags").children().remove()
+				$('#complementTags').children().remove()
+				$('#remainderTags').children().remove()
+
+				for (let t of commonTagList) {
+					const tag = `<span class='tag' type='button' onclick="_tagListsObjectForModifyInModal.deleteCommonTag(this, '${t}')">
+									<b>${t}</b>
+								</span>`
+					commonTags.innerHTML += tag
+				}
+
+				let tempArray = []
+				for (let t of complementTaglist) {
+					if (!commonTagList.includes(t)) {
+						const tag = `<span class='tag' type='button' onclick="_tagListsObjectForModifyInModal.deleteComplementTag(this, '${t}')">
+										<b>${t}</b>
+									</span>`
+						complementTags.innerHTML += tag
+						tempArray.push(t)
+					}
+				}
+				complementTaglist = tempArray
+				console.log('모든 핀에 공통적인 태그 : ')
+				console.log(commonTagList)
+				console.log('체크된 핀들중 모든 공통 태그를 제외한 나머지 태그 : ')
+				console.log(complementTaglist)
+
+				for (let t of AlltagListFromServer) {
+					if (!complementTaglist.includes(t) && !commonTagList.includes(t)) {
+						const tag = `<span class='tag' type='button'>
+										<b>${t}</b>
+									</span>`
+						remainderTags.innerHTML += tag
+					}
+				}
+
+			} else {
+				/* 누른거만 */
+				let checkedPinnameList = $("div.card.text_photo.fadeInCom > input[type=checkbox]:checked")
+				for (let elem of checkedPinnameList) {
+					targetPinlist.push(elem.id)
+					let taglist = allPinlist.find(e => e.pinName == elem.id).taglist.split(',')
+					/*
+					console.log('오리지널 이미지 이름 : ')
+					console.log(elem.id)
+					console.log('taglist : ')
+					console.log(taglist)
+					*/
+					complementTaglist = complementTaglist.concat(taglist)
+				}
+				/*
+				console.log('체크된 모든 핀의 태그 합집합 : ')
+				console.log(complementTaglist)
+				*/
+				for (let [key, value] of Object.entries(getElCount(complementTaglist))) {
+					if (value == checkedPinnameList.length)
+						commonTagList.push(key)
+				}
+
+				complementTaglist = [...new Set(complementTaglist)];
+				/*
+				console.log('체크된 모든 핀의 태그 합집합에서 중복제거 : ')
+				console.log(complementTaglist)
+				*/
+				$("#commonTags").children().remove()
+				$('#complementTags').children().remove()
+				$('#remainderTags').children().remove()
+
+				for (let t of commonTagList) {
+					const tag = `<span class='tag' type='button' onclick="_tagListsObjectForModifyInModal.deleteCommonTag(this, '${t}')">
+									<b>${t}</b>
+								</span>`
+					commonTags.innerHTML += tag
+				}
+
+				let tempArray = []
+				for (let t of complementTaglist) {
+					if (!commonTagList.includes(t)) {
+						const tag = `<span class='tag' type='button' onclick="_tagListsObjectForModifyInModal.deleteComplementTag(this, '${t}')">
+										<b>${t}</b>
+									</span>`
+						complementTags.innerHTML += tag
+						tempArray.push(t)
+					}
+				}
+				complementTaglist = tempArray
+
+				console.log('모든 핀에 공통적인 태그 : ')
+				console.log(commonTagList)
+				console.log('체크된 핀들중 모든 공통 태그를 제외한 나머지 태그 : ')
+				console.log(complementTaglist)
+
+				for (let t of AlltagListFromServer) {
+					if (!complementTaglist.includes(t) && !commonTagList.includes(t)) {
+						const tag = `<span class='tag' type='button'>
+										<b>${t}</b>
+									</span>`
+						remainderTags.innerHTML += tag
+					}
+				}
+			}
+			
+			return {
+				deleteComplementTag: (t, tValue) => {
+					if (tValue != 'none') {
+						t.remove()
+						deleteTagInArray(complementTaglist, tValue)
+					}
+					console.log(tValue + ' 삭제된 후 : ')
+					console.log(complementTaglist)
+				},
+				deleteCommonTag: (t, tValue) => {
+					if (tValue != 'none') {
+						t.remove()
+						deleteTagInArray(commonTagList, tValue)
+					}
+					console.log(tValue + ' 삭제된 후 : ')
+					console.log(commonTagList)
+				},
+				getModifiedPinInfoObject: () => {
+
+				},
+				insertNewtag: (newTagname) => {
+					const tag =
+						`<span class='tag' type='button' onclick="_tagListsObjectForModifyInModal.deleteCommonTag(this,'${newTagname}')">
+							<b>${newTagname}</b>
+						</span>`
+					commonTags.innerHTML += tag
+					commonTagList.push(newTagname)
+					for (let b of $('div#remainderTags>span.tag>b')) {
+						if (b.innerHTML == newTagname)
+							b.parentNode.remove()
+					}
+
+					for (let b of $('div#complementTags>span.tag>b')) {
+						if (b.innerHTML == newTagname) {
+							b.parentNode.remove()
+							deleteTagInArray(complementTaglist, b.innerHTML)
+						}
+					}
+
+					console.log(newTagname + '이 추가된 후 : ')
+					console.log(commonTagList)
+				},
+				checkOverlapCommontag: (newTag) => {
+					return isOverlapTag(commonTagList, newTag)
+				},
+				getObject: () => {
+					return {
+						modifyPinlist: targetPinlist,
+						commonTagList: commonTagList,
+						complementTaglist: complementTaglist
+					}
+				}
+			}
+		}
+
+		function checkAllToggle() {
+			let stateTrue = `<svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
+<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+	<path d="M58 574 c-52 -27 -58 -56 -58 -254 0 -272 -2 -270 270 -270 193 0
+222 6 254 52 22 31 23 188 1 188 -23 0 -35 -34 -35 -98 0 -92 -1 -92 -222 -92
+-166 0 -187 2 -201 18 -15 16 -17 45 -17 204 0 166 2 187 18 201 16 15 45 17
+204 17 157 0 188 2 199 16 23 28 -9 34 -201 33 -144 0 -191 -3 -212 -15z" />
+	<path d="M420 435 l-124 -124 -57 54 c-32 30 -61 55 -66 55 -12 0 -73 -63 -73
+-76 0 -5 42 -51 94 -103 72 -71 98 -92 113 -87 23 7 333 318 333 333 0 22 -52
+73 -74 73 -14 0 -63 -41 -146 -125z" />
+</g>
+</svg>`
+			let stateFalse = `<svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
+<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+	<path d="M71 606 c-47 -26 -50 -46 -51 -284 0 -243 5 -267 55 -290 40 -18 457
+-17 494 2 47 25 51 49 51 286 0 237 -4 261 -51 286 -39 20 -462 20 -498 0z
+m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
+-240 -20 -207 0 -221 1 -240 20 -19 19 -20 33 -20 240 0 207 1 221 20 240 19
+19 33 20 240 20 207 0 221 -1 240 -20z" />
+</g>
+</svg>`
+			if (checkAllState == false) {
+				checkAllState = true
+				$('#checkAllToggleBtn').children().remove()
+				$('#checkAllToggleBtn').html(stateTrue)
+			} else {
+				checkAllState = false
+				$('#checkAllToggleBtn').children().remove()
+				$('#checkAllToggleBtn').html(stateFalse)
+			}
+		}
+
 		/* ]]> */
 	</script>
 	<style>
@@ -263,6 +571,17 @@
 			margin: 0;
 			padding: 0;
 			background-color: black;
+		}
+
+		#alert {
+			position: fixed;
+			width: 70vw;
+			height: 110px;
+			top: 10%;
+			left: 50%;
+			z-index: 9999;
+			opacity: 0.9;
+			transform: translate(-50%);
 		}
 
 		.center {
@@ -436,7 +755,7 @@
 			overflow: auto;
 		}
 
-		.tag {
+		.leftsidebtntag {
 			position: relative;
 			left: 50%;
 			top: 1%;
@@ -463,7 +782,7 @@
 			object-fit: contain;
 		}
 
-		.modal-dialog.modal-dialog-centered {
+		#originPinViewInnerModal {
 			max-width: 85vw;
 			max-height: 85vh;
 		}
@@ -524,13 +843,13 @@
 			height: 50px;
 			background: #FFF;
 			transition: 0.5s;
-			z-index: 9999;
+			/* z-index: 9999; */
 			border-radius: 4px;
 			overflow: hidden;
 		}
 
 		.option-navigation.active {
-			height: 350px;
+			height: 300px;
 			transition: 0.5s;
 		}
 
@@ -588,6 +907,76 @@
 			left: 50%;
 			transform: translateX(-50%);
 		}
+
+		.tag-input {
+			background: #FFF;
+			padding: 1.5em;
+			border-radius: 5px;
+			max-width: 30em;
+		}
+
+		.tag-input h2 {
+			margin: 0;
+		}
+
+		.input-wrap {
+			border: 1px #888 solid;
+			border-radius: 5px;
+			display: flex;
+			margin: 1.5em 0;
+		}
+
+		.input-wrap input {
+			background: none;
+			border: none;
+			padding: 0.5em;
+			width: 100%;
+		}
+
+		.input-wrap input:focus {
+			outline: none;
+		}
+
+		.input-wrap input,
+		.input-wrap input::placeholder {
+			color: #888;
+		}
+
+		.input-wrap span {
+			margin: 0 0.5em 0 0.2em;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: #888;
+		}
+
+		.tag {
+			background: #f1f1f1;
+			border: solid;
+			border-radius: 5px;
+			padding: 0.2em 0.5em;
+			display: inline-block;
+			margin: 0.2em;
+		}
+
+		.tag span {
+			font-size: 0.8em;
+			cursor: pointer;
+		}
+
+		.tag b {
+			padding-bottom: 1em;
+		}
+
+		.tags {
+			margin-bottom: 1.5em;
+		}
+
+		.tags-apply-btn {
+			position: absolute;
+			right: 4%;
+			bottom: 6%;
+		}
 	</style>
 </head>
 
@@ -595,14 +984,14 @@
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
 	<div class="tagGroup">
 		<th:block th:each="t, index: ${taglist}">
-			<button th:id="${t}" type="button" class="btn btn-info tag" onclick="clickTag(this)" th:text="${t}"></button>
+			<button th:id="${t}" type="button" class="btn btn-info leftsidebtntag" onclick="clickTag(this)" th:text="${t}"></button>
 		</th:block>
 	</div>
 	<div class="pin_container">
 		<th:block th:each="p, index: ${current_pinlist}">
 			<th:block th:if="${p.resolutionRatio == 1}">
 				<div class="card_small card text_photo fadeInCom">
-					<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
+					<input class="form-check-input pin-select-box" type="checkbox" value="" th:id="${p.pinName}">
 					<div class="explain" th:onclick="requestOriginImage([[${p.pinName}]])">
 						<th:block th:each="ppap : ${#strings.arraySplit(p.taglist, ',')}">
 							<p th:text="${ppap}"></p>
@@ -613,7 +1002,7 @@
 			</th:block>
 			<th:block th:if="${p.resolutionRatio == 2}">
 				<div class="card_medium card text_photo fadeInCom">
-					<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
+					<input class="form-check-input pin-select-box" type="checkbox" value="" th:id="${p.pinName}">
 					<div class="explain" th:onclick="requestOriginImage([[${p.pinName}]])">
 						<th:block th:each="ppap : ${#strings.arraySplit(p.taglist, ',')}">
 							<p th:text="${ppap}"></p>
@@ -624,7 +1013,7 @@
 			</th:block>
 			<th:block th:if="${p.resolutionRatio == 3}">
 				<div class="card_large card text_photo fadeInCom">
-					<input class="form-check-input pin-select-box" type="checkbox" value="" id="flexCheckDefault">
+					<input class="form-check-input pin-select-box" type="checkbox" value="" th:id="${p.pinName}">
 					<div class="explain" th:onclick="requestOriginImage([[${p.pinName}]])">
 						<th:block th:each="ppap : ${#strings.arraySplit(p.taglist, ',')}">
 							<p th:text="${ppap}"></p>
@@ -655,7 +1044,7 @@
 				</g>
 			</svg>
 		</button>
-		<button class="btn btn-info option" style="background: #9bb2e9;">
+		<button class="btn btn-info option" style="background: #9bb2e9;" onclick="showTagsModifyModal()">
 			<svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
 
 				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
@@ -693,20 +1082,7 @@ m136 -86 c0 -19 -8 -20 -219 -23 -130 -1 -224 2 -229 7 -5 5 -7 17 -4 26 6 13
 				</g>
 			</svg>
 		</button>
-		<button class="btn btn-secondary option" style="background: #e0d4e3;"><svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
-
-				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
-					<path d="M58 574 c-52 -27 -58 -56 -58 -254 0 -272 -2 -270 270 -270 193 0
-		   222 6 254 52 22 31 23 188 1 188 -23 0 -35 -34 -35 -98 0 -92 -1 -92 -222 -92
-		   -166 0 -187 2 -201 18 -15 16 -17 45 -17 204 0 166 2 187 18 201 16 15 45 17
-		   204 17 157 0 188 2 199 16 23 28 -9 34 -201 33 -144 0 -191 -3 -212 -15z" />
-					<path d="M420 435 l-124 -124 -57 54 c-32 30 -61 55 -66 55 -12 0 -73 -63 -73
-		   -76 0 -5 42 -51 94 -103 72 -71 98 -92 113 -87 23 7 333 318 333 333 0 22 -52
-		   73 -74 73 -14 0 -63 -41 -146 -125z" />
-				</g>
-			</svg></button>
-		<button class="btn btn-light option" style="background: #c0fb6d;"><svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
-
+		<button class="btn btn-light option" id="checkAllToggleBtn" onclick="checkAllToggle()" style="background: #c0fb6d;"><svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
 				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
 					<path d="M71 606 c-47 -26 -50 -46 -51 -284 0 -243 5 -267 55 -290 40 -18 457
 		   -17 494 2 47 25 51 49 51 286 0 237 -4 261 -51 286 -39 20 -462 20 -498 0z
@@ -734,7 +1110,7 @@ c3 38 9 75 13 81 7 11 129 8 140 -4z" />
 	</div>
 	</button>
 	<div class="modal fade" id="originPinViewModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-dialog modal-dialog-centered" id="originPinViewInnerModal">
 			<div class="modal-content">
 				<div class="modal-body">
 					<div class="card text-bg-dark">
@@ -745,16 +1121,36 @@ c3 38 9 75 13 81 7 11 129 8 140 -4z" />
 		</div>
 	</div>
 	<input type="checkbox" name="toggle" id="switch">
+	<div class="modal fade" id="modifyTagNameModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog-centered modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+					<div class="tag-input">
+						<h2>Tags</h2>
+						<div class="input-wrap">
+							<input type="text" placeholder="Add a tag..." id="tagInput" maxlength="15" autocomplete="off" autofocus />
+						</div>
+						<div class="tags" id="commonTags"></div>
+						<hr>
+						<div class="tags" id="complementTags"></div>
+						<hr>
+						<div class="tags" id="remainderTags"></div>
+						<button class="btn btn-info tags-apply-btn" onclick="">Apply</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="alert" role="alert" class="alert alert-danger alert-dismissable fade show fadeIn" style="display: none;" th:fragment="Alert-div">
+		<svg id="svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+			<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+		</svg>
+		<h4 style="text-align: left;">Notification</h4>
+		<div id="errorMsg" style="text-align: left;"></div>
+	</div>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
 	<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
 	<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-	<script>
-		const navigation = document.querySelector('.option-navigation')
-		document.querySelector('.plus-toggle').onclick = function () {
-			this.classList.toggle('active')
-			navigation.classList.toggle('active')
-		}
-	</script>
 </body>
 
 </html>

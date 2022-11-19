@@ -1,8 +1,9 @@
 package com.example.demo.db;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /*
 mysql> desc tag;
@@ -17,14 +18,33 @@ mysql> desc tag;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class tagVO {
+@Getter
+@Setter
+public class TagVO {
 	private long tagid;
 	private String pinName;
 	private String tagName;
 
-	public tagVO(String pinName, String tagName) {
+	public TagVO(String pinName, String tagName) {
 		this.pinName = pinName;
 		this.tagName = tagName;
+	}
+
+	public TagVO(String tagName, long tagid) {
+		this.tagName = tagName;
+		this.tagid = tagid;
+	}
+
+	@Override
+	public int hashCode() {
+		return this.tagName.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		TagVO other = (TagVO) obj;
+		if (!tagName.equalsIgnoreCase(other.tagName))
+			return false;
+		return true;
 	}
 }

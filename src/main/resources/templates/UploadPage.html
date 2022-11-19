@@ -68,12 +68,19 @@
 							}
 						}
 
+						for(elem of $('div.tags > span.tag > b')){
+							if(elem.innerHTML == newTag){
+								$('#errorMsg').html('tag name overlap');
+								return showAlert();
+							}
+						}
+
 						if ($('div.tags').children('span.tag').length == 5) {
-							$('#errorMsg').html('5개 까지만 가능 ㅇㅇ');
+							$('#errorMsg').html('한번에 5개 까지만 가능 ㅇㅇ');
 							return showAlert();
 						}
 
-						if (newTag == 'none') {
+						if (newTag.toUpperCase() === 'NONE') {
 							$('#errorMsg').html('this tag to use system tag.');
 							return showAlert();
 						}
@@ -111,7 +118,6 @@
 			$("#switch").change(function () {
 				if ($("#switch").is(":checked")) {
 					window.sessionStorage.setItem('visibility', 'true')
-
 				} else {
 					window.sessionStorage.setItem('visibility', 'false')
 				}
@@ -181,7 +187,7 @@
 			maxFiles: 200,
 			maxFilesize: 100,
 			parallelUploads: 10,
-			timeout: 1000 * 60,
+			timeout: 10000 * 600,
 			addRemoveLinks: false,
 			acceptedFiles: '.jpeg, .jpg, .png, .JPEG, .JPG, .PNG',
 			params: {
@@ -204,6 +210,15 @@
 					let name = args[0].name
 					let response = args[1].response;
 					console.log(name + " is " + response)
+					if (response == 'success') {
+						let bl = document.querySelectorAll('#tegGrouprel > button');
+						bl.forEach(function (elem) {
+							if (elem.className == 'btn btn-outline-secondary optionBtn') {
+								elem.className = 'btn btn-outline-info optionBtn'
+								elem.setAttribute('onClick', "clickTag(this)")
+							}
+						})
+					}
 				})
 			}
 		}

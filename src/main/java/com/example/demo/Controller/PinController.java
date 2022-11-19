@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,12 +32,14 @@ import org.springframework.web.servlet.ModelAndView;
 import com.example.demo.Service.ImageUtil;
 import com.example.demo.Service.GoogleVisionAPI;
 import com.example.demo.Service.PinInfoObject;
+import com.example.demo.Service.PinTagsModifyProcesser;
 import com.example.demo.db.PinMapper;
 import com.example.demo.db.PinVO;
 import com.example.demo.db.Sys_tagMapper;
 import com.example.demo.db.Sys_tagVO;
 import com.example.demo.db.TagMapper;
-import com.example.demo.db.tagVO;
+import com.example.demo.db.TagVO;
+
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 @Controller
@@ -70,7 +73,7 @@ public class PinController {
 				pins.transferTo(dest);
 			}
 
-			Thread.sleep(4000);
+			Thread.sleep(20000);
 
 			List<Sys_tagVO> systemTagList;
 
@@ -91,9 +94,9 @@ public class PinController {
 					visi));
 
 			if (appliedTagList.size() >= 3) {
-				List<tagVO> l = new ArrayList<>();
+				List<TagVO> l = new ArrayList<>();
 				for (int idx = 1; idx < appliedTagList.size() - 1; idx++)
-					l.add(new tagVO(des, appliedTagList.get(idx)));
+					l.add(new TagVO(des, appliedTagList.get(idx)));
 				tm.insertTag(l);
 			} else {
 				List<String> l = new ArrayList<>();
@@ -111,7 +114,7 @@ public class PinController {
 
 				ImageUtil.pngToJpg(pinPath + des, thumbnailPath + des);
 
-				Thread.sleep(2000);
+				Thread.sleep(3000);
 				if (!new File(thumbnailPath + des).exists())
 					Thread.sleep(2000);
 
@@ -129,6 +132,7 @@ public class PinController {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (org.springframework.cloud.gcp.vision.CloudVisionException e) {
+			e.printStackTrace();
 			logger.error("Generated cloud.gcp.vision.CloudVisionException during the save " + des);
 			dest.delete();
 			return "{ \"response\" : \"fail\"}";
@@ -141,10 +145,6 @@ public class PinController {
 			@RequestParam(value = "visibility") String visibility) {
 		int cs = 0;
 
-		/*
-		 * ture : 전부 보여줘
-		 * false : 퍼블릭만 보여줘
-		 */
 		List<PinInfoObject> l;
 		if (visibility.equals("true")) {
 			l = tm.getPininfoListByUploaderAll(ui);
@@ -225,7 +225,7 @@ public class PinController {
 			else
 				piol = tm.getPininfoListByUploaderOnlyPublic(ui);
 
-			List<Object> validPiol = new ArrayList<>();
+			List<PinInfoObject> validPiol = new ArrayList<>(); // 이거 오브젝 리스트인데 핀인포로 바꿈 오류시 수정 ㄱㄱ
 
 			for (PinInfoObject pio : piol) {
 				if (Arrays.asList(pio.getTaglist().split(",")).containsAll(ls)) {
@@ -284,7 +284,10 @@ public class PinController {
 			return "fail";
 		long deleteRecordNum = tm.deleteTagByUseridAndTagName(Map.of("user_id", ui, "tagName", tn));
 		out.println("삭제된 레코드 갯수 : " + deleteRecordNum);
-		tm.insertTagNone(tm.selectNottingTagPinsNone(ui));
+		List<String> l = tm.selectNottingTagPinsNone(ui);
+		if (l.size() > 0)
+			tm.insertTagNone(l);
+
 		return "success";
 	}
 
@@ -306,5 +309,79 @@ public class PinController {
 		return new ModelAndView("UploadPage");
 	}
 
-	
+	@RequestMapping(value = "/modifyPin")
+	public @ResponseBody String modifyPinTags(@SessionAttribute(value = "user_id") String ui,
+			@RequestBody String request) {
+		JSONParser jsonParser = new JSONParser();
+
+		try {
+			/* 받은 데이터 파싱 시작 */
+			JSONObject jo = (JSONObject) jsonParser.parse(request);
+			Map<String, List<String>> m = new HashMap<>();
+			m.put("modifyPinlist", new ArrayList<String>());
+			m.put("commonTagList", new ArrayList<String>());
+			m.put("complementTaglist", new ArrayList<String>());
+			JSONArray ja = ((JSONArray) jo.get("modifyPinlist"));
+			for (int i = 0; i < ja.size(); i++)
+				m.get("modifyPinlist").add(ja.get(i).toString());
+			ja = ((JSONArray) jo.get("commonTagList"));
+			for (int i = 0; i < ja.size(); i++)
+				m.get("commonTagList").add(ja.get(i).toString());
+			ja = ((JSONArray) jo.get("complementTaglist"));
+			for (int i = 0; i < ja.size(); i++)
+				m.get("complementTaglist").add(ja.get(i).toString());
+			/* 파싱 끝 */
+
+			/*
+			 * out.println("modifyPinlist");
+			 * m.get("modifyPinlist").forEach((String s) -> {
+			 * out.println(s);
+			 * });
+			 * out.println("commonTagList");
+			 * m.get("commonTagList").forEach((String s) -> {
+			 * out.println(s);
+			 * });
+			 * out.println("complementTaglist");
+			 * m.get("complementTaglist").forEach((String s) -> {
+			 * out.println(s);
+			 * });
+			 */
+
+			List<String> uploaderCheckList = tm.checkPinHostUser(m.get("modifyPinlist"));
+
+			for (int idx = 0; idx < uploaderCheckList.size(); idx++) {
+				if (!uploaderCheckList.get(idx).equals(ui)) {
+					logger.error(uploaderCheckList.get(idx) + "is overlap pinanem " + ui);
+					return "pinName overlap";
+				}
+			}
+
+			List<TagVO> modifyPinsTaglist = tm.getModifyPinTaglist(m.get("modifyPinlist"));
+			Map<String, List<TagVO>> rm = PinTagsModifyProcesser.processingModification(m, modifyPinsTaglist);
+
+			/*
+			 * out.println("insert");
+			 * for (tagVO t : rm.get("insertQueryList"))
+			 * out.println(t.getPinName() + " " + t.getTagName());
+			 * 
+			 * out.println("delete");
+			 * for (tagVO t : rm.get("deleteQueryList"))
+			 * out.println(t.getTagName() + " " + String.valueOf(t.getTagid()));
+			 */
+
+			if (rm.get("insertQueryList").size() > 0) {
+				tm.insertTag(rm.get("insertQueryList"));
+				tm.deleteNone(rm.get("insertQueryList"));
+			}
+			if (rm.get("deleteQueryList").size() > 0) {
+				tm.deleteTag(rm.get("deleteQueryList"));
+				tm.insertTagNone(tm.selectNottingTagPinsNone(ui));
+			}
+
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
 }

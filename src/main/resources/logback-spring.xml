@@ -25,10 +25,6 @@
 		</rollingPolicy>
 	</appender>
 
-	<root level="error">
-        <appender-ref ref="consoleAppender" />
-    </root>
-
 	<logger name="com.example.demo.Controller" level="info" additivity="false">
 		<appender-ref ref="DAILY_ROLLING_FILE_APPENDER" />
     </logger>

@@ -9,11 +9,25 @@
 		values 
 			<foreach collection="list" item="item" separator=",">
 			(
-				#{item.pinName}, 
+				#{item.pinName},
 				#{item.tagName}
 			)
 			</foreach>
 	</insert>
+
+	<delete id="deleteTag" parameterType="java.util.List">
+		delete from tag where tagid in
+		<foreach collection="list" index="index" item="item" open="(" close=")" separator=",">
+			${item.tagid}
+		</foreach>
+	</delete>
+
+	<delete id="deleteNone" parameterType="java.util.List">
+		delete from tag where tagName = 'none' and pinName in
+		<foreach collection="list" index="index" item="item" open="(" close=")" separator=",">
+			#{item.pinName}
+		</foreach>
+	</delete>
 
 	<insert id="insertTagNone" parameterType="java.util.List">
 		insert into tag(pinName)
@@ -61,7 +75,7 @@
 
 	<select id="selectNottingTagPinsNone" parameterType="String" resultType="String">
 		select P.pinName
-		from (select * from tag) T right join (select pinName from pin where uploader = 'dmswns0147') P on T.pinName = P.pinName
+		from (select * from tag) T right join (select pinName from pin where uploader = #{user_id}) P on T.pinName = P.pinName
 		where T.tagName is NULL;
 	</select>
 
@@ -70,7 +84,7 @@
 		set tagName = #{map.ntn}
 		where tag.tagid = some ( 
 			select tagid 
-			from (select * from tag) tt inner join (select pinName from pin where uploader =#{map.user_id}) p 
+			from (select * from tag) tt inner join (select pinName from pin where uploader = #{map.user_id}) p 
 			on p.pinName = tt.pinName 
 			where tag.tagName = #{map.otn}) 
 	</update>
@@ -90,7 +104,24 @@
 		on tt.pinName = p.pinName  
 		group by pinName;
 	</select>
-	
+
+	<select id="checkPinHostUser" parameterType="java.util.List" resultType="String">
+		select uploader
+		from pin
+		where pinName in 
+		<foreach collection="list" index="index" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</select>
+
+	<select id="getModifyPinTaglist" parameterType="java.util.List" resultType="com.example.demo.db.TagVO">
+		select *
+		from tag
+		where pinName in
+		<foreach collection="list" index="index" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</select>
 </mapper>
 
 

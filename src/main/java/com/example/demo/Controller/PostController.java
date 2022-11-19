@@ -84,7 +84,7 @@ public class PostController {
 					"/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/upload/" + des);
 			try {
 				f.transferTo(dest);
-				Thread.sleep(2000);/* 바로위 파일 입출력이 너무 느려서 어쩔 수없이 넣어준 sleep */
+				Thread.sleep(5000);/* 바로위 파일 입출력이 너무 느려서 어쩔 수없이 넣어준 sleep */
 
 			} catch (IllegalStateException | IOException | InterruptedException e) {
 				e.printStackTrace();
