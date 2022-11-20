@@ -25,6 +25,7 @@
 		let pressedTagSearchRequest = null
 		let commonTags, complementTags, remainderTags, modifyModalTagInputTextField,
 			_tagListsObjectForModifyInModal, checkAllState = false
+		let _tag_Search_Mod = false
 
 
 		const _PATH = '[[${session.PATH}]]'.substring(1, '[[${session.PATH}]]'.length - 1)
@@ -102,7 +103,7 @@
 							url: "http://" + _PATH + ":8080/Pin/modifyPin",
 							data: JSON.stringify(_tagListsObjectForModifyInModal.getObject()),
 							success: function (data, textStatus) {
-								/* location.reload() */
+								location.reload()
 								return false;
 							},
 							error: function (request, status, error) {
@@ -226,7 +227,11 @@
 		function clickTag(pressedTag) {
 			clearTimeout(pressedTagSearchRequest)
 			toggleTagButton(pressedTag)
-			let ActiveBtnList = { taglist: getDangerButtonList(), visibility: sessionStorage.getItem('visibility') }
+			let ActiveBtnList = {
+				taglist: getDangerButtonList(),
+				visibility: sessionStorage.getItem('visibility'),
+				SearchMod: _tag_Search_Mod
+			}
 			pressedTagSearchRequest = setTimeout(() => {
 				const token = $("meta[name='_csrf']").attr("content")
 				const header = $("meta[name='_csrf_header']").attr("content")
@@ -465,7 +470,7 @@
 					}
 				}
 			}
-			
+
 			return {
 				deleteComplementTag: (t, tValue) => {
 					if (tValue != 'none') {
@@ -550,6 +555,47 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 				checkAllState = false
 				$('#checkAllToggleBtn').children().remove()
 				$('#checkAllToggleBtn').html(stateFalse)
+			}
+		}
+
+		function changeTagSearchMod() {
+			let unionSvg = `<svg version="1.1" id="Layer_1" class="inner-option-item" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="100%" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve">
+<path opacity="1.000000" stroke="none" 
+	d="
+M65.000000,63.592533 
+	C63.648643,64.375122 62.298073,64.955757 60.945812,64.959724 
+	C40.980442,65.018158 21.014849,65.000000 1.024654,65.000000 
+	C1.024654,43.719883 1.024654,22.439728 1.024654,1.079787 
+	C22.243145,1.079787 43.486645,1.079787 65.000000,1.079787 
+	C65.000000,21.706680 65.000000,42.414532 65.000000,63.592533 
+z"/>
+</svg>`
+			let intersectionSvg = `<svg style="bottom:3px" class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="32.000000pt" height="32.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet" role="img">
+				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+					<path d="M115 491 c-154 -71 -150 -280 7 -346 52 -21 97 -19 151 9 l47 23 47
+		-23 c56 -29 104 -30 158 -5 151 70 151 272 0 342 -54 25 -102 24 -158 -5 l-47
+		-23 -47 23 c-56 29 -104 30 -158 5z m154 -21 l39 -19 -24 -47 c-30 -60 -30
+		-108 0 -168 l24 -47 -39 -19 c-75 -39 -172 -16 -221 52 -33 47 -33 149 0 196
+		49 68 146 91 221 52z m261 0 c61 -31 85 -73 85 -150 0 -52 -5 -72 -23 -98 -49
+		-68 -146 -91 -221 -52 l-39 19 24 47 c30 60 30 108 0 168 l-24 47 37 19 c47
+		25 112 25 161 0z m-192 -65 c11 -24 10 -25 -18 -25 -28 0 -29 1 -18 25 6 14
+		14 25 18 25 4 0 12 -11 18 -25z m22 -80 c0 -41 -26 -115 -40 -115 -4 0 -12 11
+		-18 24 -10 23 -9 25 16 29 25 4 24 4 -5 6 -31 1 -33 3 -33 36 0 33 2 35 38 37
+		l37 1 -37 4 c-51 6 -49 23 2 23 l40 0 0 -45z" />
+					<path d="M303 313 c9 -2 25 -2 35 0 9 3 1 5 -18 5 -19 0 -27 -2 -17 -5z" />
+					<path d="M303 293 c9 -2 25 -2 35 0 9 3 1 5 -18 5 -19 0 -27 -2 -17 -5z" />
+				</g>
+			</svg>`
+
+			if (_tag_Search_Mod) {
+				_tag_Search_Mod = false
+				$('#searchModBtn').children().remove()
+				$('#searchModBtn').html(intersectionSvg)
+			} else {
+				_tag_Search_Mod = true
+				$('#searchModBtn').children().remove()
+				$('#searchModBtn').html(unionSvg)
 			}
 		}
 
@@ -1026,7 +1072,7 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 	</div>
 	<div class="option-navigation">
 		<div class="plus-toggle"></div>
-		<button class="btn btn-primary option" style="background: #f6afe5;">
+		<button class="btn btn-primary option" id="searchModBtn" style="background: #f6afe5;" onclick="changeTagSearchMod()">
 			<svg style="bottom:3px" class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="32.000000pt" height="32.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet" role="img">
 				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
 					<path d="M115 491 c-154 -71 -150 -280 7 -346 52 -21 97 -19 151 9 l47 23 47

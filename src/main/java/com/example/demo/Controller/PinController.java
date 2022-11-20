@@ -180,7 +180,6 @@ public class PinController {
 			JSONArray imageNameList = (JSONArray) ((JSONObject) parser.parse(jsonImageRequest)).get("imageNameArray");
 
 			for (int idx = 0; idx < imageNameList.size(); idx++) {
-
 				JSONObject jo = (JSONObject) imageNameList.get(idx);
 				BufferedImage img = ImageIO.read(new File(thumbnailPath + jo.get("thumbnailName").toString()));
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -211,6 +210,7 @@ public class PinController {
 			List<Object> l = Arrays
 					.asList(((JSONArray) ((JSONObject) parser.parse(jsonTagRequest)).get("taglist")).toArray());
 			String visibility = ((JSONObject) parser.parse(jsonTagRequest)).get("visibility") + "";
+			String searchMod = ((JSONObject) parser.parse(jsonTagRequest)).get("SearchMod") + "";
 
 			List<String> ls = new ArrayList<>();
 			for (Object o : l)
@@ -228,16 +228,35 @@ public class PinController {
 			List<PinInfoObject> validPiol = new ArrayList<>(); // 이거 오브젝 리스트인데 핀인포로 바꿈 오류시 수정 ㄱㄱ
 
 			for (PinInfoObject pio : piol) {
-				if (Arrays.asList(pio.getTaglist().split(",")).containsAll(ls)) {
-					validPiol.add(pio);
-					if (cs++ <= 15) {
-						BufferedImage img = ImageIO.read(new File(thumbnailPath + pio.getThumbnailName()));
-						ByteArrayOutputStream baos = new ByteArrayOutputStream();
-						ImageIO.write(img, "jpg", baos);
-						byte[] bytes = baos.toByteArray();
-						((JSONArray) responseJsonObject.get("imageDataList"))
-								.add(Base64.getEncoder().encodeToString(bytes));
+				List<String> temp = Arrays.asList(pio.getTaglist().split(","));
+				if (searchMod.equals("false")) {
+					if (temp.containsAll(ls)) {
+						validPiol.add(pio);
+						if (cs++ <= 15) {
+							BufferedImage img = ImageIO.read(new File(thumbnailPath + pio.getThumbnailName()));
+							ByteArrayOutputStream baos = new ByteArrayOutputStream();
+							ImageIO.write(img, "jpg", baos);
+							byte[] bytes = baos.toByteArray();
+							((JSONArray) responseJsonObject.get("imageDataList"))
+									.add(Base64.getEncoder().encodeToString(bytes));
+						}
 					}
+				} else if (searchMod.equals("true")) {
+					for (String t : ls) {
+						if (temp.contains(t)) {
+							validPiol.add(pio);
+							if (cs++ <= 15) {
+								BufferedImage img = ImageIO.read(new File(thumbnailPath + pio.getThumbnailName()));
+								ByteArrayOutputStream baos = new ByteArrayOutputStream();
+								ImageIO.write(img, "jpg", baos);
+								byte[] bytes = baos.toByteArray();
+								((JSONArray) responseJsonObject.get("imageDataList"))
+										.add(Base64.getEncoder().encodeToString(bytes));
+							}
+							break;
+						}
+					}
+
 				}
 			}
 			if (validPiol.size() <= 16)
