@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+	<title>index</title>
+	<meta charset="UTF-8">
+	<meta id="_csrf" name="_csrf" th:content="${_csrf.token}" />
+	<meta id="_csrf_header" name="_csrf_header" th:content="${_csrf.headerName}" />
+	<link rel="stylesheet" href="/css/BulletinBoard.css">
+	<link rel="stylesheet" href="/css/custom.css">
+	<script src="/js/jquery-3.6.0.min.js"></script>
+	<script src="/js/popper.js"></script>
+	<script type="text/map" src="/js/popper.js.map"></script>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+	<script th:inline="javascript">
+		/* <![CDATA[ */
+		const user_id = '[[${session.user_id}]]';
+
+		function isWrite() {
+			if (user_id == 'null') {
+				location.href = '/';
+			} else {
+				location.href = '/Post/MoveWritePost';
+			}
+		}
+		 /* ]]> */
+	</script>
+	<th:block th:replace="~{fragments/navbar.html::logAction}"></th:block>
+</head>
+
+<body>
+	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
+	<div id="profileBox" style="position: relative; width:50vh; height: 100vh;">
+		<img src="../rain2.jpg" class="card-img" alt="hello" style="position:fixed; width:50vh; height: 100vh;">
+		<div class="box" style="background: #bdbdbd00;">
+			<th:block th:if="${session.profileImageName == null}">
+				<img class="profile" src="../default_profile_logo3.svg">
+			</th:block>
+			<th:block th:unless="${session.profileImageName == null}">
+				<img class="profile" th:src="@{../profile/__${session.profileImageName}__}">
+			</th:block>
+		</div>
+		<div id="nickDiv">
+			<p id="nickname">^_^ ~*</p>
+		</div>
+	</div>
+
+	<button id="writeBtn" type="button" class="btn btn-outline-primary" onclick="isWrite()">Write</button>
+
+	<table class="table table-secondary table-striped table-hover" id="bulletinBoard">
+		<thead>
+			<tr>
+				<td>Number</td>
+				<td>title</td>
+				<td>writer</td>
+				<td>wirtenDate</td>
+				<td>hits</td>
+				<td>like</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="post, index: ${postlist}">
+				<td th:text="${post.postid}"></td>
+				<th:block th:if="${post.imagenum == 0}">
+					<td>
+						<a class="jejuFont afont" th:href='@{/Post/PostViewer/__${post.getPostid}__}'>[[${post.title}]]
+							<span class="badge bg-info" th:text="${post.commentsnum}"></span>
+						</a>
+					</td>
+				</th:block>
+				<th:block th:unless="${post.imagenum == 0}">
+					<td>
+						<a class="jejuFont afont" th:href='@{/Post/PostViewer/__${post.getPostid}__}'>[[${post.title}]]
+							<span class="badge bg-danger" th:text="${post.commentsnum}"></span>
+						</a>
+					</td>
+				</th:block>
+				<td th:text="${post.writer}"></td>
+				<td th:text="${wtl[index.index]}"></td>
+				<td th:text="${post.hits}"></td>
+				<td th:text="${post.likes}"></td>
+			</tr>
+		</tbody>
+	</table>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+	<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+	<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+
+</html>

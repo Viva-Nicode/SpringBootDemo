@@ -23,26 +23,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class IndexController {
 
-	@Autowired
-	final private PostRepository u;
-	final String thumbnailPath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/Thumbnail/";
-
 	@RequestMapping(value = "/")
 	public ModelAndView indexRequest(HttpSession s) {
 
 		ModelAndView mav = new ModelAndView("../static/index");
-		List<PostInfoDTO> l = u.findAll();
-		List<String> writenTimeList = new ArrayList<>();
-		/* wordsAPI.getDictionaryInfomation("brand"); */
-
-		l.forEach(x -> {
-			writenTimeList.add(TimeConverter.convertTime(x.getWrittentime()));
-		});
-
-		Collections.reverse(l);
-		Collections.reverse(writenTimeList);
-		mav.addObject("postlist", l);
-		mav.addObject("wtl", writenTimeList);
+		
 		s.setAttribute("PATH", "localhost");
 		/* s.setAttribute("PATH", "116.39.246.101"); */
 		return mav;

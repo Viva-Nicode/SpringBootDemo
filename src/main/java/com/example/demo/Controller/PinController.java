@@ -403,4 +403,9 @@ public class PinController {
 		return "";
 	}
 
+	@RequestMapping(value = "/deletePin")
+	public @ResponseBody String deletePin(@SessionAttribute(value = "user_id") String ui) {
+		
+		return "";
+	}
 }

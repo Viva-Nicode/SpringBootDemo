@@ -5,14 +5,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Map.Entry;
 import static java.lang.Integer.parseInt;
-import static java.lang.System.out;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -24,18 +20,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttribute;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.example.demo.Service.DetectProperties;
-import com.example.demo.Service.GoogleVisionAPI;
 import com.example.demo.Service.LikesService;
-import com.example.demo.Service.PapagoTranslationAPI;
 import com.example.demo.Service.PostService;
+import com.example.demo.Service.TimeConverter;
 import com.example.demo.db.CommentsMapper;
 import com.example.demo.db.CommentsVO;
 import com.example.demo.db.LikesId;
@@ -45,9 +38,7 @@ import com.example.demo.db.PostImageMapper;
 import com.example.demo.db.PostImageRepository;
 import com.example.demo.db.PostInfoDTO;
 import com.example.demo.db.PostInfoMapper;
-import com.google.cloud.vision.v1.ColorInfo;
-import com.oreilly.servlet.MultipartRequest;
-import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
+import com.example.demo.db.PostRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -63,6 +54,28 @@ public class PostController {
 	private final PostImageMapper pimb;
 	private final CommentsMapper cm;
 	private final PostInfoMapper pm;
+	final private PostRepository u;
+
+	@RequestMapping(value = "/MoveBoard")
+	public ModelAndView indexRequest(HttpSession s) {
+
+		ModelAndView mav = new ModelAndView("BulletinBoard");
+		List<PostInfoDTO> l = u.findAll();
+		List<String> writenTimeList = new ArrayList<>();
+		/* wordsAPI.getDictionaryInfomation("brand"); */
+
+		l.forEach(x -> {
+			writenTimeList.add(TimeConverter.convertTime(x.getWrittentime()));
+		});
+
+		Collections.reverse(l);
+		Collections.reverse(writenTimeList);
+		mav.addObject("postlist", l);
+		mav.addObject("wtl", writenTimeList);
+		s.setAttribute("PATH", "localhost");
+		/* s.setAttribute("PATH", "116.39.246.101"); */
+		return mav;
+	}
 
 	@RequestMapping(value = "/MoveWritePost")
 	public ModelAndView moveWritePost(@SessionAttribute(value = "user_id") String ui) throws IOException {

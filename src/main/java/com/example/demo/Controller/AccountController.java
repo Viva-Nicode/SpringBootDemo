@@ -171,8 +171,9 @@ public class AccountController {
 	}
 
 	@RequestMapping(value = "/logout")
-	public ResponseEntity<?> logout(HttpServletRequest req, SessionStatus session) {
+	public ResponseEntity<?> logout(HttpServletRequest req, SessionStatus session, HttpSession s) {
 		session.setComplete();
+		s.invalidate();
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setLocation(URI.create("/"));

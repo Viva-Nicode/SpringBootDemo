@@ -2,31 +2,20 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <script th:inline="javascript" th:fragment="logAction">
 	/* <![CDATA[ */
-	/* #logOption은 window.onload에 넣어준 함수에 의해 log in 또는 log out을 가지게 된다. */
-	function logAction() {
-		const tagVal = $('#logOption').html();
-		if (tagVal == 'log in') {
-			$('#myModal').modal('show');
-		} else {
-			location.href = '/Account/logout';
-		}
-	}
 
 	function movePinViewer() {
 		let check = window.sessionStorage.getItem('visibility')
 		if (check == null) {
 			window.sessionStorage.setItem('visibility', false)
-			/* location.href = "http://" + _PATH + ":8080/Pin/movePinViewer?visibility=false" */
 			location.href = '/Pin/movePinViewer?visibility=false'
 		} else {
-			/* location.href = "http://" + _PATH + ":8080/Pin/movePinViewer?visibility=" + check */
 			location.href = '/Pin/movePinViewer?visibility=' + check
 		}
 	}
 
 	function move(elem) {
 		if (elem.name == "home-outline") {
-			location.href = '/'
+			location.href = '/AllUserPinsViewer'
 		} else if (elem.name == 'person-circle-outline') {
 			location.href = '/Account/moveSignupPage'
 		} else if (elem.name == 'images-outline') {
@@ -35,73 +24,80 @@
 			location.href = '/Pin/moveUploadView'
 		} else if (elem.name == 'settings-outline') {
 			location.href = '/Account/moveUserInfoSetting'
+		} else if (elem.name == 'reader-outline') {
+			location.href = '/Post/MoveBoard'
+		} else if (elem.name == 'key-outline') {
+			location.href = '/'
+		} else if (elem.name = 'key') {
+			location.href = '/Account/logout'
 		}
 	}
 	/* ]]> */
 </script>
 
+<style>
+	@import url('https://fonts.googleapis.com/css2?family=Poor+Story&display=swap');
+</style>
 <div th:fragment="fragment-navbar">
-	<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark shadow-lg" style="border-radius: 30px; top:7px; width:98vw; left: 1vw; box-shadow: 20px 20px 20px grey;">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Mali:wght@600&display=swap" rel="stylesheet">
+	<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light shadow-lg" style="box-shadow: 20px 20px 20px grey;">
 		<div class="container-fluid">
-			<a class="navbar-brand" href="#"><img src="/sfw_adobe_express.svg" alt="" width="50" height="37">Hine~</a>
+			<a class="navbar-brand" href="#" style="font-family: 'Poor Story', cursive; font-size: 25px;"><img src="/free-icon-pinterest-3128340.png" alt="" width="50" height="50">Pinterest</a>
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
-			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<div class="d-flex align-items-center">
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 					<li class="nav-item" style="text-align: center;">
 						<span class="icon">
-							<ion-icon type="button" onclick="move(this)" name="home-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
+							<ion-icon type="button" onclick="move(this)" name="home-outline" style="color: black; font-size:30px; text-align: center;"></ion-icon>
 						</span>
-						<a class="nav-link active" aria-current="page" th:href="@{/}" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Home</a>
+						<a class="nav-link active" aria-current="page" th:href="@{/AllUserPinsViewer}" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;font-family: 'Mali', cursive;">Home</a>
 					</li>
 					<th:block th:if="${session.user_id == null}">
 						<li class="nav-item" style="text-align: center;">
 							<span class="icon">
-								<ion-icon type="button" onclick="move(this)" name="person-circle-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
+								<ion-icon type="button" onclick="move(this)" name="key-outline" style="color: black; font-size:30px; text-align: center;"></ion-icon>
 							</span>
-							<a class="nav-link" th:href="@{/Account/moveSignupPage}" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Sign up</a>
+							<a class="nav-link" href="#" th:href="@{/}" style="font-family: 'Mali', cursive;margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Log in</a>
 						</li>
 					</th:block>
 					<li class="nav-item" style="text-align: center;">
 						<span class="icon">
-							<ion-icon type="button" onclick="logAction()" name="key-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
+							<ion-icon type="button" onclick="move(this)" name="reader-outline" style="color: black; font-size:30px; text-align: center;"></ion-icon>
 						</span>
-						<a class="nav-link" href="#" id="logOption" onclick="logAction()" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;"></a>
+						<a class="nav-link" th:href="@{/Post/MoveBoard}" style="font-family: 'Mali', cursive;margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Board</a>
 					</li>
 					<th:block th:if="${session.user_id != null}">
 						<li class="nav-item" style="text-align: center;">
 							<span class="icon">
-								<ion-icon type="button" onclick="move(this)" name="images-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
+								<ion-icon type="button" name="key" onclick="move(this)" style="color: black; font-size:30px; text-align: center;"></ion-icon>
 							</span>
-							<a class="nav-link" type='button' onclick="movePinViewer()" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Gallery</a>
+							<a class="nav-link" href="#" th:href="@{/Account/logout}" style="font-family: 'Mali', cursive;margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Log out</a>
 						</li>
 						<li class="nav-item" style="text-align: center;">
 							<span class="icon">
-								<ion-icon type="button" onclick="move(this)" name="cloud-upload-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
+								<ion-icon type="button" onclick="move(this)" name="images-outline" style="color: black; font-size:30px; text-align: center;"></ion-icon>
 							</span>
-							<a class="nav-link" th:href="@{/Pin/moveUploadView}" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">upload</a>
+							<a class="nav-link" type='button' onclick="movePinViewer()" style="font-family: 'Mali', cursive;margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Gallery</a>
 						</li>
 						<li class="nav-item" style="text-align: center;">
 							<span class="icon">
-								<ion-icon type="button" onclick="move(this)" name="settings-outline" style="color: white; font-size:30px; text-align: center;"></ion-icon>
+								<ion-icon type="button" onclick="move(this)" name="cloud-upload-outline" style="color: black; font-size:30px; text-align: center;"></ion-icon>
 							</span>
-							<a class="nav-link" th:href="@{/Account/moveUserInfoSetting}" style="margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Setting</a>
+							<a class="nav-link" th:href="@{/Pin/moveUploadView}" style="font-family: 'Mali', cursive;margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Upload</a>
+						</li>
+						<li class="nav-item" style="text-align: center;">
+							<span class="icon">
+								<ion-icon type="button" onclick="move(this)" name="settings-outline" style="color: black; font-size:30px; text-align: center;"></ion-icon>
+							</span>
+							<a class="nav-link" th:href="@{/Account/moveUserInfoSetting}" style="font-family: 'Mali', cursive;margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Setting</a>
 						</li>
 					</th:block>
 					</li>
 				</ul>
-				<div class="d-flex align-items-center">
-					<a class="text-reset me-3" href="https://github.com">
-						<img class="fas" src="/github.png" style="width: 32px; height:32px"></img>
-					</a>
-					<a class="text-reset me-3" href="https://www.google.co.kr">
-						<img class="fas" src="/google.png" style="width: 32px; height:32px"></img>
-					</a>
-					<a class="text-reset me-3" href="https://www.facebook.com">
-						<img class="fas" src="/facebook.png" style="width: 32px; height:32px"></img>
-					</a>
-				</div>
 			</div>
 		</div>
 	</nav>

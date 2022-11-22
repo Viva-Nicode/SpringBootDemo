@@ -61,7 +61,7 @@
 				$("#switch").prop('checked', false)
 			else if (check == 'true')
 				$("#switch").prop('checked', true)
-
+				
 			modifyModalTagInputTextField.addEventListener('keypress', function (e) {
 				if (e.keyCode == 13) {
 					if (modifyModalTagInputTextField.value.trim().length != 0) {
@@ -559,18 +559,8 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 		}
 
 		function changeTagSearchMod() {
-			let unionSvg = `<svg version="1.1" id="Layer_1" class="inner-option-item" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="100%" viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve">
-<path opacity="1.000000" stroke="none" 
-	d="
-M65.000000,63.592533 
-	C63.648643,64.375122 62.298073,64.955757 60.945812,64.959724 
-	C40.980442,65.018158 21.014849,65.000000 1.024654,65.000000 
-	C1.024654,43.719883 1.024654,22.439728 1.024654,1.079787 
-	C22.243145,1.079787 43.486645,1.079787 65.000000,1.079787 
-	C65.000000,21.706680 65.000000,42.414532 65.000000,63.592533 
-z"/>
-</svg>`
+			let unionSvg = `<svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 24 24" width="20.000000pt" height="20.000000pt">
+				<path d="M21.713,24h2.156L14.859,1.661c-.511-1.024-1.54-1.661-2.684-1.661h-.002c-1.146,0-2.174,.638-2.711,1.724L.168,24H2.335l2.92-7h13.636l2.822,7ZM6.089,15L11.28,2.554c.172-.347,.507-.554,.894-.554h0c.387,0,.721,.207,.862,.481l5.047,12.519H6.089Z"/></svg>`
 			let intersectionSvg = `<svg style="bottom:3px" class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="32.000000pt" height="32.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet" role="img">
 				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
 					<path d="M115 491 c-154 -71 -150 -280 7 -346 52 -21 97 -19 151 9 l47 23 47
@@ -616,7 +606,7 @@ z"/>
 		body {
 			margin: 0;
 			padding: 0;
-			background-color: black;
+			background-color: white;
 		}
 
 		#alert {
@@ -708,7 +698,7 @@ z"/>
 			margin: 15px 10px;
 			border-radius: var(--card_border_radius);
 			background-color: white;
-			border-color: white;
+			border-color: black;
 			border-width: 0px;
 		}
 
@@ -795,10 +785,11 @@ z"/>
 			height: 75vh;
 			justify-content: center;
 			border: solid;
-			border-color: blanchedalmond;
-			background-color: black;
+			border-color: black;
+			background-color: white;
 			border-radius: 20px;
 			overflow: auto;
+			border-width: 2px;
 		}
 
 		.leftsidebtntag {
@@ -1183,6 +1174,15 @@ c3 38 9 75 13 81 7 11 129 8 140 -4z" />
 						<div class="tags" id="remainderTags"></div>
 						<button class="btn btn-info tags-apply-btn" onclick="">Apply</button>
 					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="deletePinModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog-centered modal-dialog">
+			<div class="modal-content">
+				<div class="modal-body">
+
 				</div>
 			</div>
 		</div>
