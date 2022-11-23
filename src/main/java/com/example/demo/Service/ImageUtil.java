@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
+import javax.validation.constraints.Pattern.Flag;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
@@ -25,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ImageUtil {
+	private static float _compression_Rate = 0.3f;
 
 	public static void compress(String srcFilename, String desFilename) {
 		try {
@@ -43,7 +45,7 @@ public class ImageUtil {
 			ImageWriteParam param = writer.getDefaultWriteParam();
 			if (param.canWriteCompressed()) {
 				param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-				param.setCompressionQuality(0.01f);
+				param.setCompressionQuality(_compression_Rate);
 			}
 
 			writer.write(null, new IIOImage(newimg, null, null), param);
@@ -78,7 +80,7 @@ public class ImageUtil {
 			ImageWriteParam param = writer.getDefaultWriteParam();
 			if (param.canWriteCompressed()) {
 				param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-				param.setCompressionQuality(0.01f);
+				param.setCompressionQuality(_compression_Rate);
 			}
 
 			writer.write(null, new IIOImage(image, null, null), param);
@@ -187,11 +189,21 @@ public class ImageUtil {
 	}
 
 	public static int getResolutionRatio(int width, int height) {
-		if (width >= height)
+		/*
+		 * width : 1920
+		 * height : 1080
+		 */
+		float ratio = (float)height / width;
+		System.out.println(width);
+		System.out.println(height);
+		System.out.println(ratio);
+
+		if (ratio <= 1.1f)
 			return 1;
-		else if (height - width <= width / 2)
+		else if (ratio <= 1.5f)
 			return 2;
 		else
 			return 3;
 	}
 }
+/* height > width && height - width <= */

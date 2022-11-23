@@ -11,8 +11,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import lombok.RequiredArgsConstructor;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashMap;
@@ -39,6 +43,7 @@ import com.example.demo.db.Sys_tagMapper;
 import com.example.demo.db.Sys_tagVO;
 import com.example.demo.db.TagMapper;
 import com.example.demo.db.TagVO;
+import com.google.cloud.vision.v1p1beta1.Image;
 
 import org.springframework.web.bind.annotation.SessionAttributes;
 
@@ -50,10 +55,10 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 public class PinController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private final GoogleVisionAPI googleVisionAPI;
+	/* private final GoogleVisionAPI googleVisionAPI; */
 	private final PinMapper pm;
 	private final TagMapper tm;
-	private final Sys_tagMapper stm;
+	/* private final Sys_tagMapper stm; */
 	private final String pinPath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/pins/";
 	private final String thumbnailPath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/Thumbnail/";
 
@@ -67,19 +72,26 @@ public class PinController {
 		File dest = new File(pinPath + des);
 
 		try {
-			BufferedImage bufferedImage = ImageIO.read(pins.getInputStream());
+			BufferedInputStream bis = new BufferedInputStream(pins.getInputStream());
+			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dest));
 
-			synchronized (this) {
-				pins.transferTo(dest);
-			}
+			int bytesRead = 0;
+			byte[] buffer = new byte[1024];
+			while ((bytesRead = bis.read(buffer, 0, 1024)) != -1)
+				bos.write(buffer, 0, bytesRead);
+			bos.close();
+			bis.close();
 
-			Thread.sleep(20000);
+			Thread.sleep(1000);
+			BufferedImage newbi = ImageUtil.checkImage(dest, ImageUtil.getOrientation(dest));
 
-			List<Sys_tagVO> systemTagList;
+			/* List<Sys_tagVO> systemTagList; */
 
 			/* 구글 비전에서 시스탬 태그를 획득한다. */
-			systemTagList = googleVisionAPI.getImageLabels(
-					"classpath:static/pins/" + des);
+			/*
+			 * systemTagList = googleVisionAPI.getImageLabels(
+			 * "classpath:static/pins/" + des);
+			 */
 
 			boolean visi;
 
@@ -89,8 +101,8 @@ public class PinController {
 				visi = false;
 
 			pm.insertPin(new PinVO(des, ui,
-					ImageUtil.getResolutionRatio(bufferedImage.getWidth(),
-							bufferedImage.getHeight()),
+					ImageUtil.getResolutionRatio(newbi.getWidth(),
+							newbi.getHeight()),
 					visi));
 
 			if (appliedTagList.size() >= 3) {
@@ -105,10 +117,11 @@ public class PinController {
 			}
 
 			/* 시스템 태그를 foreach insert 한다. */
-			for (Sys_tagVO s : systemTagList)
-				s.setPinName(des);
-
-			stm.insertSystag(systemTagList);
+			/*
+			 * for (Sys_tagVO s : systemTagList)
+			 * s.setPinName(des);
+			 * stm.insertSystag(systemTagList);
+			 */
 
 			if (ext.equals("png")) {
 
@@ -136,6 +149,8 @@ public class PinController {
 			logger.error("Generated cloud.gcp.vision.CloudVisionException during the save " + des);
 			dest.delete();
 			return "{ \"response\" : \"fail\"}";
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return "{ \"response\" : \"success\" }";
 	}
@@ -405,7 +420,7 @@ public class PinController {
 
 	@RequestMapping(value = "/deletePin")
 	public @ResponseBody String deletePin(@SessionAttribute(value = "user_id") String ui) {
-		
+
 		return "";
 	}
 }
