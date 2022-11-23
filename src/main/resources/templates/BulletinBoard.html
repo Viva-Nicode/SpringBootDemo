@@ -23,7 +23,12 @@
 				location.href = '/Post/MoveWritePost';
 			}
 		}
-		 /* ]]> */
+
+		window.onload = () => {
+			if (user_id != 'null')
+				$('#nickname').html(user_id.substring(1, user_id.length - 1))
+		}
+		/* ]]> */
 	</script>
 	<th:block th:replace="~{fragments/navbar.html::logAction}"></th:block>
 </head>

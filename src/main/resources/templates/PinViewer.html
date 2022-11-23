@@ -61,7 +61,7 @@
 				$("#switch").prop('checked', false)
 			else if (check == 'true')
 				$("#switch").prop('checked', true)
-				
+
 			modifyModalTagInputTextField.addEventListener('keypress', function (e) {
 				if (e.keyCode == 13) {
 					if (modifyModalTagInputTextField.value.trim().length != 0) {
@@ -723,25 +723,26 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 
 		.explain {
 			position: absolute;
-			top: 10%;
-			left: 50%;
-			transform: translateX(-50%);
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			width: 100%;
+			top: 12%;
+			left: 1%;
 			opacity: 0;
-			background-color: white;
-			border-color: black;
-			border-width: 3px;
 			z-index: 999;
-			border-radius: 5px;
-			align-content: center;
 		}
 
 		.explain>p {
 			position: relative;
+			max-width: 100%;
 			text-align: center;
 			color: black;
 			border-radius: 5px;
-			margin: 0px 2px 0px 2px;
-			padding: 2px 2px 2px 2px;
+			margin: 3px;
+			padding: 1px 4px 1px 4px;
+			border: solid white;
+			background-color: white;
 		}
 
 		.text_photo:hover .explain {
@@ -750,7 +751,7 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 		}
 
 		div.card.text_photo.fadeInCom>img:nth-child(1n):hover {
-			border: 10px solid white;
+			border: 3px solid white;
 			-webkit-filter: blur(5px);
 			transition-duration: var(--card_hover_duration);
 		}
