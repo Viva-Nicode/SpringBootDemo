@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo.Service.PinInfoObject;
+import com.example.demo.Service.Tagger.TagMatchPinListInnerClass;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -43,5 +44,7 @@ public interface TagMapper {
 	public List<String> checkPinHostUser(List<String> l);
 
 	public List<TagVO> getModifyPinTaglist(List<String> l);
+
+	public List<TagMatchPinListInnerClass> getTagPinNameList(@Param("user_id") String user_id);
 
 }

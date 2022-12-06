@@ -15,4 +15,13 @@
 		)
 		</foreach>
 	</insert>
+
+	<select id="getSystagListByPinNames" parameterType="java.util.List" resultType="com.example.demo.db.Sys_tagVO">
+		select *
+		from sys_tag
+		where pinName in
+		<foreach collection="list" index="index" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</select>
 </mapper>

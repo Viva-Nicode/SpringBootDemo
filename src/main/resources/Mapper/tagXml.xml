@@ -39,6 +39,7 @@
 		</foreach>
 	</insert>
 
+	<!-- 어떤 유저의 모든(private 포함)태그들의 리스트를 반환하는 쿼리 -->
 	<select id="findTagByUseridAll" parameterType="String" resultType="String">
 		select distinct tagName 
 		from tag 
@@ -59,6 +60,13 @@
 
 	<select id ="getTagCountList" parameterType="String" resultType="com.example.demo.db.TagCount">
 		select tagName, count(pinName) as count 
+		from ( select * from tag where pinName = some ( 
+		select pinName from Pin where uploader = #{user_id})) subQuery 
+		group by tagName
+	</select>
+
+	<select id ="getTagPinNameList" parameterType="String" resultType="com.example.demo.Service.Tagger$TagMatchPinListInnerClass">
+		select tagName, group_concat(pinName) as pinListString
 		from ( select * from tag where pinName = some ( 
 		select pinName from Pin where uploader = #{user_id})) subQuery 
 		group by tagName

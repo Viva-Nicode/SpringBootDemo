@@ -26,6 +26,7 @@
 		let commonTags, complementTags, remainderTags, modifyModalTagInputTextField,
 			_tagListsObjectForModifyInModal, checkAllState = false
 		let _tag_Search_Mod = false
+		let _deleteTargetPinlist = []
 
 
 		const _PATH = '[[${session.PATH}]]'.substring(1, '[[${session.PATH}]]'.length - 1)
@@ -120,13 +121,21 @@
 				this.classList.toggle('active')
 				navigation.classList.toggle('active')
 			}
+
+			window.addEventListener('scroll', () => {
+				let pc = document.querySelector('div.pin_container')
+				if (pc.getBoundingClientRect().top <= 5) {
+					document.querySelector('div.tag_container').classList.add('escapeViewport')
+				} else[
+					document.querySelector('div.tag_container').classList.remove('escapeViewport')
+				]
+			})
 		}
 
 		$(document).ready(function () {
 			$("#switch").change(function () {
 				if ($("#switch").is(":checked")) {
 					window.sessionStorage.setItem('visibility', 'true')
-
 				} else {
 					window.sessionStorage.setItem('visibility', 'false')
 				}
@@ -140,12 +149,12 @@
 				$(window).unbind()
 				let jsonObj = { imageNameArray: [] }
 				let remainingPinsize = allPinsize - currentPinsize
-				if (8 <= remainingPinsize) {
-					console.log('request get 8 pins.')
-					for (let idx = currentPinsize; idx < currentPinsize + 8; idx++)
+				if (16 <= remainingPinsize) {
+					console.log('request get 16 pins.')
+					for (let idx = currentPinsize; idx < currentPinsize + 16; idx++)
 						jsonObj.imageNameArray.push(allPinlist[idx])
-					currentPinsize += 8;
-				} else if (8 >= remainingPinsize && remainingPinsize >= 1) {
+					currentPinsize += 16;
+				} else if (16 >= remainingPinsize && remainingPinsize >= 1) {
 					console.log('request get ' + allPinsize - currentPinsize + ' pins.')
 					for (let idx = currentPinsize; idx < allPinlist.length; idx++)
 						jsonObj.imageNameArray.push(allPinlist[idx]);
@@ -224,11 +233,11 @@
 			}
 		}
 
-		function clickTag(pressedTag) {
+		function clickTag(pressedTag, pressedTagJQuery) {
 			clearTimeout(pressedTagSearchRequest)
-			toggleTagButton(pressedTag)
+			toggleTagButton(pressedTag, pressedTagJQuery)
 			let ActiveBtnList = {
-				taglist: getDangerButtonList(),
+				taglist: getActiveTagList(),
 				visibility: sessionStorage.getItem('visibility'),
 				SearchMod: _tag_Search_Mod
 			}
@@ -251,9 +260,7 @@
 						currentPinsize = Number(jsonData.current_pinsize)
 						currentPinlist = jsonData.current_pinlist
 						console.log('new all pin size : ' + allPinsize)
-						/* console.log(allPinlist) */
 						console.log('new current pin size : ' + currentPinsize)
-						/* console.log(currentPinlist) */
 						rerenderPins(currentPinlist, jsonData.imageDataList)
 						return false;
 					},
@@ -262,21 +269,33 @@
 					},
 					complete: function (data, textStatus) { }
 				})
-			}, 2000)
+			}, 1000)
 		}
 
-		function toggleTagButton(pressedTagButton) {
-			if (pressedTagButton.className == 'btn btn-info leftsidebtntag')
-				pressedTagButton.className = 'btn btn-danger leftsidebtntag'
-			else
-				pressedTagButton.className = 'btn btn-info leftsidebtntag'
+		function toggleTagButton(pressedTagButton, jpressedTagButton) {
+			let color = jpressedTagButton.css('color')
+			let colorsub = color.substring(4, color.length - 1).split(',')
+			let checkColor = ''
+			for (let elem of colorsub)
+				checkColor = checkColor.concat(parseInt(elem.trim(), 10).toString(16))
+			let checkSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="17.000000pt" height="17.000000pt" style="position:relative; top:2px; right:3px;">
+								<rect width="256" height="256" fill="none" />
+								<polyline fill="none" stroke="#${checkColor}" stroke-linecap="round" stroke-linejoin="round" stroke-width="24" points="216 72.005 104 184 48 128.005" />
+							</svg>`
+			if (pressedTagButton.classList.contains('activeTag')) {
+				pressedTagButton.classList.remove('activeTag')
+				pressedTagButton.firstChild.remove()
+			} else {
+				pressedTagButton.classList.add('activeTag')
+				jpressedTagButton.prepend(checkSvg)
+			}
 		}
 
-		function getDangerButtonList() {
-			let pressedBtnList = document.querySelectorAll('div.tagGroup > button.btn.btn-danger.leftsidebtntag')
+		function getActiveTagList() {
+			let pressedBtnList = document.querySelectorAll('body > div.tag_container > span.tagspan.activeTag')
 			let ActiveButtonList = []
 			pressedBtnList.forEach(function (item) {
-				ActiveButtonList.push(item.id)
+				ActiveButtonList.push(item.innerText)
 			})
 			return ActiveButtonList
 		}
@@ -332,6 +351,38 @@
 				_tagListsObjectForModifyInModal = get_TagListsObject_For_ModifyInModal_Instance(checkAllState)
 				$('#modifyTagNameModal').modal('show')
 			}
+		}
+
+		function showPinsDeleteModal() {
+			_deleteTargetPinlist = []
+			let checkedPinnameList = $("div.card.text_photo.fadeInCom > input[type=checkbox]:checked")
+			for (let elem of checkedPinnameList) {
+				_deleteTargetPinlist.push(elem.id)
+			}
+			document.querySelector('#deletePinModal > div > div > div > b').innerHTML = _deleteTargetPinlist.length
+			$('#deletePinModal').modal('show')
+		}
+
+		function deletepins() {
+			const token = $("meta[name='_csrf']").attr("content")
+			const header = $("meta[name='_csrf_header']").attr("content")
+			$.ajax({
+				type: "post",
+				async: true,
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader(header, token);
+				},
+				url: "http://" + _PATH + ":8080/Pin/deletePin",
+				data: { deletepinlist: _deleteTargetPinlist },
+				success: function (data, textStatus) {
+					location.reload()
+					return false;
+				},
+				error: function (request, status, error) {
+					alert("code: " + request.status + "message: " + request.responseText + "error: " + error)
+				},
+				complete: function (data, textStatus) { }
+			})
 		}
 
 		function get_TagListsObject_For_ModifyInModal_Instance(checkAllState) {
@@ -601,6 +652,16 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 			--card_large: 45;
 			--card_hover_duration: 0.5s;
 			--card_not_hover_duration: 0.8s;
+			--tag_blue_border: #4079fe;
+			--tag_blue_inner: #5882da;
+			--tag_orange_border: #fbbf82;
+			--tag_orange_inner: #c56212;
+			--tag_green_border: #99cc9b;
+			--tag_green_inner: #2d722d;
+			--tag_pink_border: #f294b5;
+			--tag_pink_inner: #bf3e69;
+			--tag_border: #000;
+			--tag_inner: #000;
 		}
 
 		body {
@@ -683,14 +744,15 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 			margin: 0;
 			padding: 0;
 			width: 75vw;
-			position: absolute;
-			top: 20%;
-			left: 25vw;
+			position: relative;
+			top: 20vh;
+			left: 50vw;
+			transform: translateX(-50%);
 			border-radius: 20px;
 			display: grid;
 			grid-template-columns: repeat(auto-fill, var(--card_width));
 			grid-auto-rows: var(--row_increment);
-			justify-content: left;
+			justify-content: center;
 		}
 
 		.card {
@@ -751,8 +813,8 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 		}
 
 		div.card.text_photo.fadeInCom>img:nth-child(1n):hover {
-			border: 3px solid white;
-			-webkit-filter: blur(5px);
+			border: 2px solid white;
+			filter: brightness(0.8) blur(5px);
 			transition-duration: var(--card_hover_duration);
 		}
 
@@ -793,17 +855,6 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 			border-width: 2px;
 		}
 
-		.leftsidebtntag {
-			position: relative;
-			left: 50%;
-			top: 1%;
-			transform: translateX(-50%);
-			text-align: center;
-			width: 17vw;
-			margin-top: 5px;
-			margin-bottom: 5px;
-		}
-
 		.pin-select-box {
 			position: absolute;
 			left: 2%;
@@ -834,8 +885,8 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 			position: fixed;
 			cursor: pointer;
 			transition: .3s;
-			top: 15%;
-			left: 2%;
+			top: 9%;
+			left: 1%;
 		}
 
 		input[name='toggle']::before {
@@ -858,9 +909,10 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 			top: 29px;
 			transition: .3s;
 		}
+		
 
 		input[name='toggle']:checked {
-			background: linear-gradient(91deg, #ff01a5d4, #4b00ffd4);
+			background: linear-gradient(91deg, #e3d941, #24cdc2);
 		}
 
 		input[name="toggle"]:checked:before {
@@ -1015,16 +1067,92 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 			right: 4%;
 			bottom: 6%;
 		}
+
+		.tag_container {
+			position: relative;
+			display: flex;
+			flex-wrap: wrap-reverse;
+			justify-content: left;
+			overflow: scroll;
+			align-items: flex-start;
+			max-width: 68vw;
+			top: 20vh;
+			left: 50%;
+			transform: translateX(-50%);
+			/* border: solid 2px black; */
+			align-content: flex-start;
+			z-index: 99;
+		}
+
+		.tag_container.escapeViewport {
+			transition: .5s;
+			position: fixed;
+			top: 30vh;
+			left: 0;
+			flex-wrap: nowrap;
+			flex-direction: column;
+			transform: translateX(0);
+			max-height: 30vh;
+		}
+
+		.tag_container::-webkit-scrollbar {
+			display: none;
+		}
+
+		.leftsidebtntag {
+			position: relative;
+			left: 50%;
+			top: 1%;
+			transform: translateX(-50%);
+			text-align: center;
+			width: 17vw;
+			margin-top: 5px;
+			margin-bottom: 5px;
+		}
+
+		.tagspan {
+			display: inline-flex;
+			align-content: center;
+			justify-content: center;
+			border: 1px solid var(--tag_border);
+			padding: 1px 10px 1px 10px;
+			margin-left: 4px;
+			margin-right: 4px;
+			margin-top: 7px;
+			border-radius: 20px;
+			font-size: 17px;
+			cursor: pointer;
+			color: var(--tag_inner);
+		}
+
+		.tagspan.activeTag {
+			border-width: 2px;
+			/*color: white;*/
+
+		}
 	</style>
 </head>
 
 <body>
 	<th:block th:replace="~{fragments/navbar::fragment-navbar}"></th:block>
-	<div class="tagGroup">
+
+	<div class="tag_container">
 		<th:block th:each="t, index: ${taglist}">
-			<button th:id="${t}" type="button" class="btn btn-info leftsidebtntag" onclick="clickTag(this)" th:text="${t}"></button>
+			<th:block th:if="${__${listForTagColor[index.index]}__ == 1}">
+				<span class="tagspan" onclick="clickTag(this, $(this))" style="--tag_border:var(--tag_blue_border); --tag_inner:var(--tag_blue_inner)" th:text="${t}"></span>
+			</th:block>
+			<th:block th:if="${__${listForTagColor[index.index]}__ == 2}">
+				<span class="tagspan" onclick="clickTag(this, $(this))" style="--tag_border:var(--tag_orange_border); --tag_inner:var(--tag_orange_inner)" th:text="${t}"></span>
+			</th:block>
+			<th:block th:if="${__${listForTagColor[index.index]}__ == 3}">
+				<span class="tagspan" onclick="clickTag(this, $(this))" style="--tag_border:var(--tag_green_border); --tag_inner:var(--tag_green_inner)" th:text="${t}"></span>
+			</th:block>
+			<th:block th:if="${__${listForTagColor[index.index]}__ == 4}">
+				<span class="tagspan" onclick="clickTag(this, $(this))" style="--tag_border:var(--tag_pink_border); --tag_inner:var(--tag_pink_inner)" th:text="${t}"></span>
+			</th:block>
 		</th:block>
 	</div>
+
 	<div class="pin_container">
 		<th:block th:each="p, index: ${current_pinlist}">
 			<th:block th:if="${p.resolutionRatio == 1}">
@@ -1062,6 +1190,7 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 			</th:block>
 		</th:block>
 	</div>
+
 	<div class="option-navigation">
 		<div class="plus-toggle"></div>
 		<button class="btn btn-primary option" id="searchModBtn" style="background: #f6afe5;" onclick="changeTagSearchMod()">
@@ -1098,9 +1227,8 @@ m489 -46 c19 -19 20 -33 20 -240 0 -207 -1 -221 -20 -240 -19 -19 -33 -20
 				</g>
 			</svg>
 		</button>
-		<button class="btn btn-danger option" style="background: #f6af61;">
+		<button class="btn btn-danger option" onclick="showPinsDeleteModal()" style="background: #f6af61;">
 			<svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
-
 				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
 					<path d="M216 624 c-9 -8 -19 -26 -22 -40 -5 -21 -12 -24 -54 -24 -72 0 -106
 -53 -60 -95 19 -17 20 -31 20 -201 0 -184 6 -226 38 -250 24 -19 340 -19 364
@@ -1129,22 +1257,7 @@ m136 -86 c0 -19 -8 -20 -219 -23 -130 -1 -224 2 -229 7 -5 5 -7 17 -4 26 6 13
 		   19 33 20 240 20 207 0 221 -1 240 -20z" />
 				</g>
 			</svg></button>
-		<button class="btn btn-warning option" style="background: #F6bbbd;">
-			<svg class="inner-option-item" version="1.0" xmlns="http://www.w3.org/2000/svg" width="27.000000pt" height="27.000000pt" viewBox="0 0 64.000000 64.000000" preserveAspectRatio="xMidYMid meet">
-
-				<g transform="translate(0.000000,64.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
-					<path d="M223 622 c-109 -39 -178 -112 -210 -221 -29 -102 4 -228 82 -306 122
--121 328 -121 450 0 91 92 118 241 64 356 -69 146 -241 223 -386 171z m205
--94 c23 -11 56 -36 72 -56 30 -37 57 -99 47 -109 -3 -3 -48 9 -99 26 -51 17
--109 31 -129 31 -19 0 -75 -14 -124 -30 -49 -17 -93 -30 -98 -30 -13 0 1 49
-25 88 61 99 192 134 306 80z m-68 -168 c11 -11 20 -29 20 -40 0 -26 -34 -60
--62 -60 -50 0 -76 63 -41 102 21 24 58 23 83 -2z m-115 -120 c3 -5 9 -42 12
--80 l6 -71 -28 11 c-45 17 -84 50 -111 91 -13 21 -24 41 -24 43 0 15 136 20
-145 6z m291 -3 c9 -9 -44 -84 -74 -106 -16 -11 -42 -25 -57 -31 l-28 -11 6 71
-c3 38 9 75 13 81 7 11 129 8 140 -4z" />
-				</g>
-			</svg>
-		</button>
+		
 	</div>
 	</button>
 	<div class="modal fade" id="originPinViewModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -1183,7 +1296,8 @@ c3 38 9 75 13 81 7 11 129 8 140 -4z" />
 		<div class="modal-dialog-centered modal-dialog">
 			<div class="modal-content">
 				<div class="modal-body">
-
+					A total of <b></b> pins will be deleted.
+					<button class="btn btn-info tags-apply-btn" onclick="deletepins()">Apply</button>
 				</div>
 			</div>
 		</div>

@@ -16,6 +16,8 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Base64;
@@ -26,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpSession;
+
 import static java.lang.System.out;
 import java.awt.image.BufferedImage;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,39 +41,40 @@ import com.example.demo.Service.ImageUtil;
 import com.example.demo.Service.GoogleVisionAPI;
 import com.example.demo.Service.PinInfoObject;
 import com.example.demo.Service.PinTagsModifyProcesser;
+import com.example.demo.Service.Tagger;
 import com.example.demo.db.PinMapper;
 import com.example.demo.db.PinVO;
 import com.example.demo.db.Sys_tagMapper;
 import com.example.demo.db.Sys_tagVO;
 import com.example.demo.db.TagMapper;
 import com.example.demo.db.TagVO;
-import com.google.cloud.vision.v1p1beta1.Image;
 
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 @Controller
 @RequestMapping("/Pin")
 @RequiredArgsConstructor
-@SessionAttributes(value = { "validTaglist", "visibility" })
-// 사용자가 검색조건으로 클릭한 태그 리스트이다. 같은 검색조건일땐 그냥 아무동작하지 않기위해 저장해놓은것이다.
+@SessionAttributes(value = { "visibility" })
 
 public class PinController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	/* private final GoogleVisionAPI googleVisionAPI; */
+	private final GoogleVisionAPI googleVisionAPI;
 	private final PinMapper pm;
 	private final TagMapper tm;
-	/* private final Sys_tagMapper stm; */
+	private final Sys_tagMapper stm;
 	private final String pinPath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/pins/";
 	private final String thumbnailPath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/Thumbnail/";
+	private final String trashPath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/deleted/";
 
 	@RequestMapping(value = "/uploadPins")
 	public @ResponseBody String uploadPins(@RequestParam(value = "pins") MultipartFile pins,
 			@RequestParam(value = "appliedTagList") List<String> appliedTagList,
-			@SessionAttribute(value = "user_id") String ui) {
+			@SessionAttribute(value = "user_id") String ui, @SessionAttribute(value = "tagger") Tagger tagger) {
 
 		final String ext = pins.getContentType().split("/")[1];
-		String des = UUID.randomUUID() + "." + ext;
-		File dest = new File(pinPath + des);
+		final String uuidPinName = UUID.randomUUID() + "." + ext;
+		File dest = new File(pinPath + uuidPinName);
+		boolean visi;
 
 		try {
 			BufferedInputStream bis = new BufferedInputStream(pins.getInputStream());
@@ -85,68 +90,57 @@ public class PinController {
 			Thread.sleep(1000);
 			BufferedImage newbi = ImageUtil.checkImage(dest, ImageUtil.getOrientation(dest));
 
-			/* List<Sys_tagVO> systemTagList; */
-
-			/* 구글 비전에서 시스탬 태그를 획득한다. */
-			/*
-			 * systemTagList = googleVisionAPI.getImageLabels(
-			 * "classpath:static/pins/" + des);
-			 */
-
-			boolean visi;
-
+			/* appliedTagList 리스트 마지막에 삽입된 가시성 여부를 가져온다. */
 			if (appliedTagList.get(appliedTagList.size() - 1).equals("true"))
 				visi = true;
 			else
 				visi = false;
 
-			pm.insertPin(new PinVO(des, ui,
+			/* 구글 비전에서 시스탬 태그를 획득한다. */
+			List<Sys_tagVO> systemTagList;
+
+			systemTagList = googleVisionAPI.getImageLabels(
+					"classpath:static/pins/" + uuidPinName);
+
+			/* db의 pin 테이블에 insert한다. */
+			pm.insertPin(new PinVO(uuidPinName, ui,
 					ImageUtil.getResolutionRatio(newbi.getWidth(),
 							newbi.getHeight()),
 					visi));
 
-			if (appliedTagList.size() >= 3) {
-				List<TagVO> l = new ArrayList<>();
-				for (int idx = 1; idx < appliedTagList.size() - 1; idx++)
-					l.add(new TagVO(des, appliedTagList.get(idx)));
-				tm.insertTag(l);
-			} else {
-				List<String> l = new ArrayList<>();
-				l.add(des);
-				tm.insertTagNone(l);
-			}
+			/* 시스템 태그를 insert 한다. */
+			for (Sys_tagVO s : systemTagList)
+				s.setPinName(uuidPinName);
+			stm.insertSystag(systemTagList);
 
-			/* 시스템 태그를 foreach insert 한다. */
-			/*
-			 * for (Sys_tagVO s : systemTagList)
-			 * s.setPinName(des);
-			 * stm.insertSystag(systemTagList);
-			 */
+			tagger.doAutoTagging(appliedTagList, systemTagList, uuidPinName);
 
+			/* 썸네일을 저장한다. */
+			/* 이부분도 스트림으로 바꿔줘야 한다. */
 			if (ext.equals("png")) {
 
-				ImageUtil.pngToJpg(pinPath + des, thumbnailPath + des);
+				ImageUtil.pngToJpg(pinPath + uuidPinName, thumbnailPath + uuidPinName);
 
 				Thread.sleep(3000);
-				if (!new File(thumbnailPath + des).exists())
+				if (!new File(thumbnailPath + uuidPinName).exists())
 					Thread.sleep(2000);
 
-				ImageUtil.compress(ImageUtil.changeExtension(thumbnailPath + des, "jpg"));
+				ImageUtil.compress(ImageUtil.changeExtension(thumbnailPath + uuidPinName, "jpg"));
 			} else {
-				ImageUtil.compress(pinPath + des,
-						ImageUtil.changeExtension(thumbnailPath + des, "jpg"));
+				ImageUtil.compress(pinPath + uuidPinName,
+						ImageUtil.changeExtension(thumbnailPath + uuidPinName, "jpg"));
 			}
 
 		} catch (IllegalStateException e) {
 			e.printStackTrace();
 		} catch (IOException e1) {
-			logger.error("Generated IOException during the save " + des);
+			logger.error("Generated IOException during the save " + uuidPinName);
 			e1.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (org.springframework.cloud.gcp.vision.CloudVisionException e) {
 			e.printStackTrace();
-			logger.error("Generated cloud.gcp.vision.CloudVisionException during the save " + des);
+			logger.error("Generated cloud.gcp.vision.CloudVisionException during the save " + uuidPinName);
 			dest.delete();
 			return "{ \"response\" : \"fail\"}";
 		} catch (Exception e) {
@@ -161,16 +155,26 @@ public class PinController {
 		int cs = 0;
 
 		List<PinInfoObject> l;
+		List<String> taglist;
 		if (visibility.equals("true")) {
 			l = tm.getPininfoListByUploaderAll(ui);
-			model.addAttribute("taglist", tm.findTagByUseridAll(ui));
+			taglist = tm.findTagByUseridAll(ui);
+			model.addAttribute("taglist", taglist);
 		} else {
 			l = tm.getPininfoListByUploaderOnlyPublic(ui);
-			model.addAttribute("taglist", tm.findTagByUseridOnlyPublic(ui));
+			taglist = tm.findTagByUseridOnlyPublic(ui);
+			model.addAttribute("taglist", taglist);
 		}
 
-		model.addAttribute("validTaglist", new ArrayList<Object>());
+		List<Integer> listForTagColor = new ArrayList<Integer>();
+		int n = 1;
+		for (int idx = 0; idx < taglist.size(); idx++) {
+			listForTagColor.add(n++);
+			if (n == 5)
+				n = 1;
+		}
 
+		model.addAttribute("listForTagColor", listForTagColor);
 		model.addAttribute("allpinlist", l);
 		model.addAttribute("allpinsize", l.size());
 
@@ -184,7 +188,7 @@ public class PinController {
 		return new ModelAndView("PinViewer");
 	}
 
-	@RequestMapping(value = "/morePins") /* 8개씩 로딩 */
+	@RequestMapping(value = "/morePins") /* 16개씩 로딩 */
 	public @ResponseBody String morePinsRequest(@SessionAttribute("user_id") String ui,
 			@RequestBody String jsonImageRequest) {
 		JSONParser parser = new JSONParser();
@@ -213,8 +217,7 @@ public class PinController {
 
 	@RequestMapping(value = "/search") /* 최대16개 로딩 */
 	public @ResponseBody String changeSearchPredicate(Model model, @RequestBody String jsonTagRequest,
-			@SessionAttribute(value = "user_id") String ui,
-			@SessionAttribute(value = "validTaglist") List<Object> vtl) {
+			@SessionAttribute(value = "user_id") String ui) {
 		JSONParser parser = new JSONParser();
 		JSONObject responseJsonObject = new JSONObject();
 		responseJsonObject.put("imageDataList", new JSONArray());
@@ -230,8 +233,6 @@ public class PinController {
 			List<String> ls = new ArrayList<>();
 			for (Object o : l)
 				ls.add(o.toString());
-
-			model.addAttribute("validTaglist", l);
 
 			List<PinInfoObject> piol;
 
@@ -419,8 +420,42 @@ public class PinController {
 	}
 
 	@RequestMapping(value = "/deletePin")
-	public @ResponseBody String deletePin(@SessionAttribute(value = "user_id") String ui) {
+	public @ResponseBody String deletePin(@SessionAttribute(value = "user_id") String ui,
+			@RequestParam(value = "deletepinlist[]") List<String> s) {
+		List<String> uploaderList = tm.checkPinHostUser(s);
+		try {
+			BufferedInputStream bis;
+			BufferedOutputStream bos;
+
+			for (String uploader : uploaderList) {
+				if (!uploader.equals(ui))
+					return "fail";
+			}
+			pm.deletePins(s);
+			for (String pinName : s) {
+				bis = new BufferedInputStream(new FileInputStream(new File(pinPath + pinName)));
+				bos = new BufferedOutputStream(new FileOutputStream(new File(trashPath + pinName)));
+				int bytesRead = 0;
+				byte[] buffer = new byte[1024];
+				while ((bytesRead = bis.read(buffer, 0, 1024)) != -1)
+					bos.write(buffer, 0, bytesRead);
+				bos.close();
+				bis.close();
+				new File(pinPath + pinName).delete();
+				new File(thumbnailPath + ImageUtil.changeExtension(pinName, "jpg")).delete();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		return "";
+	}
+
+	@RequestMapping(value = "/Main")
+	public ModelAndView moveMain(HttpSession s) {
+		ModelAndView mav = new ModelAndView("Main");
+		return mav;
 	}
 }

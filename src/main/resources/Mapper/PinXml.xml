@@ -14,4 +14,11 @@
 		from pin
 		where uploader = #{map.user_id} and pinName = #{map.pinName}
 	</select>
+
+	<delete id="deletePins" parameterType="java.util.List">
+		delete from pin where pinName in
+		<foreach collection="list" index="index" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</delete>
 </mapper>

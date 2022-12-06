@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Mapper
 public interface Sys_tagMapper {
 	public void insertSystag(List<Sys_tagVO> l);
+
+	public List<Sys_tagVO> getSystagListByPinNames(List<String> l);
 }

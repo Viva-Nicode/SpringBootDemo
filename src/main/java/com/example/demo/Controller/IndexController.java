@@ -25,11 +25,16 @@ public class IndexController {
 
 	@RequestMapping(value = "/")
 	public ModelAndView indexRequest(HttpSession s) {
+		ModelAndView mav;
 
-		ModelAndView mav = new ModelAndView("../static/index");
-		
-		s.setAttribute("PATH", "localhost");
 		/* s.setAttribute("PATH", "116.39.246.101"); */
+		s.setAttribute("PATH", "localhost");
+		String ui = s.getAttribute("user_id") + "";
+		if (ui.equals("null")) {
+			mav = new ModelAndView("../static/index");
+		} else {
+			mav = new ModelAndView("redirect:/Pin/Main");
+		}
 		return mav;
 	}
 }

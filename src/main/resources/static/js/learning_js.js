@@ -26,45 +26,45 @@ var startTimer, startTime;
 let submitExUseJs;
 let encryptionObject = encryptorFunc();
 let printCookies;
-window.onload = function() {
-  var startBtn = document.getElementById('start');  // start button
-  var stopBtn = document.getElementById('stop');    // stop button
-  var timerLabel = document.getElementById(
-      'timeLabel');  // for to show elapsed time that until click the start
-                     // button and click stop button
+window.onload = function () {
+	var startBtn = document.getElementById('start');  // start button
+	var stopBtn = document.getElementById('stop');    // stop button
+	var timerLabel = document.getElementById(
+		'timeLabel');  // for to show elapsed time that until click the start
+	// button and click stop button
 
-  submitExUseJs = function() {
-    let form = document.getElementById('loginform');
-    let user_id = form.user_id.value;
-    let user_pw = form.user_pw.value;
+	submitExUseJs = function () {
+		let form = document.getElementById('loginform');
+		let user_id = form.user_id.value;
+		let user_pw = form.user_pw.value;
 
-    if (user_id === '' || user_pw === '')
-      alert('please insert id or pw');
-    else {
-		form.method = 'post';
-		form.action = 'login';
-		form.submit();
-    }
-  };
-  function startFunc() {
-    startBtn.onclick = null;
-    startTime = new Date();
-    startTimer = window.setInterval(function() {
-      var now = new Date();
-      timerLabel.innerText = ((now - startTime) / 1000).toFixed(2);
-    })
-  };
+		if (user_id === '' || user_pw === '')
+			alert('please insert id or pw');
+		else {
+			form.method = 'post';
+			form.action = 'login';
+			form.submit();
+		}
+	};
+	function startFunc() {
+		startBtn.onclick = null;
+		startTime = new Date();
+		startTimer = window.setInterval(function () {
+			var now = new Date();
+			timerLabel.innerText = ((now - startTime) / 1000).toFixed(2);
+		})
+	};
 
-  function stopFunc() {
-    startBtn.onclick = startFunc;
-    window.clearInterval(startTimer);
-  };
+	function stopFunc() {
+		startBtn.onclick = startFunc;
+		window.clearInterval(startTimer);
+	};
 
-  printCookies = function(){
-	let cookies = document.cookie;
-	alert(cookies);
-  }
+	printCookies = function () {
+		let cookies = document.cookie;
+		alert(cookies);
+	}
 
-  startBtn.onclick = startFunc;
-  stopBtn.onclick = stopFunc;
+	startBtn.onclick = startFunc;
+	stopBtn.onclick = stopFunc;
 } 

@@ -10,6 +10,6 @@
 	<select id="findByPostid" parameterType="int" resultType="String">
 		select imagename
 		from PostImage
-		where postid = #{postid}
+		where postid = #{postid} 
 	</select>
 </mapper>

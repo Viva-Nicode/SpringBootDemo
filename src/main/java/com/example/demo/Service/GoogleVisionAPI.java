@@ -44,7 +44,7 @@ public class GoogleVisionAPI {
 									throw new IllegalStateException(String.format("Duplicate key %s", u));
 								},
 								LinkedHashMap::new));
-		for (Entry<String, Float> elem : imageLabels.entrySet()) 
+		for (Entry<String, Float> elem : imageLabels.entrySet())
 			systemTagList.add(new Sys_tagVO(elem.getKey(), elem.getValue()));
 		return systemTagList;
 	}

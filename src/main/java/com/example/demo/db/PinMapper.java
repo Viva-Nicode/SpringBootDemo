@@ -14,4 +14,6 @@ public interface PinMapper {
 	public void insertPin(PinVO p);
 
 	public List<PinVO> checkPinByUserid(@Param("map") Map<String, String> m);
+
+	public int deletePins(List<String> l);
 }

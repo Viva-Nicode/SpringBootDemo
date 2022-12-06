@@ -194,9 +194,6 @@ public class ImageUtil {
 		 * height : 1080
 		 */
 		float ratio = (float)height / width;
-		System.out.println(width);
-		System.out.println(height);
-		System.out.println(ratio);
 
 		if (ratio <= 1.1f)
 			return 1;

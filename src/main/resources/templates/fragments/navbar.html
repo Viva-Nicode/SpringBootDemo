@@ -15,7 +15,7 @@
 
 	function move(elem) {
 		if (elem.name == "home-outline") {
-			location.href = '/AllUserPinsViewer'
+			location.href = '/Pin/Main'
 		} else if (elem.name == 'person-circle-outline') {
 			location.href = '/Account/moveSignupPage'
 		} else if (elem.name == 'images-outline') {
@@ -52,7 +52,7 @@
 						<span class="icon">
 							<ion-icon type="button" onclick="move(this)" name="home-outline" style="color: black; font-size:30px; text-align: center;"></ion-icon>
 						</span>
-						<a class="nav-link active" aria-current="page" th:href="@{/AllUserPinsViewer}" style="font-family: 'Noto Sans KR', sans-serif; margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Home</a>
+						<a class="nav-link active" aria-current="page" th:href="@{/Pin/Main}" style="font-family: 'Noto Sans KR', sans-serif; margin-top: -8px; padding-top: 0px; padding-bottom: 0px;">Home</a>
 					</li>
 					<th:block th:if="${session.user_id == null}">
 						<li class="nav-item" style="text-align: center;">
