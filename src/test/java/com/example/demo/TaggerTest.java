@@ -21,6 +21,7 @@ public class TaggerTest {
 	@RepeatedTest(5)
 	@Transactional
 	public void doTest(){
+
 		System.out.println("test ex");
 	}
 }
