@@ -1,6 +1,9 @@
 package com.example.demo.Controller;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -96,8 +99,16 @@ public class PostController {
 			File dest = new File(
 					"/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/upload/" + des);
 			try {
-				f.transferTo(dest);
-				Thread.sleep(5000);/* 바로위 파일 입출력이 너무 느려서 어쩔 수없이 넣어준 sleep */
+				BufferedInputStream bis = new BufferedInputStream(f.getInputStream());
+				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dest));
+
+				int bytesRead = 0;
+				byte[] buffer = new byte[1024];
+				while ((bytesRead = bis.read(buffer, 0, 1024)) != -1)
+					bos.write(buffer, 0, bytesRead);
+				bos.close();
+				bis.close();
+				Thread.sleep(1000);/* 바로위 파일 입출력이 너무 느려서 어쩔 수없이 넣어준 sleep */
 
 			} catch (IllegalStateException | IOException | InterruptedException e) {
 				e.printStackTrace();
