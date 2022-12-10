@@ -6,9 +6,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 import static java.lang.System.out;
 import com.example.demo.db.Sys_tagMapper;
@@ -16,12 +21,14 @@ import com.example.demo.db.Sys_tagVO;
 import com.example.demo.db.TagMapper;
 import com.example.demo.db.TagVO;
 
+import groovy.lang.Singleton;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@SessionScope
 public class Tagger {
-
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private Map<String, List<Sys_tagVO>> tagAndSystagListMap;
 	@Autowired
 	private final Sys_tagMapper systemTagMapper;
@@ -35,6 +42,20 @@ public class Tagger {
 
 	public void setTagmap(Map<String, List<Sys_tagVO>> m) {
 		this.tagAndSystagListMap = m;
+	}
+
+	public void printInfo() {
+		if (tagAndSystagListMap.isEmpty()) {
+			out.println("map is empty");
+			return;
+		}
+		Set<String> pinSet = new HashSet<>();
+		for (Map.Entry<String, List<Sys_tagVO>> elem : tagAndSystagListMap.entrySet()) {
+			pinSet.clear();
+			for (Sys_tagVO t : elem.getValue())
+				pinSet.add(t.getEngSysTag());
+			out.println(elem.getKey() + " " + pinSet.size());
+		}
 	}
 
 	public void bindingRepresentKeywordsAtSession(String user_id) {
@@ -52,22 +73,15 @@ public class Tagger {
 
 		this.tagAndSystagListMap = tagAndSystagListMap;
 
-		/*
-		 * out.println("최초 맵 : ");
-		 * for (Map.Entry<String, List<Sys_tagVO>> elem :
-		 * tagAndSystagListMap.entrySet()) {
-		 * out.println(elem.getKey());
-		 * for (Sys_tagVO t : elem.getValue())
-		 * out.println(t.getPinName() + " " + t.getEngSysTag());
-		 * }
-		 */
-
 	}
 
-	public void doAutoTagging(List<String> appliedTagList, List<Sys_tagVO> systemTagList, String desPinName) {
+	public Set<String> doAutoTagging(List<String> appliedTagList, List<Sys_tagVO> systemTagList, String desPinName) {
 		/* 최종적으로 업로드된 핀에 삽입될 태그들이 담길 집합 */
 		HashSet<String> tagSet = new HashSet<>();
 
+		for (Sys_tagVO t : systemTagList) {
+			out.println(t.getEngSysTag());
+		}
 		/* 업로드된 핀은 어떤핀과 일치한다, 일치하지않는다 정보를 담는 맵 */
 		Map<String, Boolean> agreementCounterMap = new HashMap<>();
 
@@ -91,6 +105,7 @@ public class Tagger {
 				continue;
 
 			for (Sys_tagVO t : elem.getValue()) {
+				out.println(t.getEngSysTag());
 				/* 일단 false로 넣어주고 */
 				if (!agreementCounterMap.containsKey(t.getPinName()))
 					agreementCounterMap.put(t.getPinName(), false);
@@ -100,6 +115,9 @@ public class Tagger {
 						.filter(t1 -> t1.getEngSysTag().equals(t.getEngSysTag())).findFirst().isPresent())
 					agreementCounterMap.put(t.getPinName(), true);
 			}
+			logger.info("tagName : " + elem.getKey());
+			logger.info("일치율 : " + ((double) agreementCounterMap.entrySet().stream().filter(o -> o.getValue()).count())
+					/ ((double) agreementCounterMap.size()));
 
 			/* 일치해서 true가 되버린 핀의 비율을 계산해서 0.8이상이면 오토태강된다. */
 			if (((double) agreementCounterMap.entrySet().stream().filter(o -> o.getValue()).count())
@@ -125,7 +143,7 @@ public class Tagger {
 			}
 			tagMapper.insertTag(l);
 		}
-
+		return tagSet;
 	}
 
 	public static class TagMatchPinListInnerClass {

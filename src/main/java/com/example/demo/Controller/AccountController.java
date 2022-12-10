@@ -59,7 +59,7 @@ public class AccountController {
 	private final PostInfoMapper pm;
 	private final CommentsMapper cm;
 	private final TagMapper tm;
-	private final Tagger representingKeywordSessionBinder;
+	private final Tagger tagger;
 
 	@RequestMapping(value = "/moveSignupPage")
 	public ModelAndView moveSignupPage() {
@@ -166,8 +166,8 @@ public class AccountController {
 			logger.info(req.getParameter("user_id") + " is login");
 			s.setAttribute("user_id", req.getParameter("user_id"));
 			s.setAttribute("profileImageName", um.findUserByID(req.getParameter("user_id")).get(0).getProfile());
-			representingKeywordSessionBinder.bindingRepresentKeywordsAtSession(req.getParameter("user_id"));
-			s.setAttribute("tagger", representingKeywordSessionBinder);
+			tagger.bindingRepresentKeywordsAtSession(req.getParameter("user_id"));
+
 			return result + "";
 		} else {
 			return result + "";

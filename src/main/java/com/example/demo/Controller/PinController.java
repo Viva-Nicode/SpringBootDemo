@@ -65,28 +65,30 @@ public class PinController {
 	private final String pinPath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/pins/";
 	private final String thumbnailPath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/Thumbnail/";
 	private final String trashPath = "/Users/nicode./MainSpace/SpringBootDemo/demo/src/main/resources/static/deleted/";
+	private final Tagger tagger;
 
 	@RequestMapping(value = "/uploadPins")
 	public @ResponseBody String uploadPins(@RequestParam(value = "pins") MultipartFile pins,
 			@RequestParam(value = "appliedTagList") List<String> appliedTagList,
-			@SessionAttribute(value = "user_id") String ui, @SessionAttribute(value = "tagger") Tagger tagger) {
+			@SessionAttribute(value = "user_id") String ui) {
 
 		final String ext = pins.getContentType().split("/")[1];
 		final String uuidPinName = UUID.randomUUID() + "." + ext;
 		File dest = new File(pinPath + uuidPinName);
 		boolean visi;
-
+		
 		try {
-			BufferedInputStream bis = new BufferedInputStream(pins.getInputStream());
-			BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dest));
+			synchronized (this) {
+				BufferedInputStream bis = new BufferedInputStream(pins.getInputStream());
+				BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dest));
 
-			int bytesRead = 0;
-			byte[] buffer = new byte[1024];
-			while ((bytesRead = bis.read(buffer, 0, 1024)) != -1)
-				bos.write(buffer, 0, bytesRead);
-			bos.close();
-			bis.close();
-
+				int bytesRead = 0;
+				byte[] buffer = new byte[1024];
+				while ((bytesRead = bis.read(buffer, 0, 1024)) != -1)
+					bos.write(buffer, 0, bytesRead);
+				bos.close();
+				bis.close();
+			}
 			Thread.sleep(1000);
 			BufferedImage newbi = ImageUtil.checkImage(dest, ImageUtil.getOrientation(dest));
 

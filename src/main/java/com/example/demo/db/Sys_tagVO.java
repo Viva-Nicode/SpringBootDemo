@@ -37,4 +37,7 @@ public class Sys_tagVO {
 		this.engSysTag = engSysTag;
 		this.importanceFraction = importanceFraction;
 	}
+
+	
+
 }
